@@ -192,20 +192,20 @@ export function SimulationPreview() {
                   <defs>
                     {/* Gradients for dynamic depth levels */}
                     <linearGradient id="depthLevel1" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0284c7" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#0369a1" stopOpacity="0.1" />
+                      <stop offset="0%" stopColor="#16a34a" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#14532d" stopOpacity="0.15" />
                     </linearGradient>
                     <linearGradient id="depthLevel2" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0284c7" stopOpacity="0.6" />
-                      <stop offset="100%" stopColor="#082f49" stopOpacity="0.3" />
+                      <stop offset="0%" stopColor="#16a34a" stopOpacity="0.55" />
+                      <stop offset="100%" stopColor="#14532d" stopOpacity="0.35" />
                     </linearGradient>
                     <linearGradient id="depthLevel3" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#0369a1" stopOpacity="0.5" />
+                      <stop offset="0%" stopColor="#22c55e" stopOpacity="0.75" />
+                      <stop offset="100%" stopColor="#15803d" stopOpacity="0.5" />
                     </linearGradient>
                     <linearGradient id="depthLevel4" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="#0284c7" stopOpacity="0.7" />
+                      <stop offset="0%" stopColor="#4ade80" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#16a34a" stopOpacity="0.65" />
                     </linearGradient>
 
                     <radialGradient id="sensorAura" cx="50%" cy="50%" r="50%">
@@ -266,16 +266,16 @@ export function SimulationPreview() {
                     <g className="transition-all duration-700 ease-in-out">
                       {currentStep.floodZones.map((zone) => {
                         let fillUrl = "url(#depthLevel1)";
-                        let strokeColor = "#0284c7";
+                        let strokeColor = "#16a34a";
                         if (zone.depthLevel === 2) {
                           fillUrl = "url(#depthLevel2)";
-                          strokeColor = "#0ea5e9";
+                          strokeColor = "#22c55e";
                         } else if (zone.depthLevel === 3) {
                           fillUrl = "url(#depthLevel3)";
-                          strokeColor = "#06b6d4";
+                          strokeColor = "#4ade80";
                         } else if (zone.depthLevel === 4) {
                           fillUrl = "url(#depthLevel4)";
-                          strokeColor = "#38bdf8";
+                          strokeColor = "#86efac";
                         }
 
                         return (
@@ -388,13 +388,13 @@ export function SimulationPreview() {
                     Water Depth (h)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-sky-900/50 border border-sky-700" />
+                    <span className="w-3 h-3 rounded bg-emerald-950/70 border border-emerald-700" />
                     <span>0.1m</span>
-                    <span className="w-3 h-3 rounded bg-cyan-700 border border-cyan-500" />
+                    <span className="w-3 h-3 rounded bg-emerald-800 border border-emerald-500" />
                     <span>0.5m</span>
-                    <span className="w-3 h-3 rounded bg-cyan-500 border border-cyan-300" />
+                    <span className="w-3 h-3 rounded bg-emerald-600 border border-emerald-400" />
                     <span>1.0m</span>
-                    <span className="w-3 h-3 rounded bg-sky-300 border border-white" />
+                    <span className="w-3 h-3 rounded bg-emerald-400 border border-emerald-200" />
                     <span>&gt;1.5m</span>
                   </div>
                 </div>

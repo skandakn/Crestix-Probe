@@ -27,7 +27,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Sector Delta (Underpass Ingress)", elevationM: 5.1, waterDepthM: 0.01, surfaceVelocityMs: 0.05, status: "nominal" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 180,240 Q 220,230 260,245 T 320,250", depthLevel: 1, velocityVector: { x: 0.2, y: 0.1 } },
+          { id: "fz-1", path: "M 180,228 H 320 V 258 H 180 Z", depthLevel: 1, velocityVector: { x: 0.2, y: 0.1 } },
         ],
       },
       {
@@ -43,8 +43,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Sector Delta (Underpass Ingress)", elevationM: 5.1, waterDepthM: 0.15, surfaceVelocityMs: 0.62, status: "nominal" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 150,220 Q 220,190 290,225 T 380,230 L 370,270 Q 280,260 200,275 Z", depthLevel: 2, velocityVector: { x: 0.6, y: 0.3 } },
-          { id: "fz-2", path: "M 420,160 Q 480,140 540,170 T 600,180 L 590,210 Q 510,195 430,205 Z", depthLevel: 1, velocityVector: { x: 0.4, y: 0.2 } },
+          { id: "fz-1", path: "M 150,200 H 380 V 275 H 150 Z", depthLevel: 2, velocityVector: { x: 0.6, y: 0.3 } },
+          { id: "fz-2", path: "M 420,150 H 600 V 210 H 420 Z", depthLevel: 1, velocityVector: { x: 0.4, y: 0.2 } },
         ],
       },
       {
@@ -60,9 +60,9 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Sector Delta (Underpass Ingress)", elevationM: 5.1, waterDepthM: 0.62, surfaceVelocityMs: 1.48, status: "rising" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 110,200 Q 210,160 310,210 T 430,215 L 420,310 Q 290,295 160,320 Z", depthLevel: 3, velocityVector: { x: 1.4, y: 0.8 } },
-          { id: "fz-2", path: "M 390,130 Q 480,105 570,145 T 670,160 L 650,240 Q 530,220 400,235 Z", depthLevel: 2, velocityVector: { x: 0.9, y: 0.5 } },
-          { id: "fz-3", path: "M 240,290 Q 320,270 410,295 T 490,320 L 470,360 Q 350,350 250,370 Z", depthLevel: 2, velocityVector: { x: 1.1, y: 0.6 } },
+          { id: "fz-1", path: "M 110,175 H 430 V 315 H 110 Z", depthLevel: 3, velocityVector: { x: 1.4, y: 0.8 } },
+          { id: "fz-2", path: "M 390,120 H 670 V 240 H 390 Z", depthLevel: 2, velocityVector: { x: 0.9, y: 0.5 } },
+          { id: "fz-3", path: "M 240,280 H 490 V 365 H 240 Z", depthLevel: 2, velocityVector: { x: 1.1, y: 0.6 } },
         ],
       },
       {
@@ -78,9 +78,9 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Sector Delta (Underpass Ingress)", elevationM: 5.1, waterDepthM: 1.38, surfaceVelocityMs: 2.15, status: "critical" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 80,180 Q 210,130 330,195 T 480,200 L 460,340 Q 300,320 130,350 Z", depthLevel: 4, velocityVector: { x: 1.9, y: 1.1 } },
-          { id: "fz-2", path: "M 360,110 Q 480,80 600,125 T 720,140 L 700,270 Q 550,245 370,265 Z", depthLevel: 3, velocityVector: { x: 1.4, y: 0.7 } },
-          { id: "fz-3", path: "M 200,270 Q 320,240 440,275 T 550,305 L 530,390 Q 380,380 210,400 Z", depthLevel: 4, velocityVector: { x: 1.7, y: 0.9 } },
+          { id: "fz-1", path: "M 80,150 H 480 V 345 H 80 Z", depthLevel: 4, velocityVector: { x: 1.9, y: 1.1 } },
+          { id: "fz-2", path: "M 360,95 H 720 V 265 H 360 Z", depthLevel: 3, velocityVector: { x: 1.4, y: 0.7 } },
+          { id: "fz-3", path: "M 200,255 H 550 V 395 H 200 Z", depthLevel: 4, velocityVector: { x: 1.7, y: 0.9 } },
         ],
       },
       {
@@ -96,9 +96,9 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Sector Delta (Underpass Ingress)", elevationM: 5.1, waterDepthM: 1.69, surfaceVelocityMs: 1.80, status: "critical" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 60,160 Q 200,110 350,180 T 520,185 L 490,360 Q 310,340 100,370 Z", depthLevel: 4, velocityVector: { x: 1.5, y: 0.8 } },
-          { id: "fz-2", path: "M 330,90 Q 470,60 620,110 T 750,125 L 730,290 Q 560,265 340,285 Z", depthLevel: 4, velocityVector: { x: 1.2, y: 0.6 } },
-          { id: "fz-3", path: "M 180,250 Q 310,220 460,255 T 590,285 L 560,410 Q 390,400 180,420 Z", depthLevel: 4, velocityVector: { x: 1.3, y: 0.7 } },
+          { id: "fz-1", path: "M 60,130 H 520 V 365 H 60 Z", depthLevel: 4, velocityVector: { x: 1.5, y: 0.8 } },
+          { id: "fz-2", path: "M 330,75 H 750 V 285 H 330 Z", depthLevel: 4, velocityVector: { x: 1.2, y: 0.6 } },
+          { id: "fz-3", path: "M 180,235 H 590 V 415 H 180 Z", depthLevel: 4, velocityVector: { x: 1.3, y: 0.7 } },
         ],
       },
     ],
@@ -126,7 +126,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Retention Basin Weir", elevationM: 9.8, waterDepthM: 0.01, surfaceVelocityMs: 0.05, status: "nominal" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 280,260 Q 320,250 360,265 T 410,270", depthLevel: 1, velocityVector: { x: 0.1, y: 0.1 } },
+          { id: "fz-1", path: "M 280,248 H 410 V 275 H 280 Z", depthLevel: 1, velocityVector: { x: 0.1, y: 0.1 } },
         ],
       },
       {
@@ -142,7 +142,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Retention Basin Weir", elevationM: 9.8, waterDepthM: 0.08, surfaceVelocityMs: 0.2, status: "nominal" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 240,240 Q 320,220 390,245 T 460,250 L 450,290 Q 370,280 260,295 Z", depthLevel: 1, velocityVector: { x: 0.4, y: 0.2 } },
+          { id: "fz-1", path: "M 240,230 H 460 V 295 H 240 Z", depthLevel: 1, velocityVector: { x: 0.4, y: 0.2 } },
         ],
       },
       {
@@ -158,7 +158,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Retention Basin Weir", elevationM: 9.8, waterDepthM: 0.34, surfaceVelocityMs: 0.7, status: "rising" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 200,210 Q 310,180 420,225 T 510,230 L 490,320 Q 380,310 210,335 Z", depthLevel: 2, velocityVector: { x: 0.9, y: 0.4 } },
+          { id: "fz-1", path: "M 200,195 H 510 V 330 H 200 Z", depthLevel: 2, velocityVector: { x: 0.9, y: 0.4 } },
         ],
       },
       {
@@ -174,8 +174,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Retention Basin Weir", elevationM: 9.8, waterDepthM: 0.72, surfaceVelocityMs: 1.2, status: "rising" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 160,180 Q 300,150 450,205 T 560,210 L 530,350 Q 400,340 180,370 Z", depthLevel: 3, velocityVector: { x: 1.3, y: 0.7 } },
-          { id: "fz-2", path: "M 320,290 Q 420,270 510,295 T 590,320 L 570,380 Q 450,370 330,390 Z", depthLevel: 2, velocityVector: { x: 0.8, y: 0.4 } },
+          { id: "fz-1", path: "M 160,165 H 560 V 365 H 160 Z", depthLevel: 3, velocityVector: { x: 1.3, y: 0.7 } },
+          { id: "fz-2", path: "M 320,280 H 590 V 385 H 320 Z", depthLevel: 2, velocityVector: { x: 0.8, y: 0.4 } },
         ],
       },
       {
@@ -191,8 +191,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Retention Basin Weir", elevationM: 9.8, waterDepthM: 0.88, surfaceVelocityMs: 1.4, status: "critical" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 140,160 Q 290,130 470,190 T 580,200 L 550,370 Q 410,360 160,390 Z", depthLevel: 4, velocityVector: { x: 1.2, y: 0.6 } },
-          { id: "fz-2", path: "M 300,270 Q 410,250 520,280 T 620,300 L 590,400 Q 470,390 310,410 Z", depthLevel: 3, velocityVector: { x: 0.9, y: 0.5 } },
+          { id: "fz-1", path: "M 140,145 H 580 V 385 H 140 Z", depthLevel: 4, velocityVector: { x: 1.2, y: 0.6 } },
+          { id: "fz-2", path: "M 300,260 H 620 V 405 H 300 Z", depthLevel: 3, velocityVector: { x: 0.9, y: 0.5 } },
         ],
       },
     ],
@@ -220,7 +220,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Embankment Sump", elevationM: 7.2, waterDepthM: 0.08, surfaceVelocityMs: 0.1, status: "nominal" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 100,120 Q 250,110 400,130 T 700,125", depthLevel: 1, velocityVector: { x: 1.5, y: 0.2 } },
+          { id: "fz-1", path: "M 100,112 H 700 V 142 H 100 Z", depthLevel: 1, velocityVector: { x: 1.5, y: 0.2 } },
         ],
       },
       {
@@ -236,7 +236,7 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Embankment Sump", elevationM: 7.2, waterDepthM: 0.28, surfaceVelocityMs: 0.4, status: "rising" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 80,110 Q 240,95 420,120 T 720,115 L 710,180 Q 410,175 90,170 Z", depthLevel: 2, velocityVector: { x: 1.9, y: 0.4 } },
+          { id: "fz-1", path: "M 80,105 H 720 V 175 H 80 Z", depthLevel: 2, velocityVector: { x: 1.9, y: 0.4 } },
         ],
       },
       {
@@ -252,8 +252,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Embankment Sump", elevationM: 7.2, waterDepthM: 0.74, surfaceVelocityMs: 0.9, status: "rising" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 70,100 Q 230,80 430,110 T 740,105 L 720,250 Q 400,240 80,240 Z", depthLevel: 3, velocityVector: { x: 2.3, y: 0.6 } },
-          { id: "fz-2", path: "M 120,240 Q 280,230 460,260 T 680,270 L 660,330 Q 440,320 130,320 Z", depthLevel: 2, velocityVector: { x: 1.1, y: 0.5 } },
+          { id: "fz-1", path: "M 70,95 H 740 V 245 H 70 Z", depthLevel: 3, velocityVector: { x: 2.3, y: 0.6 } },
+          { id: "fz-2", path: "M 120,235 H 680 V 325 H 120 Z", depthLevel: 2, velocityVector: { x: 1.1, y: 0.5 } },
         ],
       },
       {
@@ -269,8 +269,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Embankment Sump", elevationM: 7.2, waterDepthM: 1.35, surfaceVelocityMs: 1.4, status: "critical" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 50,90 Q 220,70 440,100 T 760,95 L 740,310 Q 390,300 60,300 Z", depthLevel: 4, velocityVector: { x: 2.8, y: 0.8 } },
-          { id: "fz-2", path: "M 90,290 Q 270,280 480,310 T 710,320 L 690,400 Q 460,390 100,390 Z", depthLevel: 3, velocityVector: { x: 1.5, y: 0.6 } },
+          { id: "fz-1", path: "M 50,85 H 760 V 305 H 50 Z", depthLevel: 4, velocityVector: { x: 2.8, y: 0.8 } },
+          { id: "fz-2", path: "M 90,285 H 710 V 395 H 90 Z", depthLevel: 3, velocityVector: { x: 1.5, y: 0.6 } },
         ],
       },
       {
@@ -286,8 +286,8 @@ export const SIMULATION_SCENARIOS: SimulationScenario[] = [
           { nodeId: "CX-N04", label: "Embankment Sump", elevationM: 7.2, waterDepthM: 1.72, surfaceVelocityMs: 1.5, status: "critical" },
         ],
         floodZones: [
-          { id: "fz-1", path: "M 40,80 Q 210,60 450,90 T 780,85 L 750,350 Q 380,340 50,340 Z", depthLevel: 4, velocityVector: { x: 2.4, y: 0.7 } },
-          { id: "fz-2", path: "M 70,330 Q 260,320 490,350 T 730,360 L 710,430 Q 470,420 80,420 Z", depthLevel: 4, velocityVector: { x: 1.6, y: 0.5 } },
+          { id: "fz-1", path: "M 40,75 H 780 V 345 H 40 Z", depthLevel: 4, velocityVector: { x: 2.4, y: 0.7 } },
+          { id: "fz-2", path: "M 70,325 H 730 V 425 H 70 Z", depthLevel: 4, velocityVector: { x: 1.6, y: 0.5 } },
         ],
       },
     ],
