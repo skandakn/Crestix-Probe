@@ -19,7 +19,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/");
 
-    await expect(page.locator("h1")).toContainText(/Real-Time Urban Flood Forecasting/i);
+    await expect(
+      page.getByRole("heading", { name: /Real-Time Urban Flood Forecasting/i })
+    ).toBeVisible();
     expect(consoleErrors).toEqual([]);
 
     // Run axe-core WCAG 2 A/AA scan (excluding color-contrast and pre-existing upstream landing-page findings tracked in QA_TESTING_GUIDE.md)
@@ -64,12 +66,16 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/login");
 
-    await expect(page.locator("h1")).toContainText(/Operator Authentication/i);
+    await expect(
+      page.getByRole("heading", { name: /Operator Authentication/i })
+    ).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
 
     await navigateToCrestixRoute(page, "/register");
-    await expect(page.locator("h1")).toContainText(/Provision Enclave Profile/i);
+    await expect(
+      page.getByRole("heading", { name: /Provision Enclave Profile/i })
+    ).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]').first()).toBeVisible();
   });
@@ -129,23 +135,26 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/simulation");
 
-    await expect(page.locator("h1")).toContainText(/Flood Simulation Workspace/i);
-    await expect(page.getByText(/Status:\s*idle/i)).toBeVisible();
+    const main = page.getByRole("main");
+    await expect(
+      page.getByRole("heading", { name: /Flood Simulation Workspace/i })
+    ).toBeVisible();
+    await expect(main.getByText(/Status:\s*idle/i)).toBeVisible();
 
     await page.getByRole("button", { name: /Launch Simulation/i }).click();
-    await expect(page.getByText(/Status:\s*completed/i)).toBeVisible({ timeout: 15000 });
+    await expect(main.getByText(/Status:\s*completed/i)).toBeVisible({ timeout: 15000 });
 
     const resetBtn = page.getByRole("button", { name: /Reset Simulation/i });
     await expect(resetBtn).toBeEnabled();
     await resetBtn.click();
-    await expect(page.getByText(/Status:\s*idle/i)).toBeVisible();
+    await expect(main.getByText(/Status:\s*idle/i)).toBeVisible();
   });
 
   test("7. Forecasting interface loads and displays horizon predictions", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/forecasting");
 
-    await expect(page.locator("h1")).toContainText(/FORECASTING/i);
+    await expect(page.getByRole("heading", { name: /FORECASTING/i })).toBeVisible();
     await expect(page.getByText(/MEMBER 6: AI HYDRODYNAMICS/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Simulation Studio/i })).toBeVisible();
   });
@@ -156,10 +165,13 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/sensors");
 
-    await expect(page.locator("h1")).toContainText(/Live Hardware Sensor Monitoring/i);
-    await expect(page.getByText(/1\. Measured Distance/i)).toBeVisible();
-    await expect(page.getByText(/2\. Calculated Water Depth/i)).toBeVisible();
-    await expect(page.getByText(/3\. Ambient Temperature/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Live Hardware Sensor Monitoring/i })
+    ).toBeVisible();
+    const cardsRegion = page.getByRole("region", { name: "Live sensor measurement cards" });
+    await expect(cardsRegion.getByText(/1\. Measured Distance/i)).toBeVisible();
+    await expect(cardsRegion.getByText(/2\. Calculated Water Depth/i)).toBeVisible();
+    await expect(cardsRegion.getByText(/3\. Ambient Temperature/i)).toBeVisible();
 
     // Switch measurement position from P2 to P1
     await page.getByRole("button", { name: /P1\s+Ref:/i }).click();
@@ -190,7 +202,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await page.getByRole("button", { name: /Live HTTP API/i }).click();
     await page.getByRole("button", { name: /Launch Simulation/i }).click();
 
-    await expect(page.getByText(/Simulation Execution Error/i)).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole("main").getByText(/Simulation Execution Error/i)
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test("11. Mobile layout works without horizontal overflow and supports drawer navigation", async ({

@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 
 // Mock HTMLCanvasElement.prototype.getContext for jsdom
 HTMLCanvasElement.prototype.getContext = (() => {

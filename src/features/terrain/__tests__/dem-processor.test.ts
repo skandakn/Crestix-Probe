@@ -1,4 +1,4 @@
-import test from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert';
 import { processDEM } from '../processing/dem-processor';
 import { calculateSlopeAndAspect } from '../processing/slope-calculator';

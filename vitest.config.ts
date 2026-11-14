@@ -15,9 +15,6 @@ export default defineConfig({
       ".next",
       "e2e/**",
       "backend/**",
-      "src/features/forecasting/__tests__/**",
-      "src/features/terrain/**",
-      "src/features/sensors/sensors.test.ts",
     ],
     coverage: {
       provider: "v8",
