@@ -252,14 +252,25 @@ export function deriveIndividualSensorHealth(
   ];
 }
 
+export const DEFAULT_HARDWARE_BACKEND_URL = "https://crestix-probe-aqua.onrender.com";
+export const DEFAULT_HARDWARE_INGEST_URL = `${DEFAULT_HARDWARE_BACKEND_URL}/api/sensor/readings`;
+export const DEFAULT_HARDWARE_STREAM_URL = `${DEFAULT_HARDWARE_BACKEND_URL}/api/sensor/stream`;
+
 /**
  * Helper to resolve backend endpoint on server or client.
  */
-function getSensorApiEndpoint(path: string): string {
-  if (typeof window === "undefined" && process.env.BACKEND_URL) {
-    return `${process.env.BACKEND_URL.replace(/\/$/, "")}${path.startsWith("/") ? "" : "/"}${path}`;
+export function getSensorApiEndpoint(path: string, baseUrl?: string): string {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (baseUrl && baseUrl.trim() !== "") {
+    return `${baseUrl.replace(/\/$/, "")}${cleanPath}`;
   }
-  return path;
+  if (typeof window === "undefined" && process.env.BACKEND_URL) {
+    return `${process.env.BACKEND_URL.replace(/\/$/, "")}${cleanPath}`;
+  }
+  if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_SENSOR_API_URL) {
+    return `${process.env.NEXT_PUBLIC_SENSOR_API_URL.replace(/\/$/, "")}${cleanPath}`;
+  }
+  return cleanPath;
 }
 
 /**
@@ -271,13 +282,15 @@ function getSensorApiEndpoint(path: string): string {
  */
 export async function fetchSensorLatest(
   experimentId?: string,
-  position?: MeasurementPositionId
+  position?: MeasurementPositionId,
+  baseUrl?: string
 ): Promise<SensorLatestResponse | null> {
   try {
     const params = new URLSearchParams();
     if (experimentId) params.set("experimentId", experimentId);
     if (position) params.set("position", position);
-    const res = await fetch(getSensorApiEndpoint(`/api/sensor/latest?${params.toString()}`), {
+    const url = getSensorApiEndpoint(`/api/sensor/latest?${params.toString()}`, baseUrl);
+    const res = await fetch(url, {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -290,14 +303,16 @@ export async function fetchSensorLatest(
 export async function fetchSensorHistory(
   experimentId?: string,
   position?: MeasurementPositionId | "ALL",
-  limit: number = 50
+  limit: number = 50,
+  baseUrl?: string
 ): Promise<SensorHistoryResponse | null> {
   try {
     const params = new URLSearchParams();
     if (experimentId) params.set("experimentId", experimentId);
     if (position) params.set("position", position);
     params.set("limit", String(limit));
-    const res = await fetch(getSensorApiEndpoint(`/api/sensor/history?${params.toString()}`), {
+    const url = getSensorApiEndpoint(`/api/sensor/history?${params.toString()}`, baseUrl);
+    const res = await fetch(url, {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -308,10 +323,12 @@ export async function fetchSensorHistory(
 }
 
 export async function postSensorReading(
-  payload: SensorIngestPayload
+  payload: SensorIngestPayload,
+  baseUrl?: string
 ): Promise<{ ok: boolean; reading?: SensorReading; error?: string }> {
   try {
-    const res = await fetch(getSensorApiEndpoint("/api/sensor/readings"), {
+    const url = getSensorApiEndpoint("/api/sensor/readings", baseUrl);
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -328,14 +345,77 @@ export async function postSensorReading(
   }
 }
 
-export async function fetchSensorStatus(): Promise<SensorStatusResponse | null> {
+export async function fetchSensorStatus(baseUrl?: string): Promise<SensorStatusResponse | null> {
   try {
-    const res = await fetch(getSensorApiEndpoint("/api/sensor/status"), { cache: "no-store" });
+    const url = getSensorApiEndpoint("/api/sensor/status", baseUrl);
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as SensorStatusResponse;
   } catch {
     return null;
   }
+}
+
+/**
+ * Establishes a real-time Server-Sent Events (SSE) telemetry connection.
+ * Returns an unsubscription callback.
+ */
+export function connectSensorSseStream(
+  onReading: (reading: SensorReading) => void,
+  onStatusChange?: (state: Esp32ConnectionState) => void,
+  customStreamUrl?: string
+): () => void {
+  if (typeof window === "undefined" || typeof EventSource === "undefined") {
+    return () => {};
+  }
+
+  const endpoint = customStreamUrl || getSensorApiEndpoint("/api/sensor/stream");
+  let eventSource: EventSource | null = null;
+  let isClosed = false;
+
+  try {
+    onStatusChange?.("RECONNECTING");
+    eventSource = new EventSource(endpoint);
+
+    eventSource.onopen = () => {
+      if (isClosed) return;
+      onStatusChange?.("CONNECTED");
+    };
+
+    eventSource.addEventListener("sensor.reading", (e: MessageEvent) => {
+      if (isClosed) return;
+      try {
+        const parsed = JSON.parse(e.data);
+        const reading = "payload" in parsed ? (parsed.payload as SensorReading) : (parsed as SensorReading);
+        if (reading && ("measuredDistanceCm" in reading || "calculatedWaterDepthCm" in reading)) {
+          onReading(reading);
+          onStatusChange?.("CONNECTED");
+        }
+      } catch {
+        // Ignore malformed frame
+      }
+    });
+
+    eventSource.addEventListener("connect", () => {
+      if (isClosed) return;
+      onStatusChange?.("CONNECTED");
+    });
+
+    eventSource.onerror = () => {
+      if (isClosed) return;
+      onStatusChange?.("DISCONNECTED");
+    };
+  } catch {
+    onStatusChange?.("DISCONNECTED");
+  }
+
+  return () => {
+    isClosed = true;
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+  };
 }
 
 /**

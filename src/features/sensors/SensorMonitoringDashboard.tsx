@@ -4,9 +4,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Activity,
   AlertTriangle,
+  Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Copy,
   Cpu,
   Download,
+  ExternalLink,
   Gauge,
   MapPin,
   Play,
@@ -16,10 +21,13 @@ import {
   Ruler,
   ShieldAlert,
   Sun,
+  Terminal,
   Thermometer,
   Waves,
   Wifi,
   WifiOff,
+  Wrench,
+  Zap,
 } from "lucide-react";
 import {
   DEFAULT_STALE_THRESHOLD_MS,
@@ -28,7 +36,11 @@ import {
   normalizeIngestedReading,
 } from "./calibration";
 import {
+  DEFAULT_HARDWARE_BACKEND_URL,
+  DEFAULT_HARDWARE_INGEST_URL,
+  DEFAULT_HARDWARE_STREAM_URL,
   buildSensorStatusSnapshot,
+  connectSensorSseStream,
   createSimulatedReading,
   fetchSensorHistory,
   fetchSensorLatest,
@@ -55,13 +67,18 @@ export function SensorMonitoringDashboard() {
   const [experimentId, setExperimentId] = useState<string>("EXP-2026-FLOOD-01");
   const [activePosition, setActivePosition] = useState<MeasurementPositionId>("P2");
   const [sourceMode, setSourceMode] = useState<DataSourceMode>("SIMULATED");
-  const [protocol, setProtocol] = useState<TransportProtocol>("WEBSOCKET");
+  const [protocol, setProtocol] = useState<TransportProtocol>("SSE_STREAM");
+  const [hardwareBackendUrl, setHardwareBackendUrl] = useState<string>(
+    DEFAULT_HARDWARE_BACKEND_URL
+  );
+  const [showHardwareGuide, setShowHardwareGuide] = useState<boolean>(false);
+  const [copiedFeedback, setCopiedFeedback] = useState<string | null>(null);
+
   const [streamUrl, setStreamUrl] = useState<string>(() => {
-    if (typeof window !== "undefined" && window.location?.host) {
-      const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-      return `${wsProtocol}//${window.location.host}/api/sensor/stream`;
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return `${window.location.origin}/api/sensor/stream`;
     }
-    return "ws://localhost:3000/api/sensor/stream";
+    return DEFAULT_HARDWARE_STREAM_URL;
   });
   const [isStreaming, setIsStreaming] = useState<boolean>(true);
   const [ldrEnabled, setLdrEnabled] = useState<boolean>(true);
@@ -97,6 +114,14 @@ export function SensorMonitoringDashboard() {
 
   const stepCounterRef = useRef<number>(25);
   const wsRef = useRef<WebSocket | null>(null);
+
+  const handleCopy = (text: string, label: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(text);
+      setCopiedFeedback(label);
+      setTimeout(() => setCopiedFeedback(null), 2500);
+    }
+  };
 
   // Clock tick every 1 second to evaluate staleness accurately
   useEffect(() => {
@@ -151,7 +176,21 @@ export function SensorMonitoringDashboard() {
     }
 
     // LIVE HARDWARE MODE:
-    // Never pretend a disconnected ESP32 is connected. Attempt real WebSocket or HTTP poll.
+    // Support SSE Stream (recommended for serverless & Render HTTPS), WebSocket, or HTTP Poll
+    if (protocol === "SSE_STREAM") {
+      setConnectionState("RECONNECTING");
+      const cleanup = connectSensorSseStream(
+        (reading) => {
+          appendReading(reading);
+        },
+        (state) => {
+          setConnectionState(state);
+        },
+        streamUrl
+      );
+      return cleanup;
+    }
+
     if (protocol === "WEBSOCKET" || protocol === "MQTT_OVER_WS") {
       setConnectionState("RECONNECTING");
       let socket: WebSocket | null = null;
@@ -197,12 +236,12 @@ export function SensorMonitoringDashboard() {
         }
       };
     } else {
-      // HTTP Polling against Member 9 endpoints (/api/sensor/latest)
+      // HTTP Polling against Member 9 / Live Render endpoints (/api/sensor/latest)
       setConnectionState("RECONNECTING");
       let cancelled = false;
 
       const poll = async () => {
-        const latestRes = await fetchSensorLatest(experimentId, activePosition);
+        const latestRes = await fetchSensorLatest(experimentId, activePosition, hardwareBackendUrl);
         if (cancelled) return;
         if (latestRes && latestRes.ok && latestRes.reading) {
           appendReading(latestRes.reading);
@@ -215,7 +254,7 @@ export function SensorMonitoringDashboard() {
       void poll();
       const pollTimer = setInterval(() => {
         void poll();
-      }, 2000);
+      }, 1500);
 
       return () => {
         cancelled = true;
@@ -227,6 +266,7 @@ export function SensorMonitoringDashboard() {
     appendReading,
     effectiveRefHeightCm,
     experimentId,
+    hardwareBackendUrl,
     injectedFault,
     isStreaming,
     ldrEnabled,
@@ -317,8 +357,8 @@ export function SensorMonitoringDashboard() {
       faultCode: injectedFault,
     };
 
-    // Attempt backend POST first; also normalize locally so UI updates immediately
-    const apiResult = await postSensorReading(payload);
+    // Attempt backend POST first (targeting Render cloud endpoint or local proxy); also normalize locally
+    const apiResult = await postSensorReading(payload, hardwareBackendUrl);
     const normalized =
       apiResult.ok && apiResult.reading
         ? apiResult.reading
@@ -327,9 +367,9 @@ export function SensorMonitoringDashboard() {
     appendReading(normalized);
   };
 
-  // Sync history from Member 9 backend if available
+  // Sync history from Member 9 / Live Render backend if available
   const handleSyncBackendHistory = async () => {
-    const res = await fetchSensorHistory(experimentId, positionFilter, 50);
+    const res = await fetchSensorHistory(experimentId, positionFilter, 50, hardwareBackendUrl);
     if (res && res.ok && res.readings.length > 0) {
       setReadings(res.readings);
     }
@@ -433,6 +473,180 @@ export function SensorMonitoringDashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
+        {/* Live Hardware Cloud Ingestion & ESP32 Integration Banner */}
+        <section
+          aria-labelledby="hardware-integration-heading"
+          className="rounded-xl border border-cyan-500/40 bg-gradient-to-r from-slate-900 via-slate-900/95 to-cyan-950/40 p-4 shadow-xl"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-mono text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                  Hardware Cloud Ingestion Active
+                </span>
+                <span className="rounded border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-[11px] text-slate-300">
+                  ESP-WROOM-32 + HC-SR04
+                </span>
+              </div>
+              <h2
+                id="hardware-integration-heading"
+                className="text-base font-bold text-white sm:text-lg flex flex-wrap items-center gap-2"
+              >
+                <span>Live Telemetry Gateway:</span>
+                <a
+                  href="https://crestix-probe-aqua.onrender.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 underline underline-offset-4 decoration-cyan-400/40"
+                >
+                  https://crestix-probe-aqua.onrender.com
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              </h2>
+              <p className="text-xs text-slate-400 max-w-2xl">
+                ESP32 ultrasonic distance transducer pushes live air-gap telemetry directly to this cloud gateway. Water depth is derived against calibrated dry-bed reference height (<code className="font-mono text-slate-200">Ref − Measured Distance</code>).
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleCopy(DEFAULT_HARDWARE_INGEST_URL, "ingest-url")}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-950/50 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-900/60"
+              >
+                {copiedFeedback === "ingest-url" ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
+                    <span>Copied Endpoint!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Copy Ingest URL</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  handleCopy(
+                    `curl -X POST https://crestix-probe-aqua.onrender.com/api/sensor/readings -H "Content-Type: application/json" -d "{\\"experimentId\\":\\"EXP-2026-FLOOD-01\\",\\"position\\":\\"P2\\",\\"measuredDistanceCm\\":22.4,\\"referenceHeightCm\\":32.5,\\"sourceMode\\":\\"LIVE\\"}"`,
+                    "curl"
+                  )
+                }
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
+              >
+                {copiedFeedback === "curl" ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
+                    <span>Copied Test Curl!</span>
+                  </>
+                ) : (
+                  <>
+                    <Terminal className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
+                    <span>Copy Test Curl</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowHardwareGuide((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-950/50 px-3 py-2 text-xs font-semibold text-indigo-300 transition hover:bg-indigo-900/60"
+              >
+                <Wrench className="h-3.5 w-3.5 text-indigo-400" aria-hidden="true" />
+                <span>Wiring & Pinout Guide</span>
+                {showHardwareGuide ? (
+                  <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Collapsible Hardware Setup & Wiring Drawer */}
+          {showHardwareGuide && (
+            <div className="mt-4 border-t border-slate-800 pt-4 text-xs space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/70 p-3.5">
+                  <h3 className="font-bold text-slate-200 uppercase tracking-wide flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-400" aria-hidden="true" />
+                    Bench Hardware & Pinout (as Photographed)
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left font-mono text-[11px]">
+                      <thead>
+                        <tr className="border-b border-slate-800 text-slate-400">
+                          <th className="py-1">HC-SR04</th>
+                          <th className="py-1">Wire</th>
+                          <th className="py-1">ESP32 Pin</th>
+                          <th className="py-1">Purpose</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                        <tr>
+                          <td className="py-1 font-bold text-amber-300">VCC</td>
+                          <td className="py-1">Yellow/Red</td>
+                          <td className="py-1 font-bold text-cyan-300">VIN (5V)</td>
+                          <td className="py-1 text-slate-400">5V Transducer Supply</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-bold text-amber-300">GND</td>
+                          <td className="py-1">Blue/Black</td>
+                          <td className="py-1 font-bold text-cyan-300">GND</td>
+                          <td className="py-1 text-slate-400">Common Ground</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-bold text-amber-300">Trig</td>
+                          <td className="py-1">Orange</td>
+                          <td className="py-1 font-bold text-cyan-300">GPIO 5</td>
+                          <td className="py-1 text-slate-400">10µs Ultrasonic Pulse</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-bold text-amber-300">Echo</td>
+                          <td className="py-1">Red</td>
+                          <td className="py-1 font-bold text-cyan-300">GPIO 18</td>
+                          <td className="py-1 text-slate-400">Pulse In (via 1k/2k divider)</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-bold text-amber-300">1000µF Cap</td>
+                          <td className="py-1">Stripe / Legs</td>
+                          <td className="py-1 font-bold text-cyan-300">VIN ↔ GND</td>
+                          <td className="py-1 text-slate-400">Wi-Fi Current Spike Buffer</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="space-y-2 rounded-lg border border-slate-800 bg-slate-950/70 p-3.5">
+                  <h3 className="font-bold text-slate-200 uppercase tracking-wide flex items-center gap-2">
+                    <Radio className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                    Hydraulic Invariant & Calibration
+                  </h3>
+                  <ul className="list-disc pl-4 space-y-1.5 text-slate-300">
+                    <li>
+                      <strong>Depth Formula:</strong> <code className="font-mono text-cyan-300">Water Depth = max(0, RefHeight − AirGapDistance)</code>.
+                    </li>
+                    <li>
+                      <strong>P2 Default Calibration:</strong> Reference dry-bed distance = <code className="font-mono text-slate-200">32.50 cm</code>.
+                    </li>
+                    <li>
+                      <strong>Container:</strong> Downward-facing probe mounted over water reservoir (Bisleri bottle container / calibration channel).
+                    </li>
+                    <li>
+                      <strong>Firmware Location:</strong> <code className="font-mono text-slate-200">hardware/esp32/firmware/crestix_hcsr04.ino</code> ready to flash via Arduino IDE or PlatformIO.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
         {/* Data Integrity Banner: Point-Sensor Spatial Scope Disclaimer */}
         <section
           aria-label="Spatial coverage notice"
@@ -1021,23 +1235,55 @@ export function SensorMonitoringDashboard() {
                 <select
                   id="transport-protocol-select"
                   value={protocol}
-                  onChange={(e) =>
-                    setProtocol(e.target.value as TransportProtocol)
-                  }
+                  onChange={(e) => {
+                    const nextProto = e.target.value as TransportProtocol;
+                    setProtocol(nextProto);
+                    if (nextProto === "SSE_STREAM") {
+                      setStreamUrl(
+                        typeof window !== "undefined" && window.location?.origin
+                          ? `${window.location.origin}/api/sensor/stream`
+                          : DEFAULT_HARDWARE_STREAM_URL
+                      );
+                    } else if (nextProto === "WEBSOCKET") {
+                      const wsProto = typeof window !== "undefined" && window.location?.protocol === "https:" ? "wss:" : "ws:";
+                      const host = typeof window !== "undefined" && window.location?.host ? window.location.host : "localhost:3000";
+                      setStreamUrl(`${wsProto}//${host}/api/sensor/stream`);
+                    }
+                  }}
                   className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 font-mono text-xs text-white"
                 >
+                  <option value="SSE_STREAM">Live Server-Sent Push (SSE)</option>
+                  <option value="HTTP_POLL">REST HTTP Polling (1.5s)</option>
                   <option value="WEBSOCKET">WebSocket Stream</option>
                   <option value="MQTT_OVER_WS">MQTT over WebSocket</option>
-                  <option value="HTTP_POLL">REST HTTP Polling</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label
-                  htmlFor="stream-endpoint-input"
-                  className="block text-[11px] font-medium text-slate-400"
-                >
-                  WebSocket / MQTT Broker Endpoint URI
-                </label>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="stream-endpoint-input"
+                    className="block text-[11px] font-medium text-slate-400"
+                  >
+                    Telemetry Stream Endpoint URI
+                  </label>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setStreamUrl(DEFAULT_HARDWARE_STREAM_URL)}
+                      className="text-[10px] text-cyan-400 hover:underline"
+                    >
+                      Use Render Cloud
+                    </button>
+                    <span className="text-[10px] text-slate-600">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setStreamUrl("/api/sensor/stream")}
+                      className="text-[10px] text-slate-400 hover:text-slate-200 hover:underline"
+                    >
+                      Use Local
+                    </button>
+                  </div>
+                </div>
                 <input
                   id="stream-endpoint-input"
                   type="text"

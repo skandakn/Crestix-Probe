@@ -36,7 +36,12 @@ export type Esp32ConnectionState =
   | "DISCONNECTED"
   | "SIMULATED_STREAM";
 
-export type TransportProtocol = "WEBSOCKET" | "MQTT_OVER_WS" | "HTTP_POLL" | "LOCAL_SIMULATOR";
+export type TransportProtocol =
+  | "SSE_STREAM"
+  | "WEBSOCKET"
+  | "MQTT_OVER_WS"
+  | "HTTP_POLL"
+  | "LOCAL_SIMULATOR";
 
 export type SensorHardwareStatus =
   | "ONLINE"
@@ -74,6 +79,8 @@ export interface IndividualSensorHealth {
 export interface SensorReading {
   readingId: string;
   experimentId: string;
+  deviceId?: string;
+  firmwareVersion?: string;
   /** ISO-8601 UTC timestamp with millisecond precision */
   timestamp: string;
   /** Monotonic uptime milliseconds from ESP32 boot */

@@ -181,6 +181,8 @@ export function normalizeIngestedReading(
   return {
     readingId: `rd-${Date.parse(timestamp) || Date.now()}-${readingIndex}`,
     experimentId: payload.experimentId || "EXP-2026-FLOOD-01",
+    deviceId: payload.deviceId,
+    firmwareVersion: payload.firmwareVersion,
     timestamp,
     deviceMillis: payload.deviceMillis ?? 0,
     position,
