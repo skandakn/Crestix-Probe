@@ -151,16 +151,8 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Telemetry Status & Action Buttons */}
+          {/* Action Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Live Status Pill */}
-            <div className="hidden 2xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f5f5f7] border border-black/[0.05] text-[11px] font-mono text-[#515154]">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>SURROGATE: ACTIVE</span>
-              <span className="text-zinc-300">|</span>
-              <span className="text-[#0071e3] font-semibold">t &lt; 42ms</span>
-            </div>
-
             {/* Launch Platform Link (Apple Action Blue) */}
             <Link
               href="/simulation"
