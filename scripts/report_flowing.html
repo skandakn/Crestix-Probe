@@ -58,7 +58,7 @@
     font-size: 14pt;
     font-weight: 700;
     color: #0f172a;
-    margin: 18px 0 8px 0;
+    margin: 14px 0 6px 0;
     letter-spacing: -0.2px;
     border-bottom: 1.5px solid #cbd5e1;
     padding-bottom: 4px;
@@ -71,18 +71,18 @@
     font-size: 11pt;
     font-weight: 700;
     color: #1e293b;
-    margin: 12px 0 5px 0;
+    margin: 10px 0 4px 0;
     page-break-after: avoid;
     break-after: avoid;
   }
 
   p {
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     text-align: justify;
   }
 
   ul, ol {
-    margin: 0 0 10px 0;
+    margin: 0 0 6px 0;
     padding-left: 20px;
   }
 
@@ -120,8 +120,13 @@
   table.data-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0 14px 0;
+    margin: 6px 0 10px 0;
     font-size: 8.8pt;
+  }
+  table.data-table thead {
+    display: table-header-group;
+  }
+  table.data-table tr {
     page-break-inside: avoid;
     break-inside: avoid;
   }
@@ -176,15 +181,15 @@
     background-color: #f8fafc;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 8px;
-    margin: 10px 0 12px 0;
+    padding: 6px;
+    margin: 6px 0 8px 0;
     page-break-inside: avoid;
     break-inside: avoid;
     text-align: center;
   }
 
   .figure-img {
-    max-height: 195px;
+    max-height: 135px;
     width: auto;
     max-width: 100%;
     margin: 0 auto;
@@ -206,7 +211,7 @@
   .dual-figures {
     display: flex;
     gap: 12px;
-    margin: 10px 0 12px 0;
+    margin: 6px 0 8px 0;
     page-break-inside: avoid;
     break-inside: avoid;
   }
@@ -217,7 +222,7 @@
   }
 
   .dual-figures .figure-img {
-    height: 155px;
+    height: 125px;
     object-fit: contain;
     background-color: #ffffff;
   }
