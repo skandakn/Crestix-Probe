@@ -6,7 +6,6 @@ import {
   Thermometer,
   Sliders,
   Activity,
-  Layers,
   Wifi,
   WifiOff,
   Cpu,
@@ -14,7 +13,6 @@ import {
   Gauge,
 } from "lucide-react";
 import {
-  HARDWARE_COMPONENTS,
   PROTOTYPE_METRICS,
 } from "../data/hardwareData";
 import { cn } from "../utils/cn";
@@ -31,7 +29,7 @@ const PROBE_PIN_METADATA = [
 ];
 
 export function HardwareProbe() {
-  const [activeTab, setActiveTab] = useState<"live" | "compensator" | "specs">("live");
+  const [activeTab, setActiveTab] = useState<"live" | "compensator">("live");
 
   // Calibrated Container Datum (Teammate firmware: 28.63 cm)
   const [datumHeightCm, setDatumHeightCm] = useState<number>(28.63);
@@ -251,20 +249,6 @@ export function HardwareProbe() {
               >
                 <Thermometer className="w-3.5 h-3.5" />
                 <span>Speed-of-Sound Physics</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("specs")}
-                className={cn(
-                  "px-3.5 py-1.5 rounded-full text-xs font-mono transition-all border flex items-center gap-1.5 font-medium",
-                  activeTab === "specs"
-                    ? "bg-[#0071e3] text-white border-transparent shadow-xs font-semibold"
-                    : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
-                )}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Subsystem Specs</span>
               </button>
             </div>
           </div>
@@ -850,49 +834,6 @@ export function HardwareProbe() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* TAB 3: Subsystem Specifications View */}
-          {activeTab === "specs" && (
-            <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white">
-              {HARDWARE_COMPONENTS.map((comp, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 hover:border-blue-300 transition-all shadow-xs flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0071e3] border border-blue-200/60">
-                        {comp.subsystem}
-                      </span>
-                      <span className="text-[11px] font-mono text-[#86868b]">
-                        {comp.partNumber}
-                      </span>
-                    </div>
-
-                    <h4 className="text-base font-bold text-[#1d1d1f] mb-2">
-                      {comp.name}
-                    </h4>
-
-                    <p className="text-xs text-[#6e6e73] font-sans leading-relaxed mb-4">
-                      {comp.role}
-                    </p>
-
-                    <div className="space-y-1.5 pt-3 border-t border-zinc-200/60">
-                      {comp.specifications.map((spec, sIdx) => (
-                        <div
-                          key={sIdx}
-                          className="flex items-start gap-2 text-xs font-mono text-[#515154]"
-                        >
-                          <span className="text-[#0071e3]">•</span>
-                          <span>{spec}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
 
