@@ -98,13 +98,13 @@ export function CallToAction() {
 
               {/* Quick Navigation Action Links */}
               <div className="flex flex-wrap items-center gap-4">
-                <Link
-                  href="/simulation"
+                <a
+                  href="#simulation"
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-sm tracking-normal shadow-md shadow-blue-500/25 transition-all active:scale-95"
                 >
-                  <span>Launch Live Simulator</span>
+                  <span>Explore Simulation Sequence</span>
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </a>
 
                 <Link
                   href="/dashboard"
