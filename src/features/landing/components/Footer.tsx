@@ -64,10 +64,10 @@ export function Footer() {
             <ul className="space-y-2.5 font-sans">
               <li>
                 <a
-                  href="#benchmarks"
+                  href="/analytics"
                   className="hover:text-[#0071e3] transition-colors"
                 >
-                  ML Model Benchmarks (AUROC / F1)
+                  Validation &amp; Model Analytics
                 </a>
               </li>
               <li>
