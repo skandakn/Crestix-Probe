@@ -6,7 +6,6 @@ import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
 import { ProductFeatures } from "./ProductFeatures";
-import { ResearchBenchmarks } from "./ResearchBenchmarks";
 import { HardwareProbe } from "./HardwareProbe";
 import { CallToAction } from "./CallToAction";
 import { Footer } from "./Footer";
@@ -30,9 +29,6 @@ export function LandingPage() {
 
         {/* 6. Product Features Section */}
         <ProductFeatures />
-
-        {/* 8. Research & Performance Section (Clearly Labelled Illustrative) */}
-        <ResearchBenchmarks />
 
         {/* 9. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />

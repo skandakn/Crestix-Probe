@@ -24,7 +24,6 @@ const NAV_LINKS: NavLink[] = [
   { label: "The Crisis", href: "#problem" },
   { label: "Features", href: "#features" },
   { label: "Hardware Node", href: "#hardware", badge: "ESP32" },
-  { label: "Research", href: "#research" },
 ];
 
 export function Navbar() {

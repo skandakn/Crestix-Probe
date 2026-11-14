@@ -165,22 +165,6 @@ export function Footer() {
             <ul className="space-y-2.5 font-sans">
               <li>
                 <a
-                  href="#research"
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  Scaling Benchmarks Matrix
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#research"
-                  className="hover:text-cyan-300 transition-colors"
-                >
-                  Academic Foundations
-                </a>
-              </li>
-              <li>
-                <a
                   href="https://github.com/skandakn/Crestix-Probe"
                   target="_blank"
                   rel="noopener noreferrer"
