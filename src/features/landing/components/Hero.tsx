@@ -11,7 +11,7 @@ import {
 import { cn } from "../utils/cn";
 
 export function Hero() {
-  const [activeTab, setActiveTab] = useState<"depth" | "velocity" | "terrain">("depth");
+  const [activeTab, setActiveTab] = useState<"depth" | "velocity">("depth");
 
   return (
     <section
@@ -209,18 +209,6 @@ export function Hero() {
                 >
                   Velocity (u,v)
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("terrain")}
-                  className={cn(
-                    "flex-1 py-1 rounded-full text-[11px] font-mono transition-colors text-center font-medium",
-                    activeTab === "terrain"
-                      ? "bg-white text-[#1d1d1f] shadow-xs"
-                      : "text-[#6e6e73] hover:text-[#1d1d1f]"
-                  )}
-                >
-                  LiDAR Bathymetry
-                </button>
               </div>
 
               {/* Interactive Visual Map Area (SVG Canvas) */}
@@ -283,15 +271,13 @@ export function Hero() {
                   />
 
                   {/* Velocity Vector Streamlines */}
-                  {activeTab !== "terrain" && (
-                    <g stroke="#0369a1" strokeWidth="1.4" opacity="0.9">
-                      <path d="M 120,175 L 145,185 M 145,185 L 138,181 M 145,185 L 140,189" />
-                      <path d="M 210,150 L 235,168 M 235,168 L 227,166 M 235,168 L 230,173" />
-                      <path d="M 320,155 L 300,175 M 300,175 L 305,168 M 300,175 L 307,175" />
-                      <path d="M 360,210 L 330,220 M 330,220 L 336,214 M 330,220 L 338,222" />
-                      <path d="M 220,260 L 245,245 M 245,245 L 237,247 M 245,245 L 242,252" />
-                    </g>
-                  )}
+                  <g stroke="#0369a1" strokeWidth="1.4" opacity="0.9">
+                    <path d="M 120,175 L 145,185 M 145,185 L 138,181 M 145,185 L 140,189" />
+                    <path d="M 210,150 L 235,168 M 235,168 L 227,166 M 235,168 L 230,173" />
+                    <path d="M 320,155 L 300,175 M 300,175 L 305,168 M 300,175 L 307,175" />
+                    <path d="M 360,210 L 330,220 M 330,220 L 336,214 M 330,220 L 338,222" />
+                    <path d="M 220,260 L 245,245 M 245,245 L 237,247 M 245,245 L 242,252" />
+                  </g>
 
                   {/* Physical ESP32 Sensor Nodes (Pulsing Beacons) */}
                   {/* Node 1: Culvert Outfall */}
