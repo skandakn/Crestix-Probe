@@ -1,7 +1,5 @@
 # Hackathon Final Report
 
-> *This is the final submission report for the 24-hour hackathon. Prepared and structured according to the official hackathon evaluation guidelines.*
-
 ---
 
 ## Project Details
@@ -13,7 +11,7 @@
 | **Problem Statement** | **PS 1.2 \| Physics-Informed Neural Surrogate for Real-Time Urban Flood Forecasting** |
 | **Team Name** | **WeGrow Architects** |
 | **Team Members** | **Skanda K N**, **Shreeyansh Vats**, **Shreetam Anand** |
-| **Institution** | [College / Organisation] |
+| **Institution** | **Bangalore Institute of Technology** |
 | **GitHub Repository** | Full-Stack Platform: [https://github.com/skandakn/Crestix-Probe](https://github.com/skandakn/Crestix-Probe)<br>Surrogate Architecture & Evaluation: [https://github.com/skandakn/ConvLSTM-based-U-Net-for-Crestix-Probe](https://github.com/skandakn/ConvLSTM-based-U-Net-for-Crestix-Probe) |
 | **Demo Video / Live Prototype** | [https://crestix-probe-aqua.onrender.com/](https://crestix-probe-aqua.onrender.com/) |
 | **Submitted On** | November 15, 2026 |
@@ -160,7 +158,11 @@ flowchart TD
 ## 4. Implementation Roadmap
 
 ### 4.1 Work Completed in 24 Hours
-Within the intensive 24-hour hackathon timeframe, our team built, validated, and deployed a fully functional, production-ready cyber-physical prototype:
+Within the intensive 24-hour hackathon timeframe, our team built, validated, bench-tested, and deployed a fully functional, production-ready cyber-physical prototype:
+
+#### Physical Hardware Testbench: Crestix Probe IoT Node
+![Crestix Probe Physical Hardware Prototype](/hardware_prototype.jpg)
+*Figure 4.1: Live benchtop verification setup of the physical Crestix Probe edge node mounted over a hydraulic test vessel with live immersion. The prototype features an Espressif ESP32-WROOM-32D microcontroller, an industrial ultrasonic acoustic transducer, a submersible waterproof temperature probe, and power conditioning circuitry performing real-time temperature-compensated stage-height measurements ($v = 331.3 + 0.606 \cdot T$, $\pm 2\text{ mm}$ precision, 10 Hz non-blocking sampling).*
 
 * **Neural Surrogate & Model Benchmarking Implementation**:
   - Implemented the complete **ConvLSTM-based U-Net architecture** in PyTorch supporting multi-horizon forecasting ($+15, +30, +45, +60\text{ min}$) with native padding/cropping for heterogeneous grid dimensions.
