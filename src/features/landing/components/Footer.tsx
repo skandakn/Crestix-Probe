@@ -191,9 +191,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#cta" className="hover:text-[#0071e3] transition-colors">
-                  Request Technical Whitepaper
-                </a>
+                <Link
+                  href="/simulation"
+                  className="hover:text-[#0071e3] transition-colors"
+                >
+                  Simulation Workspace
+                </Link>
               </li>
             </ul>
           </div>

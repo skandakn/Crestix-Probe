@@ -7,7 +7,6 @@ export { TechnologyPillars } from "./components/TechnologyPillars";
 export { WorkflowPipeline } from "./components/WorkflowPipeline";
 export { ResearchBenchmarks } from "./components/ResearchBenchmarks";
 export { HardwareProbe } from "./components/HardwareProbe";
-export { CallToAction } from "./components/CallToAction";
 export { Footer } from "./components/Footer";
 export { BackToTop } from "./components/BackToTop";
 

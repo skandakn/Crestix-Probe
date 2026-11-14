@@ -6,7 +6,6 @@ import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
 import { HardwareProbe } from "./HardwareProbe";
-import { CallToAction } from "./CallToAction";
 import { Footer } from "./Footer";
 import { BackToTop } from "./BackToTop";
 
@@ -28,9 +27,6 @@ export function LandingPage() {
 
         {/* 5. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />
-
-        {/* 6. Final Call-to-Action */}
-        <CallToAction />
       </main>
 
       {/* Footer */}
