@@ -3,13 +3,14 @@ import { getSimulationJob } from "@/app/api/simulation/store";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const job = getSimulationJob(params.id);
+    const { id } = await context.params;
+    const job = getSimulationJob(id);
     if (!job) {
       return NextResponse.json(
-        { error: `Simulation not found: ${params.id}` },
+        { error: `Simulation not found: ${id}` },
         { status: 404 }
       );
     }

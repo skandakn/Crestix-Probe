@@ -3,7 +3,7 @@ import {
   POSITION_CALIBRATIONS,
   evaluateStaleStatus,
   normalizeIngestedReading,
-} from "./calibration.ts";
+} from "./calibration";
 import type {
   DataSourceMode,
   Esp32ConnectionState,
@@ -91,11 +91,12 @@ export function createSimulatedReading(
 export function generateSeedHistory(
   count: number = 24,
   config: SimulationConfig,
-  nowMs: number = Date.now()
+  nowMs?: number
 ): SensorReading[] {
+  const currentMs = nowMs ?? 1773489600000;
   const readings: SensorReading[] = [];
   for (let i = count - 1; i >= 0; i--) {
-    const ts = new Date(nowMs - i * 2000).toISOString();
+    const ts = new Date(currentMs - i * 2000).toISOString();
     readings.push(
       createSimulatedReading(count - i, { ...config, injectedFault: "NONE" }, ts)
     );

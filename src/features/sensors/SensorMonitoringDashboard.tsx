@@ -83,7 +83,7 @@ export function SensorMonitoringDashboard() {
       esp32ConnectionSimulated: "SIMULATED_STREAM",
     })
   );
-  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  const [nowMs, setNowMs] = useState<number>(1773489600000);
   const [lastExportedFile, setLastExportedFile] = useState<string | null>(null);
   const [manualDistanceInput, setManualDistanceInput] = useState<string>("22.40");
   const [manualTempInput, setManualTempInput] = useState<string>("24.6");
