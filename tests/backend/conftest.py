@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import sys
+from collections.abc import Generator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -290,15 +291,64 @@ def build_reference_contract_app() -> FastAPI:
 
 
 @pytest.fixture()
-def api_client() -> TestClient:
-    """Provide a FastAPI TestClient against backend/app if present or the reference contract app."""
+def api_client(tmp_path: Path) -> Generator[TestClient, None, None]:
+    """Provide a FastAPI TestClient against backend/app with isolated SQLite DB or reference app."""
     if (BACKEND_DIR / "app" / "main.py").exists():
         if str(BACKEND_DIR) not in sys.path:
             sys.path.insert(0, str(BACKEND_DIR))
-        try:
-            from app.main import app as member9_app  # type: ignore
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy.pool import StaticPool
 
-            return TestClient(member9_app)
-        except Exception:
-            pass
-    return TestClient(build_reference_contract_app())
+        from app.core.config import Settings, get_settings  # type: ignore
+        from app.db.base import Base  # type: ignore
+        from app.db.session import get_db  # type: ignore
+        from app.main import create_app  # type: ignore
+
+        engine = create_engine(
+            "sqlite+pysqlite:///:memory:",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        Base.metadata.create_all(bind=engine)
+        TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        session = TestingSessionLocal()
+
+        test_settings = Settings(
+            app_name="Crestix Probe QA API",
+            app_version="0.1.0-test",
+            environment="test",
+            debug=True,
+            database_url="sqlite+pysqlite:///:memory:",
+            auth_secret_key="qa-test-secret-placeholder",
+            auth_api_key="qa-test-device-key-placeholder",
+            auth_enabled=False,
+            cors_origins="http://localhost:3000,http://localhost:5173",
+            upload_dir=str(tmp_path / "uploads"),
+            max_upload_size_mb=10,
+            default_mount_height_cm=20.0,
+            simulation_adapter_mode="stub",
+            forecast_adapter_mode="stub",
+        )
+
+        member9_app = create_app()
+
+        def override_get_db():
+            yield session
+
+        def override_get_settings():
+            return test_settings
+
+        member9_app.dependency_overrides[get_db] = override_get_db
+        member9_app.dependency_overrides[get_settings] = override_get_settings
+
+        try:
+            with TestClient(member9_app) as client:
+                yield client
+        finally:
+            session.close()
+            Base.metadata.drop_all(bind=engine)
+        return
+
+    with TestClient(build_reference_contract_app()) as client:
+        yield client

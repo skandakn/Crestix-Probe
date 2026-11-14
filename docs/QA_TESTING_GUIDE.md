@@ -96,17 +96,17 @@ ruff check tests/backend
 - **Mock API Layer (`e2e/fixtures/mock-api-and-harness.ts`):** Uses `page.route("**/api/**", ...)` so E2E journeys run deterministically in CI even when external hardware or backend services are offline.
 
 ### Covered End-to-End Journeys (`e2e/crestix-probe.spec.ts`)
-1. **Homepage loads:** Verifies primary heading, zero console errors, and zero WCAG `axe-core` violations.
-2. **Navigation works:** Exercises desktop navigation bar and mobile navigation drawer across core routes.
-3. **User can access login and registration:** Validates `/login` and `/register` form fields and required attributes.
-4. **Terrain page loads:** Verifies DEM metadata and upload controls on `/terrain`.
-5. **Terrain upload validation works:** Confirms rejection of `.png`/empty files (`role="alert"`) and acceptance of `.tif` DEM files (`role="status"`).
-6. **Simulation controls function:** Exercises Run, Pause, and Reset controls on `/simulation` and verifies the non-operational solver disclaimer.
-7. **Forecasting interface loads:** Verifies horizon selector (`30s`, `60s`, `120s`) and prediction intervals on `/forecast`.
-8. **Sensor readings display:** Confirms separate display of Measured Ultrasonic Distance (`8.2 cm`), Calculated Water Depth (`11.8 cm`), and Ambient Temperature (`29 °C`) across probe positions `P1`, `P2`, `P3`.
-9. **Analytics charts render:** Verifies RMSE, MAE, NSE, $R^2$ KPI cards and SVG comparison chart rendering on `/analytics`.
-10. **API errors are handled:** Simulates a `503 Service Unavailable` response on `/api/sensor/latest` and verifies accessible error banner display.
-11. **Mobile layout works:** Verifies zero horizontal scroll overflow (`scrollWidth <= clientWidth`) at `375×812` and tests mobile drawer toggling.
+1. **Homepage loads:** Verifies primary heading, zero console errors, and WCAG 2 A/AA `axe-core` audit (pre-existing upstream landing-page findings—`heading-order`, `label-content-name-mismatch`, `scrollable-region-focusable`, `select-name`, and `color-contrast`—are documented in Section 5 rather than altering contributor-owned landing components).
+2. **Navigation works:** Exercises desktop header links and mobile navigation drawer across `/`, `/simulation`, `/sensors`, and `/forecasting`.
+3. **User can access login and registration:** Validates `/login` and `/register` email and password fields.
+4. **Terrain page loads:** Verifies Member 4's dynamically loaded terrain dashboard and `Upload DEM` trigger on `/terrain`.
+5. **Terrain upload validation works:** Confirms rejection of `.png` files (`Unsupported file extension`) and valid Esri ASCII Grid `.asc` parsing/rendering (`flume_basin`, `Parsed from ASCII Grid (3x3`).
+6. **Simulation controls function:** Exercises `Launch Simulation` (`Status: idle` -> `Status: completed`) and `Reset Simulation` on `/simulation`.
+7. **Forecasting interface loads:** Verifies the `/forecasting` workspace (`MEMBER 6: AI HYDRODYNAMICS`) and `Simulation Studio` navigation control.
+8. **Sensor readings display:** Confirms separate cards for `1. Measured Distance`, `2. Calculated Water Depth`, and `3. Ambient Temperature` plus interactive probe position switching (`P1`, `P2`, `P3`) on `/sensors`.
+9. **Analytics charts render:** Verifies `MAE` / `RMSE` / `CSI` KPIs and Recharts SVG containers on `/analytics`.
+10. **API errors are handled:** Switches `/simulation` to `Live HTTP API`, simulates a `503` response on `/api/simulation/run`, and verifies the `Simulation Execution Error` banner.
+11. **Mobile layout works:** Verifies zero horizontal scroll overflow (`scrollWidth <= clientWidth`) at `375×812` and tests mobile drawer toggling (`Open menu` / `Close menu`).
 
 ### Commands
 ```bash
@@ -121,12 +121,12 @@ npm run test:e2e
 | QA Category | Verification Method | Status | Notes |
 | :--- | :--- | :--- | :--- |
 | **Layout consistency** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | Consistent `max-w-7xl` header, `main` landmark, and responsive card grids across all routes. |
-| **Typography consistency** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | Standardized `h1` (`text-2xl font-bold`), metric labels, and Geist Sans/Mono font variables. |
+| **Typography consistency** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | Standardized `h1`, metric labels, and Geist Sans/Mono font variables. |
 | **Overflow issues** | `tests/frontend/responsive.test.tsx` & Playwright #11 | PASS | Root shell enforces `overflow-x-hidden`; verified `scrollWidth <= clientWidth` at `375px`. |
 | **Loading states** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | Loading indicators use `role="status"` and `aria-busy="true"`. |
-| **Error states** | `tests/frontend/error-boundary.test.tsx` & Playwright #10 | PASS | Component crashes caught by `CrestixErrorBoundary`; API errors rendered in `role="alert"` banners. |
+| **Error states** | `tests/frontend/error-boundary.test.tsx` & Playwright #10 | PASS | Component crashes caught by `CrestixErrorBoundary`; API errors rendered in `Simulation Execution Error` / `role="alert"` banners. |
 | **Empty states** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | Empty datasets display actionable guidance (`No Experiments Recorded Yet`). |
-| **Keyboard accessibility** | `tests/frontend/accessibility.test.tsx` | PASS | Skip-to-workspace link (`#main-workspace`), semantic `<button type="...">`, zero positive `tabIndex`. |
+| **Keyboard & A11y audit** | `tests/frontend/accessibility.test.tsx` & Playwright #1 | PASS (with upstream notes) | Harness passes zero violations; upstream `/` landing page has follow-up contributor items (`select-name` on demo `<select>`, `label-content-name-mismatch` on brand/play controls, `heading-order` on `h4`s). |
 | **Mobile & tablet breakpoints** | `tests/frontend/responsive.test.tsx` & Playwright | PASS | Verified at `375×812` (mobile), `768×1024` (tablet), and `1280×800` (desktop). |
 | **Console errors** | `tests/frontend/ui-quality-audit.test.tsx` & Playwright #1 | PASS | Zero unhandled `console.error` calls during route rendering and navigation. |
 | **Broken links** | `tests/frontend/ui-quality-audit.test.tsx` | PASS | All anchors have non-empty, valid route targets; no `href="#"` or `javascript:` links. |

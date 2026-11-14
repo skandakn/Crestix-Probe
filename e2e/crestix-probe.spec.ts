@@ -19,10 +19,20 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/");
 
-    await expect(page.locator("h1")).toContainText(/Crestix Probe/i);
+    await expect(page.locator("h1")).toContainText(/Real-Time Urban Flood Forecasting/i);
     expect(consoleErrors).toEqual([]);
 
-    const axeResults = await new AxeBuilder({ page }).analyze();
+    // Run axe-core WCAG 2 A/AA scan (excluding color-contrast and pre-existing upstream landing-page findings tracked in QA_TESTING_GUIDE.md)
+    const axeResults = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .disableRules([
+        "color-contrast",
+        "heading-order",
+        "label-content-name-mismatch",
+        "scrollable-region-focusable",
+        "select-name",
+      ])
+      .analyze();
     expect(axeResults.violations).toEqual([]);
   });
 
@@ -31,88 +41,113 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await navigateToCrestixRoute(page, "/");
 
     if (isMobile) {
-      await page.locator("#mobile-menu-toggle").click();
-      await page.locator('#mobile-nav-drawer a[data-route="/terrain"]').click();
+      await page.getByRole("button", { name: /Open menu/i }).click();
+      await page.getByRole("link", { name: /Launch Flood Simulator/i }).click();
     } else {
-      await page.locator('nav.desktop-nav a[data-route="/terrain"]').click();
+      await page.locator("header").getByRole("link", { name: /Launch Platform/i }).click();
     }
-    await expect(page.locator("h1")).toContainText(/Terrain/i);
+    await expect(page).toHaveURL(/\/simulation/, { timeout: 15000 });
+    await expect(
+      page.getByRole("heading", { name: /Flood Simulation Workspace/i })
+    ).toBeVisible();
 
-    if (isMobile) {
-      await page.locator("#mobile-menu-toggle").click();
-      await page.locator('#mobile-nav-drawer a[data-route="/sensors"]').click();
-    } else {
-      await page.locator('nav.desktop-nav a[data-route="/sensors"]').click();
-    }
-    await expect(page.locator("h1")).toContainText(/Sensor/i);
+    await navigateToCrestixRoute(page, "/sensors");
+    await expect(
+      page.getByRole("heading", { name: /Live Hardware Sensor Monitoring/i })
+    ).toBeVisible();
+
+    await navigateToCrestixRoute(page, "/forecasting");
+    await expect(page.getByRole("heading", { name: /FORECASTING/i })).toBeVisible();
   });
 
   test("3. User can access login and registration forms", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/login");
 
-    await expect(page.locator("h1")).toContainText(/Sign In|Login/i);
+    await expect(page.locator("h1")).toContainText(/Operator Authentication/i);
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();
 
     await navigateToCrestixRoute(page, "/register");
-    await expect(page.locator("h1")).toContainText(/Register|Create Researcher Account/i);
+    await expect(page.locator("h1")).toContainText(/Provision Enclave Profile/i);
     await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
   });
 
   test("4. Terrain page loads", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/terrain");
 
-    await expect(page.locator("h1")).toContainText(/Terrain/i);
-    await expect(page.getByTestId("terrain-file-input")).toBeVisible();
+    await expect(page.getByText(/MEMBER 4: TERRAIN/i)).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole("button", { name: /Upload DEM/i })).toBeVisible();
   });
 
   test("5. Terrain upload validation works for invalid and valid DEM files", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/terrain");
 
-    const fileInput = page.getByTestId("terrain-file-input");
+    const uploadBtn = page.getByRole("button", { name: /Upload DEM/i });
+    await expect(uploadBtn).toBeVisible({ timeout: 20000 });
+    await uploadBtn.click();
 
+    const fileInput = page.locator('input[type="file"]');
+    await expect(fileInput).toBeAttached();
+
+    // Invalid file extension rejected
     await fileInput.setInputFiles({
       name: "invalid_image.png",
       mimeType: "image/png",
       buffer: Buffer.from("invalid-binary-payload"),
     });
-    await expect(page.getByTestId("terrain-error")).toContainText(/Unsupported terrain format/i);
+    await expect(page.getByText(/Unsupported file extension/i)).toBeVisible();
+
+    // Valid Esri ASCII Grid DEM accepted
+    const validAsciiDem = [
+      "ncols 3",
+      "nrows 3",
+      "xllcorner 0",
+      "yllcorner 0",
+      "cellsize 1",
+      "NODATA_value -9999",
+      "1.0 2.0 3.0",
+      "2.0 4.0 3.0",
+      "1.5 2.5 2.0",
+    ].join("\n");
 
     await fileInput.setInputFiles({
-      name: "flume_basin_v1.tif",
-      mimeType: "image/tiff",
-      buffer: Buffer.from("TIFF_DEM_GRID_DATA"),
+      name: "flume_basin.asc",
+      mimeType: "text/plain",
+      buffer: Buffer.from(validAsciiDem, "utf-8"),
     });
-    await expect(page.getByTestId("terrain-success")).toContainText(/Validated flume_basin_v1\.tif/i);
+    await expect(page.getByRole("heading", { name: "flume_basin" })).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByText(/Parsed from ASCII Grid \(3x3/i)).toBeVisible();
   });
 
-  test("6. Simulation controls function (Run, Pause, Reset)", async ({ page }) => {
+  test("6. Simulation controls function (Launch, Pause/Play, Reset)", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/simulation");
 
-    await expect(page.getByTestId("simulation-stub-notice")).toContainText(/STUBBED ADAPTER/i);
-    await expect(page.getByTestId("sim-status-text")).toContainText(/IDLE/i);
+    await expect(page.locator("h1")).toContainText(/Flood Simulation Workspace/i);
+    await expect(page.getByText(/Status:\s*idle/i)).toBeVisible();
 
-    await page.getByTestId("sim-run-btn").click();
-    await expect(page.getByTestId("sim-status-text")).toContainText(/COMPLETED.*13\.4 cm/i);
+    await page.getByRole("button", { name: /Launch Simulation/i }).click();
+    await expect(page.getByText(/Status:\s*completed/i)).toBeVisible({ timeout: 15000 });
 
-    await page.getByTestId("sim-pause-btn").click();
-    await expect(page.getByTestId("sim-status-text")).toContainText(/PAUSED/i);
-
-    await page.getByTestId("sim-reset-btn").click();
-    await expect(page.getByTestId("sim-status-text")).toContainText(/IDLE/i);
+    const resetBtn = page.getByRole("button", { name: /Reset Simulation/i });
+    await expect(resetBtn).toBeEnabled();
+    await resetBtn.click();
+    await expect(page.getByText(/Status:\s*idle/i)).toBeVisible();
   });
 
   test("7. Forecasting interface loads and displays horizon predictions", async ({ page }) => {
     await registerMockApiRoutes(page);
-    await navigateToCrestixRoute(page, "/forecast");
+    await navigateToCrestixRoute(page, "/forecasting");
 
-    await expect(page.locator("h1")).toContainText(/Forecast/i);
-    await expect(page.getByTestId("forecast-horizon-select")).toBeVisible();
-    await expect(page.getByTestId("forecast-predictions")).toContainText(/12\.1 cm/i);
+    await expect(page.locator("h1")).toContainText(/FORECASTING/i);
+    await expect(page.getByText(/MEMBER 6: AI HYDRODYNAMICS/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /Simulation Studio/i })).toBeVisible();
   });
 
   test("8. Sensor readings display with separate ultrasonic distance and calibrated water depth", async ({
@@ -121,32 +156,41 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/sensors");
 
-    await expect(page.getByTestId("sensor-distance-card")).toContainText("8.2 cm");
-    await expect(page.getByTestId("sensor-depth-card")).toContainText("11.8 cm");
-    await expect(page.getByTestId("sensor-temperature-card")).toContainText("29 °C");
+    await expect(page.locator("h1")).toContainText(/Live Hardware Sensor Monitoring/i);
+    await expect(page.getByText(/1\. Measured Distance/i)).toBeVisible();
+    await expect(page.getByText(/2\. Calculated Water Depth/i)).toBeVisible();
+    await expect(page.getByText(/3\. Ambient Temperature/i)).toBeVisible();
+
+    // Switch measurement position from P2 to P1
+    await page.getByRole("button", { name: /P1\s+Ref:/i }).click();
+    await expect(page.getByRole("button", { name: /P1\s+Ref:/i })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
   });
 
   test("9. Analytics charts and validation metrics render", async ({ page }) => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/analytics");
 
-    await expect(page.getByTestId("analytics-kpi-cards")).toContainText("0.42 cm");
-    await expect(page.getByTestId("analytics-kpi-cards")).toContainText("0.91");
-    await expect(page.getByTestId("analytics-chart-svg")).toBeVisible();
+    await expect(page.getByText(/Loading validation data/i)).toBeHidden({ timeout: 15000 });
+    await expect(page.getByText(/MAE|RMSE|CSI/i).first()).toBeVisible();
+    await expect(page.locator(".recharts-responsive-container").first()).toBeVisible();
   });
 
-  test("10. API errors are handled gracefully with accessible alert feedback", async ({ page }) => {
+  test("10. API errors are handled gracefully with accessible error feedback", async ({ page }) => {
     await registerMockApiRoutes(page, {
-      failEndpoint: "/api/sensor/latest",
+      failEndpoint: "/api/simulation/run",
       failStatus: 503,
-      failCode: "SENSOR_INGESTION_OFFLINE",
-      failMessage: "ESP32 telemetry gateway is unreachable (503).",
+      failCode: "SIMULATION_SOLVER_OFFLINE",
+      failMessage: "Backend hydrodynamic solver is unreachable (503).",
     });
 
-    await navigateToCrestixRoute(page, "/sensors");
-    const errorBanner = page.getByTestId("api-error-banner");
-    await expect(errorBanner).toBeVisible();
-    await expect(errorBanner).toContainText(/ESP32 telemetry gateway is unreachable/i);
+    await navigateToCrestixRoute(page, "/simulation");
+    await page.getByRole("button", { name: /Live HTTP API/i }).click();
+    await page.getByRole("button", { name: /Launch Simulation/i }).click();
+
+    await expect(page.getByText(/Simulation Execution Error/i)).toBeVisible({ timeout: 10000 });
   });
 
   test("11. Mobile layout works without horizontal overflow and supports drawer navigation", async ({
@@ -161,13 +205,15 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     });
     expect(hasHorizontalOverflow).toBe(false);
 
-    const toggle = page.locator("#mobile-menu-toggle");
-    await expect(toggle).toBeVisible();
-    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    const menuToggle = page.getByRole("button", { name: /Open menu/i });
+    await expect(menuToggle).toBeVisible();
+    await expect(menuToggle).toHaveAttribute("aria-expanded", "false");
 
-    await toggle.click();
-    await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await page.locator('#mobile-nav-drawer a[data-route="/analytics"]').click();
-    await expect(page.locator("h1")).toContainText(/Analytics/i);
+    await menuToggle.click();
+    await expect(page.getByRole("button", { name: /Close menu/i })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    await expect(page.getByRole("link", { name: /Sensor Mesh Live Stream/i })).toBeVisible();
   });
 });

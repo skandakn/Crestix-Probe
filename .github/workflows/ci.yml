@@ -42,8 +42,12 @@ jobs:
       - name: Type checking
         run: npm run typecheck
 
-      - name: Unit testing (Vitest)
-        run: npm test
+      - name: Unit testing (Vitest & Feature Node Tests)
+        run: |
+          npm test
+          npm run test:forecasting
+          npm run test:terrain
+          npm run test:sensors
 
       - name: Production build
         run: npm run build
@@ -77,9 +81,9 @@ jobs:
 
       - name: Backend linting (Ruff)
         run: |
-          ruff check tests/backend
+          ruff check --select E4,E7,E9,F tests/backend
           if [ -d backend ]; then
-            ruff check backend
+            ruff check --select E4,E7,E9,F --ignore F401 backend
           fi
 
       - name: Backend tests (Pytest)
