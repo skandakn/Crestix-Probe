@@ -8,6 +8,8 @@ import {
   Radio,
   BarChart2,
   Waves,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { SIMULATION_SCENARIOS } from "../data/simulationData";
 import { cn } from "../utils/cn";
@@ -18,6 +20,7 @@ import {
   VIEWBOX_HEIGHT,
 } from "../utils/floodHeatmap";
 import { FloodTerrain3D } from "./FloodTerrain3D";
+import { fetchSensorLatest } from "@/features/sensors/api";
 
 export function SimulationPreview() {
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
@@ -30,12 +33,52 @@ export function SimulationPreview() {
   const [showSensorsLayer, setShowSensorsLayer] = useState(true);
   const [selectedSensorNode, setSelectedSensorNode] = useState<string | null>(null);
   const [cxN01LiveDepth, setCxN01LiveDepth] = useState<number | null>(null);
+  const [isHardwareSynced, setIsHardwareSynced] = useState<boolean>(false);
+  const [hardwareNodeStatus, setHardwareNodeStatus] = useState<"IDLE" | "CONNECTED" | "OFFLINE">("IDLE");
+  const [hardwareReadingCm, setHardwareReadingCm] = useState<number | null>(null);
 
   const heatmapCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const cityDem = useMemo(() => createCityDEM(), []);
 
   const scenario = SIMULATION_SCENARIOS[selectedScenarioIndex];
   const currentStep = scenario.timesteps[currentStepIndex];
+
+  // Poll live hardware telemetry when ESP32 sync is activated
+  useEffect(() => {
+    if (!isHardwareSynced) {
+      setHardwareNodeStatus("IDLE");
+      return;
+    }
+
+    let isMounted = true;
+    const pollHardware = async () => {
+      try {
+        const latest = await fetchSensorLatest("EXP-2026-FLOOD-01", "P2");
+        if (!isMounted) return;
+        if (latest && latest.ok && latest.reading && latest.reading.calculatedWaterDepthCm !== null) {
+          setHardwareNodeStatus(latest.stale ? "OFFLINE" : "CONNECTED");
+          setHardwareReadingCm(latest.reading.calculatedWaterDepthCm);
+          // Scale bench point depth (cm) to catchment station meters
+          const derivedMeters = Math.max(0.01, Math.round((latest.reading.calculatedWaterDepthCm / 100) * 1000) / 1000);
+          setCxN01LiveDepth(derivedMeters);
+        } else {
+          setHardwareNodeStatus("OFFLINE");
+        }
+      } catch {
+        if (isMounted) setHardwareNodeStatus("OFFLINE");
+      }
+    };
+
+    void pollHardware();
+    const interval = setInterval(() => {
+      void pollHardware();
+    }, 2000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [isHardwareSynced]);
 
   const cxN01BaseDepth =
     currentStep.sensorReadings.find((n) => n.nodeId === "CX-N01")?.waterDepthM ??
@@ -671,7 +714,21 @@ export function SimulationPreview() {
                       <Radio className="w-3.5 h-3.5" />
                       In-Situ ESP32 Validation Node
                     </span>
-                    <span className="text-[10px] text-emerald-600 font-semibold">TELEMETRY OK</span>
+                    {isHardwareSynced ? (
+                      hardwareNodeStatus === "CONNECTED" ? (
+                        <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          LIVE TELEMETRY (P2: {hardwareReadingCm?.toFixed(1)} cm)
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-amber-600 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          RECONNECTING ESP32...
+                        </span>
+                      )
+                    ) : (
+                      <span className="text-[10px] text-zinc-500 font-semibold">SYNTHETIC BENCHMARK</span>
+                    )}
                   </div>
 
                   {(() => {
@@ -696,13 +753,18 @@ export function SimulationPreview() {
                           <span className="text-[#86868b]">Observed Water Depth:</span>
                           <span className="text-[#1d1d1f] font-semibold">
                             {displayedObservedDepth.toFixed(3)} m (±2mm)
+                            {isHardwareSynced && activeNode.nodeId === "CX-N01" && (
+                              <span className="text-[10px] text-emerald-600 ml-1">
+                                (Live Hardware)
+                              </span>
+                            )}
                           </span>
                         </div>
                         {activeNode.nodeId === "CX-N01" && (
                           <div className="pt-1.5 pb-1">
                             <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
-                              <span>Live CX-N01 Probe Sync:</span>
-                              {cxN01LiveDepth !== null && (
+                              <span>Manual Probe Calibrator:</span>
+                              {cxN01LiveDepth !== null && !isHardwareSynced && (
                                 <button
                                   type="button"
                                   onClick={() => setCxN01LiveDepth(null)}
@@ -718,11 +780,15 @@ export function SimulationPreview() {
                               max={2.2}
                               step={0.05}
                               value={effectiveCxN01Depth}
+                              disabled={isHardwareSynced}
                               onChange={(e) =>
                                 setCxN01LiveDepth(parseFloat(e.target.value))
                               }
                               aria-label="CX-N01 Observed Water Depth"
-                              className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#0071e3]"
+                              className={cn(
+                                "w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-[#0071e3]",
+                                isHardwareSynced ? "bg-emerald-200 opacity-60 cursor-not-allowed" : "bg-zinc-200"
+                              )}
                             />
                           </div>
                         )}
@@ -735,8 +801,63 @@ export function SimulationPreview() {
                         <div className="flex justify-between text-[#1d1d1f]">
                           <span className="text-[#86868b]">Residual vs Neural Model:</span>
                           <span className="text-emerald-600 font-semibold">
-                            Δ = +0.012 m (Assimilated)
+                            {isHardwareSynced && activeNode.nodeId === "CX-N01"
+                              ? `Δ = ${(displayedObservedDepth - cxN01BaseDepth) >= 0 ? "+" : ""}${(displayedObservedDepth - cxN01BaseDepth).toFixed(3)} m (Live In-Situ)`
+                              : "Δ = +0.012 m (Assimilated)"}
                           </span>
+                        </div>
+
+                        {/* Live ESP32 Hardware Integration Toggle */}
+                        <div className="pt-2 border-t border-zinc-100 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isHardwareSynced) {
+                                setIsHardwareSynced(false);
+                                setCxN01LiveDepth(null);
+                              } else {
+                                setIsHardwareSynced(true);
+                              }
+                            }}
+                            className={cn(
+                              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all border",
+                              isHardwareSynced
+                                ? hardwareNodeStatus === "CONNECTED"
+                                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs"
+                                  : "bg-amber-50 border-amber-300 text-amber-700"
+                                : "bg-zinc-100 border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
+                            )}
+                          >
+                            {isHardwareSynced && hardwareNodeStatus === "CONNECTED" ? (
+                              <Wifi className="w-3 h-3 text-emerald-600" />
+                            ) : (
+                              <Radio className="w-3 h-3 text-[#0071e3]" />
+                            )}
+                            <span>
+                              {isHardwareSynced
+                                ? hardwareNodeStatus === "CONNECTED"
+                                  ? `SYNCED: ${hardwareReadingCm?.toFixed(1)} cm`
+                                  : "CONNECTING..."
+                                : "LINK LIVE ESP32 SENSOR"}
+                            </span>
+                          </button>
+
+                          {isHardwareSynced ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsHardwareSynced(false);
+                                setCxN01LiveDepth(null);
+                              }}
+                              className="text-[10px] text-[#0071e3] hover:underline"
+                            >
+                              Reset to Benchmark
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-[#86868b] font-mono">
+                              Benchmark Mode
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
