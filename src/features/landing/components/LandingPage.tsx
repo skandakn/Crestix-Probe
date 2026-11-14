@@ -5,7 +5,6 @@ import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
-import { TechnologyPillars } from "./TechnologyPillars";
 import { ProductFeatures } from "./ProductFeatures";
 import { WorkflowPipeline } from "./WorkflowPipeline";
 import { ResearchBenchmarks } from "./ResearchBenchmarks";
@@ -29,9 +28,6 @@ export function LandingPage() {
 
         {/* 4. Problem Statement: Urban Inundation Crisis */}
         <ProblemStatement />
-
-        {/* 5. Technology Explanation: SWE, FNO/PINO & Sensor Validation */}
-        <TechnologyPillars />
 
         {/* 6. Product Features Section */}
         <ProductFeatures />
