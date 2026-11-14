@@ -115,7 +115,15 @@ Current industrial and academic flood warning solutions divide strictly into two
    * Real-time **Initial Boundary Condition Controls ($t = 0\text{m}$)** allowing municipal operators to adjust initial water depth ($h_0$), conduit discharge ($Q_0$), and inundated area ($A_0$), dynamically observing downstream wave propagation.
    * Dynamic **Emergency Evacuation Graph Routing** factoring water depth vs. vehicle clearance thresholds (sedan $15\text{ cm}$, emergency $30\text{ cm}$).
 
+#### Crestix Probe Web Platform Interface
+![Crestix Probe Web Platform Overview](/hero.png)
+*Figure 3.1: Live production web platform deployment featuring street-scale forecasting headline, 2D Saint-Venant SWE physics core, sub-42ms forward inference benchmark, and live hydrodynamic wave engine telemetry.*
+
 ### 3.2 How It Works: End-to-End System Architecture
+
+#### Interactive 3D Simulation & Telemetry Cockpit
+![Interactive 3D Simulation & Telemetry Readout](/simulation.png)
+*Figure 3.2: Interactive 3D terrain elevation preview showing urban building footprints and live sensor nodes (CX-N01 to CX-N04), paired with the real-time Hydro-Telemetry Readout drawer and dynamic cross-section profile at $t = 0\text{ min}$.*
 
 ```mermaid
 flowchart TD
@@ -163,6 +171,10 @@ Within the intensive 24-hour hackathon timeframe, our team built, validated, ben
 #### Physical Hardware Testbench: Crestix Probe IoT Node
 ![Crestix Probe Physical Hardware Prototype](/hardware_prototype.jpg)
 *Figure 4.1: Live benchtop verification setup of the physical Crestix Probe edge node mounted over a hydraulic test vessel with live immersion. The prototype features an Espressif ESP32-WROOM-32D microcontroller, an industrial ultrasonic acoustic transducer, a submersible waterproof temperature probe, and power conditioning circuitry performing real-time temperature-compensated stage-height measurements ($v = 331.3 + 0.606 \cdot T$, $\pm 2\text{ mm}$ precision, 10 Hz non-blocking sampling).*
+
+#### Live Hardware Bench Ingestion Interface
+![Hardware Bench Telemetry Ingestion UI](/hardware_bench.png)
+*Figure 4.2: Hardware Bench Telemetry Interface — Live REST/TLS telemetry ingestion (/update), physical bench cutaway matching the acoustic test vessel, real-time OneWire DS18B20 temperature compensation ($24.4^\circ\text{C}$, $v = 346.1\text{ m/s}$), and rolling hydrograph stream.*
 
 * **Neural Surrogate & Model Benchmarking Implementation**:
   - Implemented the complete **ConvLSTM-based U-Net architecture** in PyTorch supporting multi-horizon forecasting ($+15, +30, +45, +60\text{ min}$) with native padding/cropping for heterogeneous grid dimensions.
