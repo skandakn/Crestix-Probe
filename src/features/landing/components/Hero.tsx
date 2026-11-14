@@ -177,7 +177,7 @@ export function Hero() {
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#86868b] text-[11px]">
-                  <span>SURROGATE: FNO-2D</span>
+                  <span>SURROGATE: LarNO</span>
                   <span className="text-zinc-300">|</span>
                   <span className="text-emerald-600 font-semibold">t=30m</span>
                 </div>
@@ -319,10 +319,10 @@ export function Hero() {
 
                 {/* Corner Geospatial Crosshairs */}
                 <div className="absolute top-2 left-2 text-[9px] font-mono text-[#86868b]">
-                  + 37.7749° N
+                  + 22.5431° N (Shenzhen)
                 </div>
                 <div className="absolute top-2 right-2 text-[9px] font-mono text-[#86868b]">
-                  - 122.4194° W
+                  + 114.0579° E
                 </div>
                 <div className="absolute bottom-2 left-2 text-[9px] font-mono text-[#0071e3] font-medium">
                   GRID: 1024×1024 • RES: 0.5M

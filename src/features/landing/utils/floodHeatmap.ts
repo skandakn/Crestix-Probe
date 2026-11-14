@@ -23,6 +23,13 @@ export const CITY_BUILDINGS: BuildingFootprint[] = [
   { x: 360, y: 390, width: 95, height: 45 },
 ];
 
+export const SENSOR_VIEWBOX_COORDS = [
+  { nodeId: "CX-N01", x: 220, y: 240 },
+  { nodeId: "CX-N02", x: 380, y: 260 },
+  { nodeId: "CX-N03", x: 520, y: 230 },
+  { nodeId: "CX-N04", x: 330, y: 340 },
+];
+
 const BUILDING_ELEVATION_M = 6.5;
 
 function distanceToSegment(
@@ -72,34 +79,44 @@ export function createCityDEM(): Float32Array {
         continue;
       }
 
-      // Main east-west drainage valley centered around ny = 0.54
       const valley = Math.pow((ny - 0.54) * 2.35, 2) * 2.1;
 
-      // Culvert / stormwater corridor depression: (220,110) -> (220,240) -> (480,260) -> (680,350)
       const dSeg1 = distanceToSegment(sx, sy, 220, 110, 220, 240);
       const dSeg2 = distanceToSegment(sx, sy, 220, 240, 480, 260);
       const dSeg3 = distanceToSegment(sx, sy, 480, 260, 680, 350);
       const minCulvertDist = Math.min(dSeg1, dSeg2, dSeg3);
       const culvertCarve = 0.72 * Math.exp(-(minCulvertDist * minCulvertDist) / (2 * 62 * 62));
 
-      // Natural street-basin depressions around sensor nodes CX-N01..CX-N04
       const basin1 = 0.45 * Math.exp(-((sx - 235) ** 2 + (sy - 245) ** 2) / (2 * 85 * 85));
       const basin2 = 0.52 * Math.exp(-((sx - 390) ** 2 + (sy - 265) ** 2) / (2 * 95 * 95));
       const basin3 = 0.55 * Math.exp(-((sx - 525) ** 2 + (sy - 235) ** 2) / (2 * 90 * 90));
       const basin4 = 0.48 * Math.exp(-((sx - 335) ** 2 + (sy - 335) ** 2) / (2 * 80 * 80));
 
-      // Gentle micro-topography ripple
       const ripple =
         0.12 * Math.sin(nx * Math.PI * 4) * Math.cos(ny * Math.PI * 3) +
         0.08 * Math.cos(nx * Math.PI * 7 + ny * Math.PI * 5);
 
-      // Base elevation normalized so lowest depression is ~0.0m
       const rawElev = 1.08 + valley - culvertCarve - Math.max(basin1, basin2, basin3, basin4) + ripple;
       dem[gy * GRID_SIZE + gx] = Math.max(0.0, Math.min(3.5, rawElev));
     }
   }
 
   return dem;
+}
+
+/**
+ * Computes the shared 64x64 water depth array:
+ * depth[y][x] = Math.max(0, waterSurfaceElevationM - DEM[y][x])
+ */
+export function computeDepthGrid(
+  dem: Float32Array,
+  waterSurfaceElevationM: number
+): Float32Array {
+  const depthGrid = new Float32Array(GRID_SIZE * GRID_SIZE);
+  for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+    depthGrid[i] = Math.max(0, waterSurfaceElevationM - dem[i]);
+  }
+  return depthGrid;
 }
 
 /**
@@ -146,6 +163,7 @@ export function renderFloodHeatmapCanvas(
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
+  const depthGrid = computeDepthGrid(dem, waterSurfaceElevationM);
   const offscreen = document.createElement("canvas");
   offscreen.width = GRID_SIZE;
   offscreen.height = GRID_SIZE;
@@ -156,8 +174,7 @@ export function renderFloodHeatmapCanvas(
   const data = imgData.data;
 
   for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-    const depth = Math.max(0, waterSurfaceElevationM - dem[i]);
-    const [r, g, b, a] = depthToRGBA(depth);
+    const [r, g, b, a] = depthToRGBA(depthGrid[i]);
     const idx = i * 4;
     data[idx] = r;
     data[idx + 1] = g;
@@ -175,4 +192,3 @@ export function renderFloodHeatmapCanvas(
   ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
   ctx.restore();
 }
-

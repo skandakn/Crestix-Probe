@@ -17,11 +17,13 @@ import {
   VIEWBOX_WIDTH,
   VIEWBOX_HEIGHT,
 } from "../utils/floodHeatmap";
+import { FloodTerrain3D } from "./FloodTerrain3D";
 
 export function SimulationPreview() {
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(2); // default t=30min
   const [isPlaying, setIsPlaying] = useState(false);
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const [showDepthLayer, setShowDepthLayer] = useState(true);
   const [showVelocityLayer, setShowVelocityLayer] = useState(true);
   const [showContoursLayer, setShowContoursLayer] = useState(true);
@@ -46,6 +48,7 @@ export function SimulationPreview() {
 
   // Render terrain-conforming 64x64 water-depth heatmap onto <canvas>
   useEffect(() => {
+    if (viewMode !== "2d") return;
     const canvas = heatmapCanvasRef.current;
     if (!canvas) return;
     if (!showDepthLayer) {
@@ -54,7 +57,7 @@ export function SimulationPreview() {
       return;
     }
     renderFloodHeatmapCanvas(canvas, cityDem, effectiveWaterSurfaceElevation);
-  }, [cityDem, effectiveWaterSurfaceElevation, showDepthLayer]);
+  }, [cityDem, effectiveWaterSurfaceElevation, showDepthLayer, viewMode]);
 
   // Auto-play interval
   useEffect(() => {
@@ -200,35 +203,86 @@ export function SimulationPreview() {
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
             {/* Left 8 Cols: Interactive Simulation Map Viewport */}
             <div className="lg:col-span-8 relative bg-[#f8fafc] p-4 lg:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-zinc-200/80">
-              {/* Map Canvas Header Overlay */}
-              <div className="flex items-center justify-between text-xs font-mono mb-2 z-10">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#86868b]">BASIN MODEL:</span>
-                  <span className="text-[#0071e3] font-semibold">{scenario.subtitle}</span>
+              {/* Map Canvas Header Overlay + 2D Raster / 3D Terrain Toggle */}
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono mb-2 z-10">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[#86868b]">BASIN:</span>
+                  <span className="text-[#0071e3] font-semibold">
+                    Shenzhen Urban Catchment (Futian Sector • 22.5431° N, 114.0579° E)
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[#86868b]">FORCING:</span>
-                  <span className="text-[#1d1d1f] font-medium">{scenario.rainfallIntensity}</span>
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:flex items-center gap-1.5">
+                    <span className="text-[#86868b]">FORCING:</span>
+                    <span className="text-[#1d1d1f] font-medium">{scenario.rainfallIntensity}</span>
+                  </div>
+                  <div
+                    role="group"
+                    aria-label="Simulation View Mode"
+                    className="inline-flex items-center rounded-full bg-zinc-200/80 p-0.5 border border-zinc-300/80"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("2d")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-all",
+                        viewMode === "2d"
+                          ? "bg-white text-[#0071e3] shadow-xs"
+                          : "text-[#6e6e73] hover:text-[#1d1d1f]"
+                      )}
+                    >
+                      2D Raster
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("3d")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-all",
+                        viewMode === "3d"
+                          ? "bg-[#0b1120] text-cyan-300 shadow-xs"
+                          : "text-[#6e6e73] hover:text-[#1d1d1f]"
+                      )}
+                    >
+                      3D Terrain
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Main Vector SVG Simulation Visualization + 64x64 Canvas Heatmap */}
+              {/* Main Vector SVG Simulation Visualization + 64x64 Canvas Heatmap OR 3D Terrain */}
               <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl bg-white border border-zinc-200/80 overflow-hidden flex items-center justify-center shadow-xs">
-                {/* 64x64 Terrain-Masked Water Depth Heatmap Canvas */}
-                <canvas
-                  ref={heatmapCanvasRef}
-                  width={VIEWBOX_WIDTH}
-                  height={VIEWBOX_HEIGHT}
-                  className="absolute inset-0 w-full h-full pointer-events-none"
-                  aria-label="64x64 terrain-masked water depth heatmap"
-                />
+                {viewMode === "3d" ? (
+                  <FloodTerrain3D
+                    dem={cityDem}
+                    waterSurfaceElevationM={effectiveWaterSurfaceElevation}
+                    showDepthLayer={showDepthLayer}
+                    showContoursLayer={showContoursLayer}
+                    showSensorsLayer={showSensorsLayer}
+                    sensors={currentStep.sensorReadings.map((n) => ({
+                      nodeId: n.nodeId,
+                      waterDepthM: n.nodeId === "CX-N01" ? effectiveCxN01Depth : n.waterDepthM,
+                      status: n.status,
+                    }))}
+                    selectedSensorNode={selectedSensorNode}
+                    onSelectSensorNode={setSelectedSensorNode}
+                  />
+                ) : (
+                  <>
+                    {/* 64x64 Terrain-Masked Water Depth Heatmap Canvas */}
+                    <canvas
+                      ref={heatmapCanvasRef}
+                      width={VIEWBOX_WIDTH}
+                      height={VIEWBOX_HEIGHT}
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      aria-label="64x64 terrain-masked water depth heatmap"
+                    />
 
-                <svg
-                  className="relative z-10 w-full h-full"
-                  viewBox="0 0 800 480"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                    <svg
+                      className="relative z-10 w-full h-full"
+                      viewBox="0 0 800 480"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
                   <defs>
                     <radialGradient id="sensorAuraLight" cx="50%" cy="50%" r="50%">
                       <stop offset="0%" stopColor="#0071e3" stopOpacity="0.7" />
@@ -371,7 +425,9 @@ export function SimulationPreview() {
                       })}
                     </g>
                   )}
-                </svg>
+                    </svg>
+                  </>
+                )}
 
                 {/* Depth Legend Floating Box */}
                 <div className="absolute bottom-3 left-3 p-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-black/[0.08] text-[10px] font-mono text-[#1d1d1f] shadow-sm z-20">
@@ -524,7 +580,7 @@ export function SimulationPreview() {
                       38.4 ms
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
-                      FNO-2D forward pass
+                      LarNO forward pass
                     </div>
                   </div>
                 </div>
