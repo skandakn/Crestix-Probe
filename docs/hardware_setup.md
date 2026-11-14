@@ -2,9 +2,9 @@
 
 ## Identify before wiring
 
-The repository currently names several incompatible ultrasonic modules: HC-SR04, JSN-SR04T, and JSN-SR04T-2.0/AJ-SR04M. Read the exact model and revision from the board or transducer label and obtain that revision's datasheet before choosing supply voltage, trigger pulse, echo timing, minimum range, or wiring. Do not connect an unidentified Echo output to an ESP32.
+The user identified the available ultrasonic module as HC-SR04. Board revisions and clones vary, so verify its supply and output level before wiring. The commonly documented 5 V HC-SR04 requires a trigger pulse of at least 10 µs and returns a 5 V Echo pulse; protect the ESP32 input. Do not connect a 5 V Echo directly to GPIO.
 
-Many common HC-SR04 boards are powered at 5 V and produce a 5 V Echo signal. ESP32 GPIO is not 5 V tolerant. For a confirmed 5 V Echo output, use a suitable logic-level shifter or a divider sized for the ESP32 input range; connect grounds together. Never infer output voltage solely from the product family name. Verify the measured Echo high voltage with a meter before connecting GPIO.
+For a verified 5 V Echo output, the firmware pin map uses a divider: HC-SR04 Echo → 1 kΩ → ESP32 Echo GPIO; from that GPIO node use 2 kΩ to common ground (about 3.3 V from a 5 V high). Or use a direction-appropriate level shifter. Power the common HC-SR04 board from 5 V; share ground with ESP32. Verify the divided high level with a meter before connecting GPIO. HC-SR04 Trig is driven from a 3.3 V ESP32 output; confirm the board recognizes it before unattended operation.
 
 Keep the ESP32, breadboard, power supply, and all exposed conductors above and away from the basin. Use a rigid mount that holds the transducer vertical and prevents movement during each trial. Protect the sensor from splashes; do not immerse a non-waterproof module. Route wires with strain relief and provide a drip loop.
 
