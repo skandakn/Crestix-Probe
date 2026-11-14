@@ -3,14 +3,8 @@
 import React, { useState } from "react";
 import {
   Cpu,
-  Layers,
-  Radio,
-  ShieldCheck,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
-  Terminal,
-  Activity,
   Code2,
 } from "lucide-react";
 import { TECHNOLOGY_PILLARS } from "../data/techData";

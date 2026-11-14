@@ -7,7 +7,6 @@ import {
   Cpu,
   Zap,
   Radio,
-  ArrowRight,
   Workflow,
   CheckCircle2,
   Layers,

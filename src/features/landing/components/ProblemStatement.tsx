@@ -4,18 +4,11 @@ import React from "react";
 import {
   AlertTriangle,
   Clock,
-  Cpu,
-  Layers,
-  ShieldAlert,
-  ArrowRight,
-  TrendingDown,
   CheckCircle2,
   XCircle,
   Building2,
-  CloudRain,
   EyeOff,
 } from "lucide-react";
-import { cn } from "../utils/cn";
 
 export function ProblemStatement() {
   return (

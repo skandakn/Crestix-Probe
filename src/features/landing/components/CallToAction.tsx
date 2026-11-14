@@ -11,9 +11,7 @@ import {
   Lock,
   Cpu,
   Radio,
-  FileText,
 } from "lucide-react";
-import { cn } from "../utils/cn";
 
 export function CallToAction() {
   const [formSubmitted, setFormSubmitted] = useState(false);

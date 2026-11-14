@@ -3,19 +3,11 @@
 import React, { useState, useEffect } from "react";
 import {
   Radio,
-  Cpu,
   Terminal,
-  Zap,
-  BatteryCharging,
-  ShieldCheck,
   Play,
   Pause,
   RotateCcw,
-  Activity,
-  Layers,
   ArrowRight,
-  Maximize2,
-  CheckCircle2,
 } from "lucide-react";
 import {
   HARDWARE_COMPONENTS,

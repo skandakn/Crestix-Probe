@@ -8,10 +8,6 @@ import {
   Menu,
   X,
   ArrowRight,
-  ShieldAlert,
-  Cpu,
-  Layers,
-  FileText,
   Activity,
 } from "lucide-react";
 import { cn } from "../utils/cn";

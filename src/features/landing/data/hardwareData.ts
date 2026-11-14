@@ -1,5 +1,3 @@
-import { SensorNodeTelemetry } from "../types";
-
 export interface HardwareComponent {
   subsystem: string;
   name: string;
