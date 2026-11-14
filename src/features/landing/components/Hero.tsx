@@ -140,11 +140,6 @@ export function Hero() {
                     HYDRODYNAMIC WAVE ENGINE
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[#86868b] text-[11px]">
-                  <span>SURROGATE: LarNO</span>
-                  <span className="text-zinc-300">|</span>
-                  <span className="text-emerald-600 font-semibold">t=30m</span>
-                </div>
               </div>
 
               {/* Viewport Control Tabs (Apple segmented control) */}
