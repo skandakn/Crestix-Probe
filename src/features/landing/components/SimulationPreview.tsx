@@ -72,37 +72,37 @@ export function SimulationPreview() {
   const getRiskColor = (level: string) => {
     switch (level) {
       case "critical":
-        return "text-red-400 bg-red-950/60 border-red-500/40";
+        return "text-rose-700 bg-rose-50 border-rose-200";
       case "warning":
-        return "text-amber-400 bg-amber-950/60 border-amber-500/40";
+        return "text-amber-700 bg-amber-50 border-amber-200";
       case "advisory":
-        return "text-yellow-300 bg-yellow-950/50 border-yellow-500/30";
+        return "text-yellow-800 bg-yellow-50 border-yellow-200";
       default:
-        return "text-emerald-400 bg-emerald-950/50 border-emerald-500/30";
+        return "text-emerald-700 bg-emerald-50 border-emerald-200";
     }
   };
 
   return (
     <section
       id="simulation"
-      className="relative py-24 bg-[#07090e] border-b border-slate-800/80 overflow-hidden"
+      className="relative py-28 bg-white border-b border-black/[0.06] overflow-hidden"
     >
-      {/* Background Subtle Grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none" />
+      {/* Background Subtle Precision Dots */}
+      <div className="absolute inset-0 bg-[radial-gradient(#0000000a_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col items-start max-w-3xl mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-4">
+        <div className="flex flex-col items-start max-w-3xl mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-[#0071e3] text-xs font-mono mb-4 font-semibold">
             <Waves className="w-3.5 h-3.5" />
             <span>INTERACTIVE HYDRODYNAMIC LAB</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1d1d1f] mb-4">
             Real-Time Flood Propagation Simulator
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#6e6e73] leading-relaxed">
             Scrub forward in storm duration to inspect how high-resolution
             shallow-water equations and Fourier Neural Operators predict 2D
             overland flood wave propagation, culvert choke points, and surface
@@ -110,13 +110,13 @@ export function SimulationPreview() {
           </p>
         </div>
 
-        {/* Main Simulator Card */}
-        <div className="rounded-2xl bg-[#0b0f17] border border-cyan-500/20 shadow-2xl shadow-cyan-950/40 overflow-hidden">
+        {/* Main Simulator Card (Apple Studio Porcelain Card) */}
+        <div className="rounded-3xl bg-white border border-zinc-200/90 shadow-[0_12px_44px_rgba(0,0,0,0.06)] overflow-hidden">
           {/* Top Control Bar: Scenario Selection & Layer Toggles */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 lg:p-6 bg-[#0d131f] border-b border-slate-800">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 lg:p-5 bg-[#fbfbfd] border-b border-zinc-200/80">
             {/* Scenario Dropdown / Tabs */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono text-slate-400 uppercase tracking-wider mr-2">
+              <span className="text-xs font-mono text-[#86868b] uppercase tracking-wider mr-2 font-medium">
                 Scenario:
               </span>
               {SIMULATION_SCENARIOS.map((sc, idx) => (
@@ -129,10 +129,10 @@ export function SimulationPreview() {
                     setIsPlaying(false);
                   }}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border",
+                    "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
                     selectedScenarioIndex === idx
-                      ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-sm shadow-cyan-950"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                      ? "bg-[#1d1d1f] border-[#1d1d1f] text-white shadow-xs font-semibold"
+                      : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-zinc-50"
                   )}
                 >
                   {sc.name}
@@ -142,17 +142,17 @@ export function SimulationPreview() {
 
             {/* Visual Layer Toggles */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono text-slate-400 uppercase tracking-wider mr-1">
+              <span className="text-xs font-mono text-[#86868b] uppercase tracking-wider mr-1 font-medium">
                 Layers:
               </span>
               <button
                 type="button"
                 onClick={() => setShowDepthLayer(!showDepthLayer)}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-mono transition-colors border",
+                  "px-3 py-1 rounded-full text-xs font-mono transition-colors border",
                   showDepthLayer
-                    ? "bg-cyan-950 border-cyan-500 text-cyan-300"
-                    : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400"
+                    ? "bg-blue-50 border-blue-300 text-[#0071e3] font-semibold"
+                    : "bg-white border-zinc-200 text-[#86868b] hover:text-[#1d1d1f]"
                 )}
               >
                 Depth (h)
@@ -161,10 +161,10 @@ export function SimulationPreview() {
                 type="button"
                 onClick={() => setShowVelocityLayer(!showVelocityLayer)}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-mono transition-colors border",
+                  "px-3 py-1 rounded-full text-xs font-mono transition-colors border",
                   showVelocityLayer
-                    ? "bg-teal-950 border-teal-500 text-teal-300"
-                    : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400"
+                    ? "bg-teal-50 border-teal-300 text-teal-700 font-semibold"
+                    : "bg-white border-zinc-200 text-[#86868b] hover:text-[#1d1d1f]"
                 )}
               >
                 Velocity (u,v)
@@ -173,10 +173,10 @@ export function SimulationPreview() {
                 type="button"
                 onClick={() => setShowContoursLayer(!showContoursLayer)}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-mono transition-colors border",
+                  "px-3 py-1 rounded-full text-xs font-mono transition-colors border",
                   showContoursLayer
-                    ? "bg-slate-800 border-slate-600 text-slate-200"
-                    : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400"
+                    ? "bg-zinc-100 border-zinc-300 text-[#1d1d1f] font-semibold"
+                    : "bg-white border-zinc-200 text-[#86868b] hover:text-[#1d1d1f]"
                 )}
               >
                 DEM Contours
@@ -185,10 +185,10 @@ export function SimulationPreview() {
                 type="button"
                 onClick={() => setShowSensorsLayer(!showSensorsLayer)}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-mono transition-colors border",
+                  "px-3 py-1 rounded-full text-xs font-mono transition-colors border",
                   showSensorsLayer
-                    ? "bg-blue-950 border-blue-500 text-blue-300"
-                    : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-400"
+                    ? "bg-sky-50 border-sky-300 text-sky-700 font-semibold"
+                    : "bg-white border-zinc-200 text-[#86868b] hover:text-[#1d1d1f]"
                 )}
               >
                 ESP32 Sensors
@@ -199,22 +199,22 @@ export function SimulationPreview() {
           {/* Middle Body: 2D Hydrodynamic Canvas + Side Telemetry Panel */}
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
             {/* Left 8 Cols: Interactive Simulation Map Viewport */}
-            <div className="lg:col-span-8 relative bg-[#06080d] p-4 lg:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
+            <div className="lg:col-span-8 relative bg-[#f8fafc] p-4 lg:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-zinc-200/80">
               {/* Map Canvas Header Overlay */}
               <div className="flex items-center justify-between text-xs font-mono mb-2 z-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-400">BASIN MODEL:</span>
-                  <span className="text-cyan-300 font-semibold">{scenario.subtitle}</span>
+                  <span className="text-[#86868b]">BASIN MODEL:</span>
+                  <span className="text-[#0071e3] font-semibold">{scenario.subtitle}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">FORCING:</span>
-                  <span className="text-slate-300">{scenario.rainfallIntensity}</span>
+                  <span className="text-[#86868b]">FORCING:</span>
+                  <span className="text-[#1d1d1f] font-medium">{scenario.rainfallIntensity}</span>
                 </div>
               </div>
 
-              {/* Main Vector SVG + 64x64 Canvas Flood Heatmap */}
-              <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl bg-[#080b12] border border-slate-800/90 overflow-hidden flex items-center justify-center shadow-inner">
-                {/* 64x64 Terrain-Conforming Water-Depth Heatmap (<canvas> beneath sensor pins) */}
+              {/* Main Vector SVG Simulation Visualization + 64x64 Canvas Heatmap */}
+              <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl bg-white border border-zinc-200/80 overflow-hidden flex items-center justify-center shadow-xs">
+                {/* 64x64 Terrain-Masked Water Depth Heatmap Canvas */}
                 <canvas
                   ref={heatmapCanvasRef}
                   width={VIEWBOX_WIDTH}
@@ -230,54 +230,52 @@ export function SimulationPreview() {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <defs>
-                    <radialGradient id="sensorAura" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+                    <radialGradient id="sensorAuraLight" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#0071e3" stopOpacity="0.7" />
+                      <stop offset="100%" stopColor="#0071e3" stopOpacity="0" />
                     </radialGradient>
                   </defs>
 
                   {/* Topographic Bathymetric Contours Layer */}
                   {showContoursLayer && (
-                    <g opacity="0.4" stroke="#334155" strokeWidth="1.2">
-                      {/* Hill / High terrain boundary */}
+                    <g opacity="0.6" stroke="#cbd5e1" strokeWidth="1.2">
                       <path d="M 50,80 Q 250,40 500,70 T 750,60" />
                       <path d="M 40,160 Q 260,110 520,150 T 760,130" strokeDasharray="4 4" />
                       <path d="M 30,240 Q 270,180 540,230 T 770,210" />
                       <path d="M 30,320 Q 290,260 560,310 T 780,290" strokeDasharray="3 3" />
                       <path d="M 20,400 Q 300,340 580,390 T 790,370" />
 
-                      {/* Elevation labels */}
-                      <text x="55" y="75" fill="#64748b" fontSize="9" fontFamily="monospace">
+                      <text x="55" y="75" fill="#94a3b8" fontSize="9" fontFamily="monospace">
                         z=24m
                       </text>
-                      <text x="45" y="155" fill="#64748b" fontSize="9" fontFamily="monospace">
+                      <text x="45" y="155" fill="#94a3b8" fontSize="9" fontFamily="monospace">
                         z=18m
                       </text>
-                      <text x="35" y="235" fill="#64748b" fontSize="9" fontFamily="monospace">
+                      <text x="35" y="235" fill="#94a3b8" fontSize="9" fontFamily="monospace">
                         z=12m (Drainage Basin)
                       </text>
-                      <text x="35" y="315" fill="#64748b" fontSize="9" fontFamily="monospace">
+                      <text x="35" y="315" fill="#94a3b8" fontSize="9" fontFamily="monospace">
                         z=6m (Low Depression)
                       </text>
                     </g>
                   )}
 
                   {/* Built Environment Structures (Building Obstacles, DEM > 5.0m) */}
-                  <g opacity="0.92" fill="#0f172a" stroke="#475569" strokeWidth="1.2">
-                    <rect x="180" y="70" width="70" height="40" rx="3" />
-                    <rect x="290" y="65" width="85" height="45" rx="3" />
-                    <rect x="420" y="80" width="60" height="40" rx="3" />
-                    <rect x="580" y="75" width="90" height="50" rx="3" />
+                  <g opacity="0.6" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1.2">
+                    <rect x="180" y="70" width="70" height="40" rx="4" />
+                    <rect x="290" y="65" width="85" height="45" rx="4" />
+                    <rect x="420" y="80" width="60" height="40" rx="4" />
+                    <rect x="580" y="75" width="90" height="50" rx="4" />
 
-                    <rect x="140" y="210" width="80" height="45" rx="3" />
-                    <rect x="620" y="200" width="75" height="55" rx="3" />
+                    <rect x="140" y="210" width="80" height="45" rx="4" />
+                    <rect x="620" y="200" width="75" height="55" rx="4" />
 
-                    <rect x="190" y="380" width="85" height="45" rx="3" />
-                    <rect x="360" y="390" width="95" height="45" rx="3" />
+                    <rect x="190" y="380" width="85" height="45" rx="4" />
+                    <rect x="360" y="390" width="95" height="45" rx="4" />
                   </g>
 
                   {/* Culvert / Stormwater Conduit Pipe Network */}
-                  <g opacity="0.5" stroke="#0e7490" strokeWidth="2.5" strokeDasharray="6 4">
+                  <g opacity="0.75" stroke="#0284c7" strokeWidth="2.5" strokeDasharray="6 4">
                     <line x1="220" y1="110" x2="220" y2="240" />
                     <line x1="220" y1="240" x2="480" y2="260" />
                     <line x1="480" y1="260" x2="680" y2="350" />
@@ -285,8 +283,7 @@ export function SimulationPreview() {
 
                   {/* Surface Velocity Flow Vectors Layer */}
                   {showVelocityLayer && (
-                    <g stroke="#2dd4bf" strokeWidth="1.4" opacity="0.85">
-                      {/* Flow vectors animated according to velocity */}
+                    <g stroke="#0369a1" strokeWidth="1.6" opacity="0.9">
                       <path d="M 230,220 L 265,235 M 265,235 L 257,231 M 265,235 L 259,240" />
                       <path d="M 290,230 L 330,245 M 330,245 L 321,241 M 330,245 L 324,250" />
                       <path d="M 360,240 L 405,255 M 405,255 L 396,251 M 405,255 L 399,260" />
@@ -302,7 +299,6 @@ export function SimulationPreview() {
                   {showSensorsLayer && (
                     <g>
                       {currentStep.sensorReadings.map((node, i) => {
-                        // Coordinates for the 4 sensor nodes
                         const coords = [
                           { x: 220, y: 240 },
                           { x: 380, y: 260 },
@@ -312,6 +308,10 @@ export function SimulationPreview() {
 
                         const isSelected = selectedSensorNode === node.nodeId;
                         const isCritical = node.status === "critical";
+                        const displayedDepth =
+                          node.nodeId === "CX-N01"
+                            ? effectiveCxN01Depth
+                            : node.waterDepthM;
 
                         return (
                           <g
@@ -328,7 +328,7 @@ export function SimulationPreview() {
                               cx={coords.x}
                               cy={coords.y}
                               r={isCritical ? "24" : "18"}
-                              fill="url(#sensorAura)"
+                              fill="url(#sensorAuraLight)"
                               className={isCritical ? "animate-ping" : ""}
                             />
 
@@ -337,9 +337,9 @@ export function SimulationPreview() {
                               cx={coords.x}
                               cy={coords.y}
                               r="6"
-                              fill={isCritical ? "#ef4444" : "#22d3ee"}
-                              stroke="#07090e"
-                              strokeWidth="2"
+                              fill={isCritical ? "#ef4444" : "#0071e3"}
+                              stroke="#ffffff"
+                              strokeWidth="2.5"
                               className="group-hover:scale-125 transition-transform"
                             />
 
@@ -348,22 +348,22 @@ export function SimulationPreview() {
                               <rect
                                 x="0"
                                 y="0"
-                                width="82"
+                                width="84"
                                 height="22"
-                                rx="4"
-                                fill="#07090e"
-                                stroke={isSelected ? "#22d3ee" : isCritical ? "#ef4444" : "#334155"}
-                                strokeWidth="1"
+                                rx="5"
+                                fill="#ffffff"
+                                stroke={isSelected ? "#0071e3" : isCritical ? "#ef4444" : "#cbd5e1"}
+                                strokeWidth="1.2"
                               />
                               <text
                                 x="6"
                                 y="14"
-                                fill={isCritical ? "#fca5a5" : "#cbd5e1"}
+                                fill={isCritical ? "#b91c1c" : "#1d1d1f"}
                                 fontSize="9"
                                 fontFamily="monospace"
                                 fontWeight="bold"
                               >
-                                {node.nodeId}: {node.nodeId === "CX-N01" ? effectiveCxN01Depth.toFixed(2) : node.waterDepthM}m
+                                {node.nodeId}: {displayedDepth.toFixed(2)}m
                               </text>
                             </g>
                           </g>
@@ -374,49 +374,49 @@ export function SimulationPreview() {
                 </svg>
 
                 {/* Depth Legend Floating Box */}
-                <div className="absolute bottom-3 left-3 z-20 p-2.5 rounded-lg bg-[#07090e]/90 backdrop-blur-md border border-slate-800 text-[10px] font-mono text-slate-300">
-                  <div className="text-slate-400 font-bold mb-1.5 uppercase tracking-wider">
+                <div className="absolute bottom-3 left-3 p-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-black/[0.08] text-[10px] font-mono text-[#1d1d1f] shadow-sm z-20">
+                  <div className="text-[#86868b] font-bold mb-1.5 uppercase tracking-wider">
                     Water Depth (h)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-[#0284c7]/70 border border-[#0284c7]" />
+                    <span className="w-3 h-3 rounded bg-blue-100 border border-blue-300" />
                     <span>0.1m</span>
-                    <span className="w-3 h-3 rounded bg-[#38bdf8] border border-sky-200" />
+                    <span className="w-3 h-3 rounded bg-blue-400 border border-blue-500" />
                     <span>0.5m</span>
-                    <span className="w-3 h-3 rounded bg-[#facc15] border border-yellow-200" />
+                    <span className="w-3 h-3 rounded bg-[#0071e3] border border-blue-700" />
                     <span>1.0m</span>
-                    <span className="w-3 h-3 rounded bg-[#ef4444] border border-red-200" />
+                    <span className="w-3 h-3 rounded bg-cyan-400 border border-cyan-600" />
                     <span>&gt;1.5m</span>
                   </div>
                 </div>
 
                 {/* Real-time Step Label in Corner */}
-                <div className="absolute top-3 right-3 z-20 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700/80 font-mono text-xs">
-                  <span className="text-slate-400">Storm Time: </span>
-                  <span className="text-cyan-300 font-bold">
+                <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 border border-zinc-200/80 font-mono text-xs shadow-xs z-20">
+                  <span className="text-[#86868b]">Storm Time: </span>
+                  <span className="text-[#0071e3] font-bold">
                     t = {currentStep.minute} min
                   </span>
                 </div>
               </div>
 
               {/* Time Scrubber Slider & Playback Controls */}
-              <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="mt-4 pt-4 border-t border-zinc-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
                 {/* Play / Reset Buttons */}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-mono transition-colors active:scale-95"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold font-mono transition-colors active:scale-95 shadow-xs"
                     aria-label={isPlaying ? "Pause simulation" : "Play simulation"}
                   >
                     {isPlaying ? (
                       <>
-                        <Pause className="w-3.5 h-3.5 fill-slate-950" />
+                        <Pause className="w-3.5 h-3.5 fill-white" />
                         <span>PAUSE</span>
                       </>
                     ) : (
                       <>
-                        <Play className="w-3.5 h-3.5 fill-slate-950" />
+                        <Play className="w-3.5 h-3.5 fill-white" />
                         <span>PLAY SEQUENCE</span>
                       </>
                     )}
@@ -428,7 +428,7 @@ export function SimulationPreview() {
                       setIsPlaying(false);
                       setCurrentStepIndex(0);
                     }}
-                    className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition-colors"
+                    className="p-2 rounded-full bg-white hover:bg-zinc-50 text-[#6e6e73] hover:text-[#1d1d1f] border border-zinc-200 transition-colors shadow-xs"
                     title="Reset to t=0"
                     aria-label="Reset simulation to beginning"
                   >
@@ -437,7 +437,7 @@ export function SimulationPreview() {
                 </div>
 
                 {/* Time Step Buttons */}
-                <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-center">
+                <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-center bg-[#f5f5f7] p-1 rounded-full border border-black/[0.04]">
                   {scenario.timesteps.map((ts, idx) => (
                     <button
                       key={ts.minute}
@@ -447,10 +447,10 @@ export function SimulationPreview() {
                         setIsPlaying(false);
                       }}
                       className={cn(
-                        "px-2.5 py-1 rounded text-xs font-mono transition-all",
+                        "px-3 py-1 rounded-full text-xs font-mono transition-all font-medium",
                         currentStepIndex === idx
-                          ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400 font-bold"
-                          : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+                          ? "bg-white text-[#1d1d1f] shadow-xs font-bold"
+                          : "text-[#6e6e73] hover:text-[#1d1d1f]"
                       )}
                     >
                       {ts.minute}m
@@ -461,16 +461,16 @@ export function SimulationPreview() {
             </div>
 
             {/* Right 4 Cols: Live Telemetry, Basin Metrics & Cross-Section Profile */}
-            <div className="lg:col-span-4 p-4 lg:p-6 bg-[#0a0e17] flex flex-col justify-between">
+            <div className="lg:col-span-4 p-4 lg:p-6 bg-white flex flex-col justify-between">
               <div>
                 {/* Telemetry Status Bar */}
-                <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800 text-xs font-mono">
-                  <span className="text-slate-400 uppercase tracking-wider">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-100 text-xs font-mono">
+                  <span className="text-[#86868b] uppercase tracking-wider font-medium">
                     Hydro-Telemetry Readout
                   </span>
                   <span
                     className={cn(
-                      "px-2 py-0.5 rounded text-[10px] font-bold border uppercase",
+                      "px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase",
                       getRiskColor(currentStep.riskLevel)
                     )}
                   >
@@ -480,67 +480,67 @@ export function SimulationPreview() {
 
                 {/* 4 Metric Cards */}
                 <div className="grid grid-cols-2 gap-2.5 mb-5 font-mono">
-                  <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
+                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
                       Max Water Depth
                     </div>
-                    <div className="text-xl font-bold text-cyan-300">
-                      {currentStep.maxDepthMeters.toFixed(2)} m
+                    <div className="text-xl font-bold text-[#0071e3]">
+                      {effectiveWaterSurfaceElevation.toFixed(2)} m
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-[#86868b] mt-0.5">
                       at Sector Charlie
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
+                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
                       Peak Discharge
                     </div>
-                    <div className="text-xl font-bold text-teal-300">
+                    <div className="text-xl font-bold text-[#0284c7]">
                       {currentStep.peakDischargeM3s.toFixed(1)} m³/s
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-[#86868b] mt-0.5">
                       conduit throat
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
+                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
                       Inundated Area
                     </div>
-                    <div className="text-xl font-bold text-slate-200">
+                    <div className="text-xl font-bold text-[#1d1d1f]">
                       {currentStep.inundatedAreaKm2.toFixed(2)} km²
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-[#86868b] mt-0.5">
                       surface flood pool
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
+                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
                       Surrogate Latency
                     </div>
-                    <div className="text-xl font-bold text-emerald-400">
+                    <div className="text-xl font-bold text-emerald-600">
                       38.4 ms
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-[#86868b] mt-0.5">
                       FNO-2D forward pass
                     </div>
                   </div>
                 </div>
 
                 {/* Dynamic Cross-Section Elevation & Water Surface Profile */}
-                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 mb-5">
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-300 mb-2">
-                    <span className="flex items-center gap-1.5 text-cyan-400">
+                <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs mb-5">
+                  <div className="flex items-center justify-between text-xs font-mono text-[#1d1d1f] mb-2 font-medium">
+                    <span className="flex items-center gap-1.5 text-[#0071e3]">
                       <BarChart2 className="w-3.5 h-3.5" />
                       Transect Cross-Section Profile
                     </span>
-                    <span className="text-[10px] text-slate-400">Section A-A&apos;</span>
+                    <span className="text-[10px] text-[#86868b]">Section A-A&apos;</span>
                   </div>
 
                   {/* SVG Profile Chart */}
-                  <div className="relative h-28 w-full bg-[#06080d] rounded-lg p-2 border border-slate-800/80">
+                  <div className="relative h-28 w-full bg-[#f8fafc] rounded-xl p-2 border border-zinc-200/70">
                     <svg
                       className="w-full h-full"
                       viewBox="0 0 280 80"
@@ -550,14 +550,13 @@ export function SimulationPreview() {
                       {/* Bed Elevation Terrain Contour */}
                       <path
                         d="M 10,20 Q 70,60 140,65 T 270,30 L 270,80 L 10,80 Z"
-                        fill="#1e293b"
-                        stroke="#475569"
+                        fill="#e2e8f0"
+                        stroke="#94a3b8"
                         strokeWidth="1.2"
                       />
 
                       {/* Dynamic Water Level (Rises with currentStep) */}
                       {(() => {
-                        // Calculate dynamic water level y based on effectiveWaterSurfaceElevation
                         const waterHeightPx = Math.min(
                           45,
                           effectiveWaterSurfaceElevation * 22
@@ -568,18 +567,19 @@ export function SimulationPreview() {
                           <g>
                             <path
                               d={`M 50,${waterSurfaceY} Q 140,${waterSurfaceY} 230,${waterSurfaceY} L 230,65 Q 140,65 50,65 Z`}
-                              fill="#06b6d4"
-                              fillOpacity="0.5"
-                              stroke="#22d3ee"
-                              strokeWidth="1.2"
+                              fill="#0071e3"
+                              fillOpacity="0.4"
+                              stroke="#0071e3"
+                              strokeWidth="1.5"
                             />
                             {/* Water surface label */}
                             <text
                               x="140"
                               y={Math.max(16, waterSurfaceY - 4)}
-                              fill="#67e8f9"
+                              fill="#0071e3"
                               fontSize="8"
                               fontFamily="monospace"
+                              fontWeight="bold"
                               textAnchor="middle"
                             >
                               h = {effectiveWaterSurfaceElevation.toFixed(2)}m
@@ -594,28 +594,28 @@ export function SimulationPreview() {
                         y1="75"
                         x2="270"
                         y2="75"
-                        stroke="#334155"
+                        stroke="#cbd5e1"
                         strokeWidth="0.8"
                         strokeDasharray="2 2"
                       />
-                      <text x="12" y="73" fill="#64748b" fontSize="6" fontFamily="monospace">
+                      <text x="12" y="73" fill="#94a3b8" fontSize="6" fontFamily="monospace">
                         Datum (0.0m)
                       </text>
                     </svg>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono mt-1 text-center">
+                  <div className="text-[10px] text-[#86868b] font-mono mt-1 text-center">
                     Ground Bathymetry vs Dynamic Water Elevation
                   </div>
                 </div>
 
                 {/* Sensor Node Card (shows selected or top active) */}
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-300 mb-2">
-                    <span className="flex items-center gap-1.5 text-teal-400">
+                <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-mono text-[#1d1d1f] mb-2 font-medium">
+                    <span className="flex items-center gap-1.5 text-[#0071e3]">
                       <Radio className="w-3.5 h-3.5" />
                       In-Situ ESP32 Validation Node
                     </span>
-                    <span className="text-[10px] text-emerald-400">TELEMETRY OK</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold">TELEMETRY OK</span>
                   </div>
 
                   {(() => {
@@ -630,27 +630,27 @@ export function SimulationPreview() {
 
                     return (
                       <div className="space-y-1.5 text-xs font-mono">
-                        <div className="flex justify-between text-slate-300">
-                          <span className="text-slate-400">Node ID:</span>
-                          <span className="text-cyan-300 font-bold">
+                        <div className="flex justify-between text-[#1d1d1f]">
+                          <span className="text-[#86868b]">Node ID:</span>
+                          <span className="text-[#0071e3] font-bold">
                             {activeNode.nodeId} ({activeNode.label})
                           </span>
                         </div>
-                        <div className="flex justify-between text-slate-300">
-                          <span className="text-slate-400">Observed Water Depth:</span>
-                          <span className="text-slate-100 font-semibold">
+                        <div className="flex justify-between text-[#1d1d1f]">
+                          <span className="text-[#86868b]">Observed Water Depth:</span>
+                          <span className="text-[#1d1d1f] font-semibold">
                             {displayedObservedDepth.toFixed(3)} m (±2mm)
                           </span>
                         </div>
                         {activeNode.nodeId === "CX-N01" && (
-                          <div className="pt-1 pb-1">
-                            <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                          <div className="pt-1.5 pb-1">
+                            <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
                               <span>Live CX-N01 Probe Sync:</span>
                               {cxN01LiveDepth !== null && (
                                 <button
                                   type="button"
                                   onClick={() => setCxN01LiveDepth(null)}
-                                  className="text-cyan-400 hover:text-cyan-300 underline"
+                                  className="text-[#0071e3] hover:underline"
                                 >
                                   Reset
                                 </button>
@@ -666,19 +666,19 @@ export function SimulationPreview() {
                                 setCxN01LiveDepth(parseFloat(e.target.value))
                               }
                               aria-label="CX-N01 Observed Water Depth"
-                              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                              className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#0071e3]"
                             />
                           </div>
                         )}
-                        <div className="flex justify-between text-slate-300">
-                          <span className="text-slate-400">Flow Velocity:</span>
-                          <span className="text-teal-300 font-semibold">
+                        <div className="flex justify-between text-[#1d1d1f]">
+                          <span className="text-[#86868b]">Flow Velocity:</span>
+                          <span className="text-[#0284c7] font-semibold">
                             {activeNode.surfaceVelocityMs.toFixed(2)} m/s
                           </span>
                         </div>
-                        <div className="flex justify-between text-slate-300">
-                          <span className="text-slate-400">Residual vs Neural Model:</span>
-                          <span className="text-emerald-400 font-semibold">
+                        <div className="flex justify-between text-[#1d1d1f]">
+                          <span className="text-[#86868b]">Residual vs Neural Model:</span>
+                          <span className="text-emerald-600 font-semibold">
                             Δ = +0.012 m (Assimilated)
                           </span>
                         </div>
@@ -689,7 +689,7 @@ export function SimulationPreview() {
               </div>
 
               {/* Bottom Scenario Description */}
-              <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 leading-relaxed font-sans">
+              <div className="mt-4 pt-3 border-t border-zinc-100 text-[11px] text-[#86868b] leading-relaxed font-sans">
                 {scenario.description}
               </div>
             </div>

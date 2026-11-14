@@ -1,22 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Radio,
+  Terminal,
+  Play,
+  Pause,
+  RotateCcw,
   ArrowRight,
   Thermometer,
   Sliders,
+  Copy,
+  Check,
+  Download,
   Activity,
   Layers,
 } from "lucide-react";
 import {
   HARDWARE_COMPONENTS,
+  SAMPLE_SERIAL_PACKETS,
   PROTOTYPE_METRICS,
 } from "../data/hardwareData";
 import { cn } from "../utils/cn";
 
 export function HardwareProbe() {
-  const [activeTab, setActiveTab] = useState<"specs" | "compensator">("specs");
+  const [activeTab, setActiveTab] = useState<"specs" | "compensator" | "serial">("specs");
+  const [isTerminalStreaming, setIsTerminalStreaming] = useState(true);
+  const [packets, setPackets] = useState(SAMPLE_SERIAL_PACKETS);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Compensator interactive state
   const [ambientTempC, setAmbientTempC] = useState<number>(24.0);
@@ -33,28 +44,96 @@ export function HardwareProbe() {
   const errorMm = (uncalibratedDistM - targetDatumM) * 1000;
   const errorPercent = ((uncalibratedDistM - targetDatumM) / targetDatumM) * 100;
 
+  // Live serial terminal stream simulator
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isTerminalStreaming) {
+      interval = setInterval(() => {
+        const randomNodeIndex = Math.floor(Math.random() * 3) + 1;
+        const now = new Date();
+        const timeStr =
+          now.toTimeString().split(" ")[0] +
+          "." +
+          String(now.getMilliseconds()).padStart(3, "0");
+
+        const simulatedTemp = Number((ambientTempC + (Math.random() * 0.8 - 0.4)).toFixed(1));
+        const simSpeed = 331.3 + 0.606 * simulatedTemp;
+        const simDist = Number((targetDatumM + (Math.random() * 0.04 - 0.02)).toFixed(3));
+        const simTof = Math.round(((2 * simDist) / simSpeed) * 1000000);
+
+        const newPacket = {
+          timestamp: timeStr,
+          topic: `crestix/cx-0${randomNodeIndex}/telemetry`,
+          payload: {
+            node_id: `CX-NODE-0${randomNodeIndex}`,
+            hw_rev: "v1.4",
+            datum_m: Number((8.0 + randomNodeIndex * 2.2).toFixed(3)),
+            tof_us: simTof,
+            temp_c: simulatedTemp,
+            water_depth_m: Number(Math.max(0, 8.0 + randomNodeIndex * 2.2 - simDist).toFixed(3)),
+            rate_rise_cm_h: Number((12.0 + Math.random() * 20.0).toFixed(1)),
+            batt_mv: Math.floor(3300 + Math.random() * 50),
+            rssi_dbm: Math.floor(-85 + Math.random() * 18),
+            snr_db: Number((9.0 + Math.random() * 3.5).toFixed(1)),
+            sample_mode: "BURST_STORM",
+            crc_ok: true,
+          },
+        };
+
+        setPackets((prev) => [newPacket, ...prev.slice(0, 14)]);
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTerminalStreaming, ambientTempC, targetDatumM]);
+
+  // Copy packets to clipboard
+  const handleCopyPackets = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(packets, null, 2));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch {
+      setIsCopied(false);
+    }
+  };
+
+  // Download packets as JSON file
+  const handleDownloadPackets = () => {
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(packets, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `crestix-telemetry-feed-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
   return (
     <section
       id="hardware"
-      className="relative py-24 bg-[#07090e] border-b border-slate-800/80 overflow-hidden"
+      className="relative py-28 bg-white border-b border-black/[0.06] overflow-hidden"
     >
       {/* Background Gradients */}
-      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-teal-950/20 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-cyan-950/20 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-blue-500/[0.03] blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-cyan-400/[0.03] blur-[140px] rounded-full pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col items-start max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-4">
-            <Radio className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-[#0071e3] text-xs font-mono mb-4 font-semibold">
+            <Radio className="w-3.5 h-3.5 text-[#0071e3]" />
             <span>IN-SITU PHYSICAL HARDWARE</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1d1d1f] mb-6">
             Autonomous ESP32 Ultrasonic Field Probe
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#6e6e73] leading-relaxed">
             Neural surrogate models require physical ground truth. The Crestix
             Field Node (CX-Node-V1) delivers non-contact acoustic water-depth
             telemetry deployed across critical culverts, canal bridges, and
@@ -62,67 +141,67 @@ export function HardwareProbe() {
           </p>
         </div>
 
-        {/* Prototype Summary Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-10">
-          <div className="p-4 rounded-xl bg-[#0b0f17] border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+        {/* Prototype Summary Metrics (Apple Porcelain Cards) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+          <div className="p-5 rounded-3xl bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
               Active Field Nodes
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-cyan-300">
+            <div className="text-xl sm:text-2xl font-bold text-[#0071e3]">
               {PROTOTYPE_METRICS.totalNodesFieldTested} Units
             </div>
-            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+            <div className="text-[11px] text-[#6e6e73] font-mono mt-0.5">
               Continuous Ingestion
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0b0f17] border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+          <div className="p-5 rounded-3xl bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
               Acoustic Precision
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-teal-300">
+            <div className="text-xl sm:text-2xl font-bold text-[#0284c7]">
               ±2 Millimeters
             </div>
-            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+            <div className="text-[11px] text-[#6e6e73] font-mono mt-0.5">
               NTC Thermistor Corrected
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0b0f17] border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+          <div className="p-5 rounded-3xl bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
               Detection Latency
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-100">
+            <div className="text-xl sm:text-2xl font-bold text-[#1d1d1f]">
               {PROTOTYPE_METRICS.detectionLatency}
             </div>
-            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+            <div className="text-[11px] text-[#6e6e73] font-mono mt-0.5">
               Adaptive Storm Sampling
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0b0f17] border border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1">
+          <div className="p-5 rounded-3xl bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
               Enclosure Ingress
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-emerald-400">
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600">
               IP67 / IP68
             </div>
-            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+            <div className="text-[11px] text-[#6e6e73] font-mono mt-0.5">
               Weatherproof Submersible
             </div>
           </div>
         </div>
 
-        {/* Main Hardware Container: Schematics, Physics Compensator & Live Terminal */}
-        <div className="rounded-2xl bg-[#0b0f17] border border-cyan-500/20 shadow-2xl shadow-cyan-950/40 overflow-hidden">
+        {/* Main Hardware Container */}
+        <div className="rounded-3xl bg-white border border-zinc-200/90 shadow-[0_12px_44px_rgba(0,0,0,0.05)] overflow-hidden">
           {/* Top Bar with View Mode Tabs */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 bg-[#0e1422] border-b border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 bg-[#fbfbfd] border-b border-zinc-200/80">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs font-bold text-white">
+              <span className="font-mono text-xs font-bold text-[#1d1d1f]">
                 HARDWARE ARCHITECTURE: CX-NODE-V1
               </span>
-              <span className="text-slate-600">|</span>
-              <span className="text-[11px] font-mono text-cyan-400">
+              <span className="text-zinc-300">|</span>
+              <span className="text-[11px] font-mono text-[#0071e3] font-semibold">
                 FW: {PROTOTYPE_METRICS.firmwareVersion}
               </span>
             </div>
@@ -132,10 +211,10 @@ export function HardwareProbe() {
                 type="button"
                 onClick={() => setActiveTab("specs")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border flex items-center gap-1.5",
+                  "px-3.5 py-1.5 rounded-full text-xs font-mono transition-all border flex items-center gap-1.5 font-medium",
                   activeTab === "specs"
-                    ? "bg-cyan-950 border-cyan-500 text-cyan-300"
-                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                    ? "bg-[#0071e3] text-white border-transparent shadow-xs font-semibold"
+                    : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
                 )}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -146,51 +225,65 @@ export function HardwareProbe() {
                 type="button"
                 onClick={() => setActiveTab("compensator")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border flex items-center gap-1.5",
+                  "px-3.5 py-1.5 rounded-full text-xs font-mono transition-all border flex items-center gap-1.5 font-medium",
                   activeTab === "compensator"
-                    ? "bg-cyan-950 border-cyan-500 text-cyan-300"
-                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                    ? "bg-[#0071e3] text-white border-transparent shadow-xs font-semibold"
+                    : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
                 )}
               >
-                <Thermometer className="w-3.5 h-3.5 text-teal-400" />
+                <Thermometer className="w-3.5 h-3.5" />
                 <span>Speed-of-Sound Physics</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("serial")}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-full text-xs font-mono transition-all border flex items-center gap-1.5 font-medium",
+                  activeTab === "serial"
+                    ? "bg-[#0071e3] text-white border-transparent shadow-xs font-semibold"
+                    : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
+                )}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Live Serial Stream</span>
               </button>
             </div>
           </div>
 
           {/* Subsystem Specifications View */}
           {activeTab === "specs" && (
-            <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white">
               {HARDWARE_COMPONENTS.map((comp, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/30 transition-colors flex flex-col justify-between"
+                  className="p-6 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 hover:border-blue-300 transition-all shadow-xs flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0071e3] border border-blue-200/60">
                         {comp.subsystem}
                       </span>
-                      <span className="text-[11px] font-mono text-slate-400">
+                      <span className="text-[11px] font-mono text-[#86868b]">
                         {comp.partNumber}
                       </span>
                     </div>
 
-                    <h4 className="text-base font-bold text-white mb-2">
+                    <h4 className="text-base font-bold text-[#1d1d1f] mb-2">
                       {comp.name}
                     </h4>
 
-                    <p className="text-xs text-slate-300 font-sans leading-relaxed mb-4">
+                    <p className="text-xs text-[#6e6e73] font-sans leading-relaxed mb-4">
                       {comp.role}
                     </p>
 
-                    <div className="space-y-1.5 pt-3 border-t border-slate-800">
+                    <div className="space-y-1.5 pt-3 border-t border-zinc-200/60">
                       {comp.specifications.map((spec, sIdx) => (
                         <div
                           key={sIdx}
-                          className="flex items-start gap-2 text-xs font-mono text-slate-300"
+                          className="flex items-start gap-2 text-xs font-mono text-[#515154]"
                         >
-                          <span className="text-teal-400">•</span>
+                          <span className="text-[#0071e3]">•</span>
                           <span>{spec}</span>
                         </div>
                       ))}
@@ -203,20 +296,20 @@ export function HardwareProbe() {
 
           {/* Acoustic Speed-of-Sound Thermistor Compensator Interactive View */}
           {activeTab === "compensator" && (
-            <div className="p-6 sm:p-8 space-y-6">
-              <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/40 via-teal-950/20 to-slate-900/60 border border-cyan-500/30">
+            <div className="p-6 sm:p-8 space-y-6 bg-white">
+              <div className="p-5 rounded-2xl bg-blue-50/60 border border-blue-200/80">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2">
-                    <Thermometer className="w-4 h-4 text-cyan-400" />
-                    <span className="font-mono text-xs font-bold text-white">
+                    <Thermometer className="w-4 h-4 text-[#0071e3]" />
+                    <span className="font-mono text-xs font-bold text-[#1d1d1f]">
                       PHYSICS SIMULATOR: NTC TEMPERATURE SPEED-OF-SOUND CORRECTION
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono text-teal-400 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-500/30">
+                  <span className="text-[11px] font-mono text-[#0071e3] bg-white px-2.5 py-0.5 rounded-full border border-blue-200/80 font-semibold shadow-xs">
                     Real-time Equation: v(T) = 331.3 + 0.606·T [m/s]
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                <p className="text-xs text-[#6e6e73] leading-relaxed font-sans">
                   The speed of sound in air is strictly a thermodynamic function of
                   absolute ambient temperature. Ultrasonic transducers that assume a static room-temperature
                   constant (343.2 m/s) incur severe ranging drift (up to ±12 cm) during summer asphalt heatwaves or sub-zero night chills. The Crestix Field Probe samples an onboard thermistor concurrently with each sonic ping, applying immediate firmware-level correction.
@@ -226,17 +319,17 @@ export function HardwareProbe() {
               {/* Interactive Controls & Telemetry Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 {/* Left 6 cols: Sliders */}
-                <div className="lg:col-span-6 p-5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between gap-6">
+                <div className="lg:col-span-6 p-6 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 flex flex-col justify-between gap-6 shadow-xs">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label
                         htmlFor="temp-slider"
-                        className="text-xs font-mono text-slate-300 flex items-center gap-1.5"
+                        className="text-xs font-mono text-[#1d1d1f] flex items-center gap-1.5 font-semibold"
                       >
-                        <Thermometer className="w-3.5 h-3.5 text-cyan-400" />
+                        <Thermometer className="w-3.5 h-3.5 text-[#0071e3]" />
                         <span>In-Situ Air Temperature (T):</span>
                       </label>
-                      <span className="text-sm font-mono font-bold text-cyan-300 bg-slate-800 px-2 py-0.5 rounded">
+                      <span className="text-sm font-mono font-bold text-[#0071e3] bg-white border border-zinc-200 px-2.5 py-0.5 rounded-full shadow-xs">
                         {ambientTempC.toFixed(1)}°C
                       </span>
                     </div>
@@ -248,9 +341,9 @@ export function HardwareProbe() {
                       step="0.5"
                       value={ambientTempC}
                       onChange={(e) => setAmbientTempC(parseFloat(e.target.value))}
-                      className="w-full accent-cyan-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                      className="w-full accent-[#0071e3] cursor-pointer h-2 bg-zinc-200 rounded-lg"
                     />
-                    <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                    <div className="flex justify-between text-[10px] font-mono text-[#86868b] mt-1">
                       <span>-10°C (Freezing Storm)</span>
                       <span>20°C (Standard Lab)</span>
                       <span>+45°C (Heatwave)</span>
@@ -261,12 +354,12 @@ export function HardwareProbe() {
                     <div className="flex items-center justify-between mb-2">
                       <label
                         htmlFor="distance-slider"
-                        className="text-xs font-mono text-slate-300 flex items-center gap-1.5"
+                        className="text-xs font-mono text-[#1d1d1f] flex items-center gap-1.5 font-semibold"
                       >
-                        <Sliders className="w-3.5 h-3.5 text-teal-400" />
+                        <Sliders className="w-3.5 h-3.5 text-[#0284c7]" />
                         <span>True Transducer-to-Water Distance (d):</span>
                       </label>
-                      <span className="text-sm font-mono font-bold text-teal-300 bg-slate-800 px-2 py-0.5 rounded">
+                      <span className="text-sm font-mono font-bold text-[#0284c7] bg-white border border-zinc-200 px-2.5 py-0.5 rounded-full shadow-xs">
                         {targetDatumM.toFixed(2)} m
                       </span>
                     </div>
@@ -278,9 +371,9 @@ export function HardwareProbe() {
                       step="0.05"
                       value={targetDatumM}
                       onChange={(e) => setTargetDatumM(parseFloat(e.target.value))}
-                      className="w-full accent-teal-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                      className="w-full accent-[#0284c7] cursor-pointer h-2 bg-zinc-200 rounded-lg"
                     />
-                    <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                    <div className="flex justify-between text-[10px] font-mono text-[#86868b] mt-1">
                       <span>0.50 m (Near Brim)</span>
                       <span>2.50 m (Canal Bed)</span>
                       <span>5.00 m (Deep Culvert)</span>
@@ -288,31 +381,31 @@ export function HardwareProbe() {
                   </div>
 
                   {/* Calculated Acoustic Parameters */}
-                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800 font-mono text-xs">
-                    <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800">
-                      <span className="text-[10px] text-slate-500 uppercase block">Compensated Sonic Speed</span>
-                      <span className="text-sm font-bold text-white">{speedOfSound.toFixed(2)} m/s</span>
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-zinc-200 font-mono text-xs">
+                    <div className="p-3 rounded-xl bg-white border border-zinc-200 shadow-xs">
+                      <span className="text-[10px] text-[#86868b] uppercase block">Compensated Sonic Speed</span>
+                      <span className="text-sm font-bold text-[#1d1d1f]">{speedOfSound.toFixed(2)} m/s</span>
                     </div>
-                    <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800">
-                      <span className="text-[10px] text-slate-500 uppercase block">Echo Round-Trip (ToF)</span>
-                      <span className="text-sm font-bold text-cyan-300">{tofUs.toLocaleString()} µs</span>
+                    <div className="p-3 rounded-xl bg-white border border-zinc-200 shadow-xs">
+                      <span className="text-[10px] text-[#86868b] uppercase block">Echo Round-Trip (ToF)</span>
+                      <span className="text-sm font-bold text-[#0071e3]">{tofUs.toLocaleString()} µs</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Right 6 cols: Error Comparison Matrix */}
-                <div className="lg:col-span-6 p-5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between gap-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                    <span className="font-mono text-xs font-bold text-white flex items-center gap-1.5">
-                      <Activity className="w-3.5 h-3.5 text-teal-400" />
+                <div className="lg:col-span-6 p-6 rounded-2xl bg-white border border-zinc-200/80 flex flex-col justify-between gap-4 shadow-xs">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+                    <span className="font-mono text-xs font-bold text-[#1d1d1f] flex items-center gap-1.5">
+                      <Activity className="w-3.5 h-3.5 text-[#0071e3]" />
                       CALIBRATED VS UNCALIBRATED TELEMETRY
                     </span>
                     <span
                       className={cn(
-                        "text-[10px] font-mono font-bold px-2 py-0.5 rounded",
+                        "text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border",
                         Math.abs(errorMm) < 5
-                          ? "bg-emerald-950 text-emerald-300 border border-emerald-500/40"
-                          : "bg-amber-950 text-amber-300 border border-amber-500/40"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border-amber-200"
                       )}
                     >
                       {Math.abs(errorMm) < 5 ? "STABLE REGIME" : "CRITICAL OFFSET"}
@@ -321,40 +414,40 @@ export function HardwareProbe() {
 
                   <div className="space-y-3 font-mono text-xs">
                     {/* Crestix Corrected Reading */}
-                    <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30 flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-center justify-between">
                       <div>
-                        <div className="text-[10px] uppercase text-emerald-400 font-bold">
+                        <div className="text-[10px] uppercase text-emerald-800 font-bold">
                           Crestix Probe (NTC Thermistor Corrected)
                         </div>
-                        <div className="text-slate-300 text-[11px]">
+                        <div className="text-[#515154] text-[11px]">
                           Firmware dynamically compensates for {ambientTempC}°C
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-base font-bold text-emerald-300">
+                        <div className="text-base font-bold text-emerald-700">
                           {targetDatumM.toFixed(3)} m
                         </div>
-                        <div className="text-[10px] text-emerald-400 font-bold">
+                        <div className="text-[10px] text-emerald-800 font-bold">
                           Error: ±0.0 mm
                         </div>
                       </div>
                     </div>
 
                     {/* Naive / Uncalibrated Sensor Reading */}
-                    <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-500/30 flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200 flex items-center justify-between">
                       <div>
-                        <div className="text-[10px] uppercase text-rose-400 font-bold">
+                        <div className="text-[10px] uppercase text-rose-800 font-bold">
                           Uncalibrated Sensor (Static 343.2 m/s Baseline)
                         </div>
-                        <div className="text-slate-300 text-[11px]">
+                        <div className="text-[#515154] text-[11px]">
                           Assumes 20°C regardless of real environment
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-base font-bold text-rose-300">
+                        <div className="text-base font-bold text-rose-700">
                           {uncalibratedDistM.toFixed(3)} m
                         </div>
-                        <div className="text-[10px] text-rose-400 font-bold">
+                        <div className="text-[10px] text-rose-800 font-bold">
                           Offset: {errorMm >= 0 ? "+" : ""}
                           {errorMm.toFixed(1)} mm ({errorPercent.toFixed(2)}%)
                         </div>
@@ -363,8 +456,8 @@ export function HardwareProbe() {
                   </div>
 
                   {/* Impact Insight Callout */}
-                  <div className="p-3 rounded-lg bg-[#06080d] border border-slate-800 text-[11px] text-slate-400 leading-relaxed font-sans">
-                    <span className="font-semibold text-slate-200">Municipal Impact: </span>
+                  <div className="p-3.5 rounded-xl bg-[#f5f5f7] border border-black/[0.04] text-[11px] text-[#6e6e73] leading-relaxed font-sans">
+                    <span className="font-semibold text-[#1d1d1f]">Municipal Impact: </span>
                     An uncalibrated {Math.abs(errorMm).toFixed(1)} mm ({Math.abs(errorMm / 10).toFixed(1)} cm) offset at this temperature would distort hydraulic head calculations and trigger either premature evacuation alarms or undetected roadway overtopping.
                   </div>
                 </div>
@@ -372,15 +465,132 @@ export function HardwareProbe() {
             </div>
           )}
 
+          {/* Live Serial Terminal View (Apple Pro Dark Console Enclosure) */}
+          {activeTab === "serial" && (
+            <div className="p-5 sm:p-6 bg-[#1d1d1f] text-slate-100 flex flex-col">
+              {/* Terminal Controls Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-zinc-700/80 font-mono text-xs">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isTerminalStreaming ? "bg-emerald-400 animate-pulse" : "bg-zinc-500"
+                    )}
+                  />
+                  <span className="text-zinc-200 font-semibold">
+                    MQTT INGESTION MONITOR (TLS 1.3 / LoRaWAN)
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyPackets}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-[11px] transition-colors"
+                    title="Copy JSON Payload Buffer"
+                  >
+                    {isCopied ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-300">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-blue-400" />
+                        <span>Copy JSON</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadPackets}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-[11px] transition-colors"
+                    title="Export Stream as JSON"
+                  >
+                    <Download className="w-3 h-3 text-cyan-400" />
+                    <span>Export JSON</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsTerminalStreaming(!isTerminalStreaming)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-[11px] transition-colors"
+                  >
+                    {isTerminalStreaming ? (
+                      <>
+                        <Pause className="w-3 h-3 text-amber-400" />
+                        <span>Pause</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3 h-3 text-emerald-400" />
+                        <span>Resume</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPackets([])}
+                    className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700 text-[11px] transition-colors"
+                    title="Clear Buffer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Terminal Output Log Window */}
+              <div className="h-96 overflow-y-auto space-y-2.5 font-mono text-xs p-4 rounded-2xl bg-black/50 border border-zinc-800">
+                {packets.length === 0 ? (
+                  <div className="text-zinc-500 text-center py-10">
+                    Terminal buffer cleared. Waiting for telemetry packet broadcast...
+                  </div>
+                ) : (
+                  packets.map((pkt, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-zinc-900/70 border border-zinc-800 hover:border-zinc-700 transition-colors"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 mb-1.5 border-b border-zinc-800 pb-1">
+                        <span className="text-cyan-400 font-bold">
+                          [{pkt.timestamp}] TOPIC: {pkt.topic}
+                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-emerald-400 font-semibold">CRC: OK</span>
+                          <span className="text-zinc-400">
+                            RSSI: {pkt.payload.rssi_dbm} dBm
+                          </span>
+                        </div>
+                      </div>
+
+                      <pre className="text-[11px] text-zinc-300 leading-tight overflow-x-auto">
+                        {JSON.stringify(pkt.payload, null, 2)}
+                      </pre>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-zinc-400">
+                <span>Adaptive Telemetry Rate: 30s Burst during Storm Rise</span>
+                <span className="text-cyan-400">
+                  Data Assimilation Protocol: EnKF v2.1
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Bottom Callout Bar */}
-          <div className="p-4 sm:p-5 bg-[#0e1422] border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
-            <div className="text-slate-300">
+          <div className="p-4 sm:p-5 bg-[#f5f5f7] border-t border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
+            <div className="text-[#6e6e73]">
               Hardware schematics, FreeRTOS C++ firmware, and 3D enclosure CAD
               files are fully documented.
             </div>
             <a
               href="#cta"
-              className="inline-flex items-center gap-1.5 text-cyan-300 hover:text-cyan-200 font-semibold"
+              className="inline-flex items-center gap-1.5 text-[#0071e3] hover:underline font-semibold"
             >
               <span>Request Hardware Pilot Kit</span>
               <ArrowRight className="w-3.5 h-3.5" />

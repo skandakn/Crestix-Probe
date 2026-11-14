@@ -149,7 +149,7 @@ export const TerrainDashboard: React.FC = () => {
         {/* Left Column: 3D Viewport + Inspector HUD */}
         <div className="lg:col-span-8 flex flex-col gap-4">
           {/* 3D Terrain Viewport Container */}
-          <div className="relative w-full h-[540px] md:h-[620px]">
+          <div className="relative w-full h-[380px] sm:h-[480px] md:h-[620px] rounded-2xl overflow-hidden border border-slate-800">
             <TerrainViewer3D
               dem={currentTerrain}
               settings={layerSettings}

@@ -80,35 +80,35 @@ export const ForecastingWorkspace: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <MockDataBadge isMock={isMock} dataSource={forecastRecord?.metadata.dataSource} size="md" />
 
             {/* View Switcher Tabs */}
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs font-mono">
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs font-mono w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab('workspace')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer touch-manipulation ${
                   activeTab === 'workspace'
                     ? 'bg-cyan-600 text-white font-bold shadow'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>Simulation Studio</span>
+                <span className="truncate">Simulation Studio</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('comparison')}
-                className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors cursor-pointer touch-manipulation ${
                   activeTab === 'comparison'
                     ? 'bg-cyan-600 text-white font-bold shadow'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
-                <span>Model Benchmark & Verification</span>
+                <span className="truncate">Benchmark</span>
               </button>
             </div>
           </div>
@@ -171,7 +171,7 @@ export const ForecastingWorkspace: React.FC = () => {
             ) : (
               <section className="space-y-6">
                 {/* Visualizer Mode Toggle */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono font-medium text-slate-300 uppercase tracking-wider">
                       Dynamic Hydrodynamic Visualizer
@@ -181,29 +181,29 @@ export const ForecastingWorkspace: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 text-[11px] font-mono">
+                  <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 text-[11px] font-mono overflow-x-auto max-w-full">
                     <button
                       type="button"
                       onClick={() => setMapViewMode('both')}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${
+                      className={`px-2 py-1 rounded cursor-pointer whitespace-nowrap touch-manipulation ${
                         mapViewMode === 'both' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-400'
                       }`}
                     >
-                      Dual Maps (Depth + Velocity)
+                      Dual Maps
                     </button>
                     <button
                       type="button"
                       onClick={() => setMapViewMode('depth')}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${
+                      className={`px-2 py-1 rounded cursor-pointer whitespace-nowrap touch-manipulation ${
                         mapViewMode === 'depth' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-400'
                       }`}
                     >
-                      Water Depth Only
+                      Depth Only
                     </button>
                     <button
                       type="button"
                       onClick={() => setMapViewMode('velocity')}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${
+                      className={`px-2 py-1 rounded cursor-pointer whitespace-nowrap touch-manipulation ${
                         mapViewMode === 'velocity' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-400'
                       }`}
                     >

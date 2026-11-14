@@ -81,7 +81,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-[#151d2c] lg:hidden"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md text-slate-400 hover:text-white hover:bg-[#151d2c] lg:hidden touch-manipulation cursor-pointer"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -106,8 +106,9 @@ export function Sidebar({
                   const navLinkContent = (
                     <Link
                       href={item.href}
+                      onClick={onCloseMobile}
                       className={cn(
-                        "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-cyan-400",
+                        "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-cyan-400 touch-manipulation",
                         isActive
                           ? "bg-cyan-950/40 text-cyan-300 border border-cyan-500/30 shadow-sm shadow-cyan-950/30 font-semibold"
                           : "text-slate-400 hover:text-slate-100 hover:bg-[#151d2c] border border-transparent"

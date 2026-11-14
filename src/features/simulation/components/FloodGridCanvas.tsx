@@ -240,6 +240,46 @@ export const FloodGridCanvas: React.FC<FloodGridCanvasProps> = ({
     setHoveredCell(null);
   };
 
+  // Mobile Touch Support
+  const handleTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas || rows === 0 || cols === 0) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const cellWidth = rect.width / cols;
+    const cellHeight = rect.height / rows;
+
+    const c = Math.floor(x / cellWidth);
+    const r = Math.floor(y / cellHeight);
+
+    if (r >= 0 && r < rows && c >= 0 && c < cols) {
+      setHoveredCell({ r, c });
+      if (onSelectCell) {
+        const elevation = elevationGrid[r]?.[c] || 0;
+        const depth = currentFrame?.waterDepthGrid?.[r]?.[c] || 0;
+        const waterSurfaceElevation = parseFloat((elevation + depth).toFixed(3));
+
+        let category: "dry" | "shallow" | "moderate" | "deep" = "dry";
+        if (depth > thresholds.moderateThreshold) category = "deep";
+        else if (depth > thresholds.shallowThreshold) category = "moderate";
+        else if (depth > thresholds.dryThreshold) category = "shallow";
+
+        onSelectCell({
+          r,
+          c,
+          elevation,
+          depth,
+          waterSurfaceElevation,
+          category,
+        });
+      }
+    }
+  };
+
   const handleClick = () => {
     if (!hoveredCell || !onSelectCell) return;
     const { r, c } = hoveredCell;
@@ -360,7 +400,9 @@ export const FloodGridCanvas: React.FC<FloodGridCanvasProps> = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
-          className="w-full h-full max-w-[550px] max-h-[550px] object-contain rounded-xl border border-slate-800/80 cursor-crosshair shadow-inner"
+          onTouchStart={handleTouch}
+          onTouchMove={handleTouch}
+          className="w-full h-full max-w-[550px] max-h-[550px] object-contain rounded-xl border border-slate-800/80 cursor-crosshair shadow-inner touch-none"
         />
 
         {/* Hover inspection pill badge */}
