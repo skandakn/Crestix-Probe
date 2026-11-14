@@ -40,14 +40,6 @@ export function Footer() {
                 forecasting using hydrodynamic simulation, neural surrogate
                 models and physical sensor validation.
               </p>
-
-              {/* Status Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-zinc-200 text-[11px] font-mono text-[#1d1d1f] mb-6 shadow-2xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>SURROGATE: ACTIVE</span>
-                <span className="text-zinc-300">•</span>
-                <span className="text-[#0071e3] font-semibold">16 NODES ONLINE</span>
-              </div>
             </div>
 
             <div className="text-[11px] text-[#86868b] font-mono">
