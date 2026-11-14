@@ -1,33 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Radio,
-  Terminal,
-  Play,
-  Pause,
-  RotateCcw,
   ArrowRight,
   Thermometer,
   Sliders,
-  Copy,
-  Check,
-  Download,
   Activity,
   Layers,
 } from "lucide-react";
 import {
   HARDWARE_COMPONENTS,
-  SAMPLE_SERIAL_PACKETS,
   PROTOTYPE_METRICS,
 } from "../data/hardwareData";
 import { cn } from "../utils/cn";
 
 export function HardwareProbe() {
-  const [activeTab, setActiveTab] = useState<"specs" | "compensator" | "serial">("specs");
-  const [isTerminalStreaming, setIsTerminalStreaming] = useState(true);
-  const [packets, setPackets] = useState(SAMPLE_SERIAL_PACKETS);
-  const [isCopied, setIsCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"specs" | "compensator">("specs");
 
   // Compensator interactive state
   const [ambientTempC, setAmbientTempC] = useState<number>(24.0);
@@ -43,75 +32,6 @@ export function HardwareProbe() {
   const uncalibratedDistM = (uncalibratedSpeed * (tofUs / 1000000)) / 2;
   const errorMm = (uncalibratedDistM - targetDatumM) * 1000;
   const errorPercent = ((uncalibratedDistM - targetDatumM) / targetDatumM) * 100;
-
-  // Live serial terminal stream simulator
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isTerminalStreaming) {
-      interval = setInterval(() => {
-        const randomNodeIndex = Math.floor(Math.random() * 3) + 1;
-        const now = new Date();
-        const timeStr =
-          now.toTimeString().split(" ")[0] +
-          "." +
-          String(now.getMilliseconds()).padStart(3, "0");
-
-        const simulatedTemp = Number((ambientTempC + (Math.random() * 0.8 - 0.4)).toFixed(1));
-        const simSpeed = 331.3 + 0.606 * simulatedTemp;
-        const simDist = Number((targetDatumM + (Math.random() * 0.04 - 0.02)).toFixed(3));
-        const simTof = Math.round(((2 * simDist) / simSpeed) * 1000000);
-
-        const newPacket = {
-          timestamp: timeStr,
-          topic: `crestix/cx-0${randomNodeIndex}/telemetry`,
-          payload: {
-            node_id: `CX-NODE-0${randomNodeIndex}`,
-            hw_rev: "v1.4",
-            datum_m: Number((8.0 + randomNodeIndex * 2.2).toFixed(3)),
-            tof_us: simTof,
-            temp_c: simulatedTemp,
-            water_depth_m: Number(Math.max(0, 8.0 + randomNodeIndex * 2.2 - simDist).toFixed(3)),
-            rate_rise_cm_h: Number((12.0 + Math.random() * 20.0).toFixed(1)),
-            batt_mv: Math.floor(3300 + Math.random() * 50),
-            rssi_dbm: Math.floor(-85 + Math.random() * 18),
-            snr_db: Number((9.0 + Math.random() * 3.5).toFixed(1)),
-            sample_mode: "BURST_STORM",
-            crc_ok: true,
-          },
-        };
-
-        setPackets((prev) => [newPacket, ...prev.slice(0, 14)]);
-      }, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isTerminalStreaming, ambientTempC, targetDatumM]);
-
-  // Copy packets to clipboard
-  const handleCopyPackets = async () => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(packets, null, 2));
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch {
-      // Fallback if clipboard API is restricted
-      setIsCopied(false);
-    }
-  };
-
-  // Download packets as JSON file
-  const handleDownloadPackets = () => {
-    const dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(packets, null, 2));
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `crestix-telemetry-feed-${Date.now()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  };
 
   return (
     <section
@@ -234,20 +154,6 @@ export function HardwareProbe() {
               >
                 <Thermometer className="w-3.5 h-3.5 text-teal-400" />
                 <span>Speed-of-Sound Physics</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("serial")}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border flex items-center gap-1.5",
-                  activeTab === "serial"
-                    ? "bg-cyan-950 border-cyan-500 text-cyan-300"
-                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
-                )}
-              >
-                <Terminal className="w-3.5 h-3.5" />
-                <span>Live Serial Stream</span>
               </button>
             </div>
           </div>
@@ -462,123 +368,6 @@ export function HardwareProbe() {
                     An uncalibrated {Math.abs(errorMm).toFixed(1)} mm ({Math.abs(errorMm / 10).toFixed(1)} cm) offset at this temperature would distort hydraulic head calculations and trigger either premature evacuation alarms or undetected roadway overtopping.
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Live Serial Terminal View */}
-          {activeTab === "serial" && (
-            <div className="p-4 sm:p-6 bg-[#06080d] flex flex-col">
-              {/* Terminal Controls Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800/80 font-mono text-xs">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "h-2 w-2 rounded-full",
-                      isTerminalStreaming ? "bg-emerald-400 animate-pulse" : "bg-slate-600"
-                    )}
-                  />
-                  <span className="text-slate-300">
-                    MQTT INGESTION MONITOR (TLS 1.3 / LoRaWAN)
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleCopyPackets}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] transition-colors"
-                    title="Copy JSON Payload Buffer"
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-emerald-300">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3 text-cyan-400" />
-                        <span>Copy JSON</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDownloadPackets}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] transition-colors"
-                    title="Export Stream as JSON"
-                  >
-                    <Download className="w-3 h-3 text-teal-400" />
-                    <span>Export JSON</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsTerminalStreaming(!isTerminalStreaming)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] transition-colors"
-                  >
-                    {isTerminalStreaming ? (
-                      <>
-                        <Pause className="w-3 h-3 text-amber-400" />
-                        <span>Pause</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-3 h-3 text-emerald-400" />
-                        <span>Resume</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPackets([])}
-                    className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-[11px] transition-colors"
-                    title="Clear Buffer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Terminal Output Log Window */}
-              <div className="h-96 overflow-y-auto space-y-2.5 font-mono text-xs p-3 rounded-lg bg-[#04060a] border border-slate-800/80">
-                {packets.length === 0 ? (
-                  <div className="text-slate-400 text-center py-10">
-                    Terminal buffer cleared. Waiting for telemetry packet broadcast...
-                  </div>
-                ) : (
-                  packets.map((pkt, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 rounded bg-slate-900/40 border border-slate-800/60 hover:border-cyan-500/30 transition-colors"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 mb-1 border-b border-slate-800/40 pb-1">
-                        <span className="text-cyan-400 font-bold">
-                          [{pkt.timestamp}] TOPIC: {pkt.topic}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-emerald-400">CRC: OK</span>
-                          <span className="text-slate-400">
-                            RSSI: {pkt.payload.rssi_dbm} dBm
-                          </span>
-                        </div>
-                      </div>
-
-                      <pre className="text-[11px] text-slate-300 leading-tight overflow-x-auto">
-                        {JSON.stringify(pkt.payload, null, 2)}
-                      </pre>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
-                <span>Adaptive Telemetry Rate: 30s Burst during Storm Rise</span>
-                <span className="text-teal-400">
-                  Data Assimilation Protocol: EnKF v2.1
-                </span>
               </div>
             </div>
           )}
