@@ -58,19 +58,12 @@ export function ProblemStatement() {
                 Impervious Surface Explosion
               </h3>
 
-              <p className="text-sm text-slate-300 leading-relaxed mb-4">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 Urban expansion replaces natural soil infiltration with 70–90%
                 impermeable concrete, asphalt, and rooftops. When a 50mm/h
                 cloudburst strikes, rainfall is instantly converted into
                 high-velocity overland sheet runoff.
               </p>
-
-              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs font-mono text-slate-400">
-                <span className="text-red-400 font-semibold">Impact: </span>
-                Storm sewer collector pipes surcharge within 15 minutes,
-                transforming street corridors into raging canals before pumps can
-                respond.
-              </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
@@ -95,19 +88,12 @@ export function ProblemStatement() {
                 The 4-Hour Simulation Delay
               </h3>
 
-              <p className="text-sm text-slate-300 leading-relaxed mb-4">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 Classical 2D Shallow Water Equations (SWE) solved via
                 finite-volume numerical integration face rigid
                 Courant-Friedrichs-Lewy (CFL) stability bounds. Simulating a
                 single urban catchment takes 2 to 6 hours on server clusters.
               </p>
-
-              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs font-mono text-slate-400">
-                <span className="text-amber-400 font-semibold">Impact: </span>
-                By the time numerical models finish computing where the flood
-                wave travels, the storm has already crested and critical
-                intersections are submerged.
-              </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
@@ -132,19 +118,12 @@ export function ProblemStatement() {
                 Blind Ground Truth &amp; AI Drift
               </h3>
 
-              <p className="text-sm text-slate-300 leading-relaxed mb-4">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 During severe storm events, thick cloud cover blocks optical
                 satellite observations entirely. Meanwhile, naive black-box AI
                 models violate conservation of mass, generating phantom flood
                 waters or missing dangerous choke points.
               </p>
-
-              <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs font-mono text-slate-400">
-                <span className="text-cyan-400 font-semibold">Impact: </span>
-                Emergency managers are left guessing real-time culvert water
-                levels without verified physical measurement or physically
-                bounded surrogate models.
-              </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
