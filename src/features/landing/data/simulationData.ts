@@ -6,11 +6,11 @@ export const SIMULATION_DISCLAIMER =
 export const SIMULATION_SCENARIOS: SimulationScenario[] = [
   {
     id: "cloudburst-100yr",
-    name: "100-Year Cloudburst Event",
+    name: "1000-Year Cloudburst Event",
     subtitle: "Central Urban Basin • High Impervious Surface Fraction (82%)",
     rainfallIntensity: "78.4 mm/h",
     durationMinutes: 60,
-    returnPeriod: "1-in-100 Year (P = 0.01)",
+    returnPeriod: "1-in-1000 Year (P = 0.001)",
     description:
       "A severe convective cloudburst over downtown district with high asphalt density. Stormwater collector conduits reach 100% capacity at t=18 min, triggering street-level overland flash inundation.",
     timesteps: [

@@ -54,7 +54,7 @@ export const ML_MODEL_BENCHMARKS: ModelMetricData[] = [
       prauc: 0.862,
       f1: 0.854,
       r2: 0.862,
-      context: "Superior non-linear generalization across 20yr, 100yr & 200yr extreme storms",
+      context: "Superior non-linear generalization across 20yr, 1000yr & 200yr extreme storms",
     },
     keyAdvantage:
       "Gradient boosted decision trees natively capture sharp hydrodynamic wavefront discontinuities, urban street curb overflows, and culvert surcharge transitions that linear models fail to resolve.",
@@ -123,7 +123,7 @@ export const RESEARCH_DISCLAIMER = {
   badge: "ILLUSTRATIVE SYNTHETIC BENCHMARK",
   title: "LarNO UKEA 32×32 Empirical Model Evaluation",
   description:
-    "Empirical benchmarks evaluated on the LarNO UKEA 8m/5min dataset across identical 32×32 urban catchment grids with +30 min forecast lead time and UK Environment Agency inundation threshold (τ ≥ 0.03m).",
+    "Empirical benchmarks evaluated on the LarNO UKEA 8m/5min dataset across 1,000 catchment events with identical 32×32 urban catchment grids with +30 min forecast lead time and UK Environment Agency inundation threshold (τ ≥ 0.03m).",
 };
 
 export const BENCHMARK_COMPARISONS: ResearchBenchmark[] = [
