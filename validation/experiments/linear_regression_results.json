@@ -1,0 +1,123 @@
+{
+  "experiment": "linear_regression_validation",
+  "person": 3,
+  "seed": 42,
+  "flood_threshold_m": 0.05,
+  "train_events": [
+    "r100y_p0.1_d3h_1",
+    "r100y_p0.8_d3h_1",
+    "r200y_p0.3_d3h_1",
+    "r300y_p0.1_d3h_1",
+    "r300y_p0.5_d3h_1",
+    "r500y_p0.2_d3h_1"
+  ],
+  "val_events": [
+    "r100y_p0.5_d3h_1",
+    "r200y_p0.7_d3h_1"
+  ],
+  "train_samples": 202752,
+  "val_samples": 67584,
+  "models": {
+    "OLS": {
+      "label": "OLS",
+      "mae_m": 0.00853,
+      "rmse_m": 0.01618,
+      "r2": 0.9988,
+      "csi": 0.9516,
+      "precision": 0.9741,
+      "recall": 0.9763,
+      "tp": 23108,
+      "fp": 614,
+      "fn": 562,
+      "tn": 43300,
+      "underest_high_pct": 64.68,
+      "hyperparams": {}
+    },
+    "Ridge": {
+      "label": "Ridge",
+      "mae_m": 0.00854,
+      "rmse_m": 0.01618,
+      "r2": 0.9988,
+      "csi": 0.9516,
+      "precision": 0.974,
+      "recall": 0.9764,
+      "tp": 23112,
+      "fp": 618,
+      "fn": 558,
+      "tn": 43296,
+      "underest_high_pct": 64.91,
+      "hyperparams": {
+        "alpha": 0.01
+      }
+    },
+    "Lasso": {
+      "label": "Lasso",
+      "mae_m": 0.00854,
+      "rmse_m": 0.01618,
+      "r2": 0.9988,
+      "csi": 0.9517,
+      "precision": 0.9739,
+      "recall": 0.9766,
+      "tp": 23116,
+      "fp": 620,
+      "fn": 554,
+      "tn": 43294,
+      "underest_high_pct": 65.42,
+      "hyperparams": {
+        "alpha": 1e-05
+      },
+      "zeroed_features": []
+    }
+  },
+  "per_event_validation": [
+    {
+      "label": "r100y_p0.5_d3h_1",
+      "mae_m": 0.00853,
+      "rmse_m": 0.01618,
+      "r2": 0.9988,
+      "csi": 0.9516,
+      "precision": 0.9741,
+      "recall": 0.9763,
+      "tp": 11554,
+      "fp": 307,
+      "fn": 281,
+      "tn": 21650,
+      "underest_high_pct": 64.68
+    },
+    {
+      "label": "r200y_p0.7_d3h_1",
+      "mae_m": 0.00853,
+      "rmse_m": 0.01618,
+      "r2": 0.9988,
+      "csi": 0.9516,
+      "precision": 0.9741,
+      "recall": 0.9763,
+      "tp": 11554,
+      "fp": 307,
+      "fn": 281,
+      "tn": 21650,
+      "underest_high_pct": 64.68
+    }
+  ],
+  "recommendation": {
+    "model": "OLS",
+    "alpha": null,
+    "val_mae_m": 0.00853,
+    "val_rmse_m": 0.01618,
+    "val_r2": 0.9988,
+    "val_csi": 0.9516
+  },
+  "ols_coefficients": {
+    "dem_elevation_norm": -0.002496,
+    "dem_slope_gradient": -0.000869,
+    "dem_curvature": 0.000524,
+    "grid_row_norm": 0.001943,
+    "grid_col_norm": 0.000325,
+    "rain_t0_norm": 0.007016,
+    "rain_t1_norm": 0.005453,
+    "rain_t2_norm": 0.002614,
+    "rain_cumsum_norm": 0.016137,
+    "water_depth_t0": 0.852947,
+    "water_depth_tminus1": -0.382493
+  }
+}

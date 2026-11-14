@@ -1,0 +1,176 @@
+{
+  "tool": "residual_analysis.py",
+  "person": 3,
+  "seed": 42,
+  "data_source": "ml_data\\fixtures\\sample_event",
+  "ridge_alpha_used": 1.0,
+  "feature_distributions": {
+    "dem_elevation_norm": {
+      "mean": -0.65276,
+      "std": 0.71084,
+      "min": -1.74561,
+      "max": 1.38567,
+      "iqr_outliers": 0,
+      "zscore_outliers_3sigma": 0,
+      "skewness": 0.5403,
+      "kurtosis": -0.3414
+    },
+    "dem_slope_gradient": {
+      "mean": 0.02766,
+      "std": 0.02174,
+      "min": 0.00033,
+      "max": 0.21525,
+      "iqr_outliers": 1749,
+      "zscore_outliers_3sigma": 495,
+      "skewness": 2.8983,
+      "kurtosis": 15.6583
+    },
+    "dem_curvature": {
+      "mean": 0.00032,
+      "std": 0.00297,
+      "min": -0.00999,
+      "max": 0.01808,
+      "iqr_outliers": 1023,
+      "zscore_outliers_3sigma": 462,
+      "skewness": 0.694,
+      "kurtosis": 3.2314
+    },
+    "grid_row_norm": {
+      "mean": 0.5,
+      "std": 0.29784,
+      "min": 0.0,
+      "max": 1.0,
+      "iqr_outliers": 0,
+      "zscore_outliers_3sigma": 0,
+      "skewness": -0.0,
+      "kurtosis": -1.2023
+    },
+    "grid_col_norm": {
+      "mean": 0.5,
+      "std": 0.29784,
+      "min": 0.0,
+      "max": 1.0,
+      "iqr_outliers": 0,
+      "zscore_outliers_3sigma": 0,
+      "skewness": -0.0,
+      "kurtosis": -1.2023
+    },
+    "rain_t0_norm": {
+      "mean": 8.39122,
+      "std": 13.04713,
+      "min": -0.96773,
+      "max": 58.60845,
+      "iqr_outliers": 2048,
+      "zscore_outliers_3sigma": 1024,
+      "skewness": 1.9585,
+      "kurtosis": 4.4192
+    },
+    "rain_t1_norm": {
+      "mean": 9.82084,
+      "std": 14.45237,
+      "min": -0.96773,
+      "max": 58.60845,
+      "iqr_outliers": 2656,
+      "zscore_outliers_3sigma": 1024,
+      "skewness": 1.6945,
+      "kurtosis": 2.6143
+    },
+    "rain_t2_norm": {
+      "mean": 10.18816,
+      "std": 14.327,
+      "min": -0.96773,
+      "max": 58.60845,
+      "iqr_outliers": 2656,
+      "zscore_outliers_3sigma": 1024,
+      "skewness": 1.6754,
+      "kurtosis": 2.6279
+    },
+    "rain_cumsum_norm": {
+      "mean": 302.298,
+      "std": 62.93013,
+      "min": 114.73743,
+      "max": 353.04999,
+      "iqr_outliers": 3072,
+      "zscore_outliers_3sigma": 0,
+      "skewness": -1.5164,
+      "kurtosis": 1.2233
+    },
+    "water_depth_t0": {
+      "mean": 0.24497,
+      "std": 0.45921,
+      "min": 0.00099,
+      "max": 2.02376,
+      "iqr_outliers": 6820,
+      "zscore_outliers_3sigma": 446,
+      "skewness": 1.8649,
+      "kurtosis": 2.1051
+    },
+    "water_depth_tminus1": {
+      "mean": 0.22761,
+      "std": 0.44227,
+      "min": 0.00056,
+      "max": 1.99468,
+      "iqr_outliers": 6786,
+      "zscore_outliers_3sigma": 567,
+      "skewness": 1.9672,
+      "kurtosis": 2.5271
+    }
+  },
+  "vif_multicollinearity": {
+    "dem_elevation_norm": 7.337,
+    "dem_slope_gradient": 1.225,
+    "dem_curvature": 1.298,
+    "grid_row_norm": 6.099,
+    "grid_col_norm": 1.824,
+    "rain_t0_norm": 19.917,
+    "rain_t1_norm": 22.32,
+    "rain_t2_norm": 6.191,
+    "rain_cumsum_norm": 14.459,
+    "water_depth_t0": 181.956,
+    "water_depth_tminus1": 168.156
+  },
+  "residual_statistics": {
+    "mean_m": -0.0006272,
+    "std_m": 0.0156055,
+    "shapiro_w": 0.73232,
+    "shapiro_p": 0.0,
+    "normal_residuals": false
+  },
+  "underestimation_by_tier": [
+    {
+      "tier": "dry(<0.05m)",
+      "count": 21957,
+      "mean_bias_m": 0.002726,
+      "mae_m": 0.004741,
+      "pct_underestimated": 39.01
+    },
+    {
+      "tier": "0.05-0.15m",
+      "count": 2707,
+      "mean_bias_m": -0.002749,
+      "mae_m": 0.011444,
+      "pct_underestimated": 47.99
+    },
+    {
+      "tier": "0.15-0.30m",
+      "count": 1286,
+      "mean_bias_m": -0.012173,
+      "mae_m": 0.022763,
+      "pct_underestimated": 58.4
+    },
+    {
+      "tier": "0.30-0.60m",
+      "count": 1509,
+      "mean_bias_m": -0.010159,
+      "mae_m": 0.020603,
+      "pct_underestimated": 70.51
+    },
+    {
+      "tier": ">0.60m",
+      "count": 6330,
+      "mean_bias_m": -0.000576,
+      "mae_m": 0.01524,
+      "pct_underestimated": 64.88
+    }
+  ]
+}
