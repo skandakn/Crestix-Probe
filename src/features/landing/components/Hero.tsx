@@ -100,42 +100,6 @@ export function Hero() {
               .
             </p>
 
-            {/* Scientific Architecture Badges */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 max-w-2xl">
-              <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-blue-400/50 hover:shadow-md transition-all">
-                <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
-                  Physics Base
-                </div>
-                <div className="text-xs font-semibold text-[#1d1d1f]">
-                  2D Saint-Venant SWE
-                </div>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-blue-400/50 hover:shadow-md transition-all">
-                <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
-                  AI Architecture
-                </div>
-                <div className="text-xs font-semibold text-[#0071e3]">
-                  FNO / PINO Surrogate
-                </div>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-blue-400/50 hover:shadow-md transition-all">
-                <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
-                  Forward Latency
-                </div>
-                <div className="text-xs font-semibold text-emerald-600">
-                  &lt; 42ms Inference
-                </div>
-              </div>
-              <div className="p-3.5 rounded-2xl bg-white border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-blue-400/50 hover:shadow-md transition-all">
-                <div className="text-[10px] font-mono text-[#86868b] uppercase tracking-wider mb-1">
-                  Hardware Anchor
-                </div>
-                <div className="text-xs font-semibold text-[#1d1d1f]">
-                  ESP32 Ultrasonic Node
-                </div>
-              </div>
-            </div>
-
             {/* Primary Action Buttons */}
             <div className="flex flex-wrap items-center gap-4">
               <a
