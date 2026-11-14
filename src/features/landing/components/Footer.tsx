@@ -64,7 +64,7 @@ export function Footer() {
             <ul className="space-y-2.5 font-sans">
               <li>
                 <a
-                  href="#workflow"
+                  href="#features"
                   className="hover:text-cyan-300 transition-colors"
                 >
                   2D Shallow Water Equations
@@ -72,7 +72,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#workflow"
+                  href="#features"
                   className="hover:text-cyan-300 transition-colors"
                 >
                   Fourier Neural Operators (FNO)
@@ -80,7 +80,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#workflow"
+                  href="#features"
                   className="hover:text-cyan-300 transition-colors"
                 >
                   Physics-Informed PINO Loss

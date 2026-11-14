@@ -6,7 +6,6 @@ import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
 import { ProductFeatures } from "./ProductFeatures";
-import { WorkflowPipeline } from "./WorkflowPipeline";
 import { ResearchBenchmarks } from "./ResearchBenchmarks";
 import { HardwareProbe } from "./HardwareProbe";
 import { CallToAction } from "./CallToAction";
@@ -31,9 +30,6 @@ export function LandingPage() {
 
         {/* 6. Product Features Section */}
         <ProductFeatures />
-
-        {/* 7. 5-Stage Pipeline Workflow */}
-        <WorkflowPipeline />
 
         {/* 8. Research & Performance Section (Clearly Labelled Illustrative) */}
         <ResearchBenchmarks />

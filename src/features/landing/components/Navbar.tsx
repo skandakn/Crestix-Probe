@@ -22,7 +22,6 @@ const NAV_LINKS: NavLink[] = [
   { label: "Overview", href: "#overview" },
   { label: "Simulation", href: "#simulation", badge: "Interactive" },
   { label: "The Crisis", href: "#problem" },
-  { label: "Workflow", href: "#workflow" },
   { label: "Features", href: "#features" },
   { label: "Hardware Node", href: "#hardware", badge: "ESP32" },
   { label: "Research", href: "#research" },
