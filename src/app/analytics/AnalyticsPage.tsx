@@ -87,7 +87,16 @@ export default function AnalyticsPage() {
     setSelectedExperiment((current) => current || next.experiments[0]?.id || '')
     setLoading(false)
   }
-  useEffect(() => { void refresh() }, [])
+  useEffect(() => {
+    let cancelled = false
+    void loadAnalytics().then((next) => {
+      if (cancelled) return
+      setDataset(next)
+      setSelectedExperiment(next.experiments[0]?.id ?? '')
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const selected = useMemo(() => dataset?.experiments.find((item) => item.id === selectedExperiment), [dataset, selectedExperiment])
   const visibleExperiments = useMemo(() => (dataset?.experiments ?? []).filter((item) => filter === 'all' || item.scenarioType === filter), [dataset, filter])

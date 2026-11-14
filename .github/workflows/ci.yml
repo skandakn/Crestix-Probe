@@ -59,7 +59,7 @@ jobs:
       ENVIRONMENT: test
       DATABASE_URL: sqlite:///./test_crestix.db
       AUTH_ENABLED: "false"
-      CORS_ORIGINS: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
       SIMULATION_ADAPTER_MODE: stub
       FORECAST_ADAPTER_MODE: stub
     steps:
