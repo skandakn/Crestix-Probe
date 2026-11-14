@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   Radio,
-  ArrowRight,
   Thermometer,
   Sliders,
   Activity,
@@ -904,13 +902,6 @@ export function HardwareProbe() {
               Hardware schematics, FreeRTOS C++ firmware, and 3D enclosure CAD
               files are fully documented.
             </div>
-            <Link
-              href="/sensors"
-              className="inline-flex items-center gap-1.5 text-[#0071e3] hover:underline font-semibold"
-            >
-              <span>Open Hardware Sensor Monitoring Console</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       </div>
