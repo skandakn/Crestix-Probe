@@ -91,7 +91,7 @@ export const ConfigurationSummary: React.FC<ConfigurationSummaryProps> = ({
         <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80">
           <div className="text-slate-400 text-[10px] flex items-center gap-1 mb-1">
             <Waves className="w-3 h-3 text-cyan-400" />
-            Manning's n
+            Manning&apos;s n
           </div>
           <div className="font-semibold text-slate-200 font-mono">
             {config.surfaceRoughnessManning.toFixed(3)}

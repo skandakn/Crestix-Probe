@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# qa & test artifacts
+/test-results/
+/playwright-report/
+.pytest_cache/
+__pycache__/
+*.pyc
+/uploads/

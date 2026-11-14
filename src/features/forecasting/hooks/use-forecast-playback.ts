@@ -10,10 +10,12 @@ export function useForecastPlayback(frames: ForecastFrame[]) {
 
   const totalFrames = frames.length;
   const isPlayingRef = useRef(isPlaying);
-  isPlayingRef.current = isPlaying;
-
   const currentFrameIndexRef = useRef(currentFrameIndex);
-  currentFrameIndexRef.current = currentFrameIndex;
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    currentFrameIndexRef.current = currentFrameIndex;
+  }, [isPlaying, currentFrameIndex]);
 
   // Reset frame when new forecast frames load
   useEffect(() => {

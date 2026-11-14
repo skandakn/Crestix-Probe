@@ -14,7 +14,8 @@ import {
   ForecastMetricsResponse,
   ModelComparisonRecord,
   ForecastScenario,
-  AIModelInfo
+  AIModelInfo,
+  AIModelId
 } from '../types/forecast';
 import { AI_MODELS, FORECAST_SCENARIOS } from '../utils/physics';
 import { createMockForecastRecord, getMockModelComparisons } from '../utils/mock-data';
@@ -124,7 +125,7 @@ export class HttpForecastApiAdapter implements ForecastApiAdapter {
    */
   async getForecast(id: string): Promise<ForecastRecord> {
     if (this.isNodeTestEnvironment()) {
-      let modelId: any = 'pino-swe';
+      let modelId: AIModelId = 'pino-swe';
       if (id.includes('convlstm')) modelId = 'cnn-convlstm';
       else if (id.includes('fno')) modelId = 'fno-2d';
       return createMockForecastRecord(modelId, 'krishna-inflow-surge', 24);

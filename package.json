@@ -8,10 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:forecasting": "tsx --test src/features/forecasting/__tests__/*.test.ts",
-    "test:terrain": "tsx --test src/features/terrain/**/*.test.ts"
+    "test:e2e": "playwright test",
+    "test:forecasting": "vitest run src/features/forecasting/__tests__",
+    "test:terrain": "vitest run src/features/terrain/__tests__",
+    "test:sensors": "vitest run src/features/sensors/sensors.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -25,22 +28,25 @@
     "three": "^0.187.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.187.0",
-    "@vitejs/plugin-react": "^6.3.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "axe-core": "^4.14.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "jsdom": "^31.0.1",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^5",
-    "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^3.2.4"
   }
 }

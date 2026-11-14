@@ -5,9 +5,24 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   test: {
+    name: "crestix-probe-unit",
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/test/setup.ts"],
+    testTimeout: 15000,
+    setupFiles: ["./tests/setup.ts", "./src/test/setup.ts"],
+    include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
+    exclude: [
+      "node_modules",
+      ".next",
+      "e2e/**",
+      "backend/**",
+    ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["src/**/*.{ts,tsx}", "tests/harnesses/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.d.ts", "node_modules/**", ".next/**"],
+    },
   },
   resolve: {
     alias: {

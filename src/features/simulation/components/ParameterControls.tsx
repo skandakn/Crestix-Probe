@@ -308,7 +308,7 @@ export const ParameterControls: React.FC<ParameterControlsProps> = ({
             <div className="flex items-center gap-1.5">
               <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
                 <Waves className="w-4 h-4 text-cyan-400" />
-                Surface Roughness (Manning's n)
+                Surface Roughness (Manning&apos;s n)
               </label>
               <button
                 type="button"
@@ -368,7 +368,7 @@ export const ParameterControls: React.FC<ParameterControlsProps> = ({
 
       {showRoughnessGuide && (
         <div className="bg-slate-950 border border-slate-800 p-3 rounded-xl text-xs text-slate-300 space-y-1.5 animate-fadeIn">
-          <div className="font-semibold text-cyan-400 text-xs">Manning's Roughness Coefficient Reference:</div>
+          <div className="font-semibold text-cyan-400 text-xs">Manning&apos;s Roughness Coefficient Reference:</div>
           <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
             <div>• <strong className="text-slate-200">0.013</strong>: Smooth finished concrete / culvert flumes</div>
             <div>• <strong className="text-slate-200">0.020</strong>: Smooth asphalt streets / urban paved corridors</div>

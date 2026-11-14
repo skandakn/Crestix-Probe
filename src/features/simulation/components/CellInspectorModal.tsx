@@ -20,11 +20,9 @@ export const CellInspectorModal: React.FC<CellInspectorModalProps> = ({
   thresholds,
   timeStepSeconds,
 }) => {
-  if (!selectedCell) return null;
-
   // Extract hydrograph for this cell across all frames
   const hydrograph = useMemo(() => {
-    if (!frames || frames.length === 0) return [];
+    if (!selectedCell || !frames || frames.length === 0) return [];
     const { r, c } = selectedCell;
     return frames.map((f, idx) => ({
       step: idx,
@@ -41,6 +39,8 @@ export const CellInspectorModal: React.FC<CellInspectorModalProps> = ({
     });
     return m;
   }, [hydrograph]);
+
+  if (!selectedCell) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
