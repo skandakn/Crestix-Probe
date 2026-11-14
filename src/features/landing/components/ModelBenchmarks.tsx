@@ -421,63 +421,60 @@ export function ModelBenchmarks() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Tier 1 */}
-            <div className="p-5 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 flex flex-col justify-between">
+            {/* Tier 1: Flagship Primary Engine */}
+            <div className="p-5 rounded-2xl bg-blue-50/50 border border-blue-200/80 flex flex-col justify-between shadow-xs">
               <div>
                 <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0071e3] mb-2">
-                  <Zap className="w-4 h-4" />
-                  <span>EDGE SENSOR MESH (ESP32)</span>
-                </div>
-                <h5 className="text-base font-bold text-[#1d1d1f] mb-1">
-                  Linear Regression (OLS)
-                </h5>
-                <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
-                  Runs in <strong>0.03 ms</strong> per frame with a 12 KB memory footprint.
-                  Directly embedded in ESP32 microcontroller C++ firmware for real-time local flood detection.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-zinc-200/60 text-[11px] font-mono text-emerald-600 font-semibold">
-                ✓ Ultra-low battery consumption
-              </div>
-            </div>
-
-            {/* Tier 2 */}
-            <div className="p-5 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0071e3] mb-2">
-                  <Shield className="w-4 h-4" />
-                  <span>CITYWIDE WARNING SERVER</span>
+                  <Shield className="w-4 h-4 text-[#0071e3]" />
+                  <span>PRIMARY OPERATIONAL ENGINE (FLAGSHIP)</span>
                 </div>
                 <h5 className="text-base font-bold text-[#1d1d1f] mb-1">
                   XGBoost (Gradient Boosted)
                 </h5>
                 <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
-                  Highest flood wavefront recall (<strong>95.6%</strong>). Effectively resolves
-                  non-linear road overtopping, culvert backflow, and structural building barrier choke points.
+                  Definitive top-performing architecture across all evaluations (AUROC <strong>0.999</strong>, PR-AUC <strong>1.000</strong>, F1 <strong>0.989</strong>, R² <strong>0.997</strong>). Captures non-linear overland flow and sewer surcharge with <strong>0.45 ms</strong> latency.
                 </p>
               </div>
-              <div className="pt-3 border-t border-zinc-200/60 text-[11px] font-mono text-[#0071e3] font-semibold">
-                ✓ Maximum life-safety early warning
+              <div className="pt-3 border-t border-blue-200/60 text-[11px] font-mono text-[#0071e3] font-semibold">
+                ✓ Champion model: Highest life-safety recall (98.3%)
               </div>
             </div>
 
-            {/* Tier 3 */}
+            {/* Tier 2: Uncertainty Ensemble */}
             <div className="p-5 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#0071e3] mb-2">
-                  <Layers className="w-4 h-4" />
-                  <span>ENSEMBLE &amp; UNCERTAINTY</span>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#515154] mb-2">
+                  <Layers className="w-4 h-4 text-[#0071e3]" />
+                  <span>UNCERTAINTY QUANTIFICATION</span>
                 </div>
                 <h5 className="text-base font-bold text-[#1d1d1f] mb-1">
-                  Random Forest + XGBoost
+                  Random Forest (Bagged Trees)
                 </h5>
                 <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
-                  Bagged tree variance reduction provides epistemic uncertainty bands
-                  alongside deterministic water-depth predictions for civil defense decision support.
+                  Bagged variance reduction provides epistemic uncertainty bands (AUROC <strong>0.981</strong>, PR-AUC <strong>0.992</strong>) to augment deterministic XGBoost forecasts for civil defense risk mapping.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-zinc-200/60 text-[11px] font-mono text-emerald-600 font-semibold">
+                ✓ Confidence-bounded evacuation route guidance
+              </div>
+            </div>
+
+            {/* Tier 3: Edge Embedded Baseline */}
+            <div className="p-5 rounded-2xl bg-[#fbfbfd] border border-zinc-200/80 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#515154] mb-2">
+                  <Zap className="w-4 h-4 text-amber-600" />
+                  <span>LOW-POWER EMBEDDED BASELINE</span>
+                </div>
+                <h5 className="text-base font-bold text-[#1d1d1f] mb-1">
+                  Linear Regression (OLS Baseline)
+                </h5>
+                <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
+                  Minimal 12 KB memory footprint and <strong>0.03 ms</strong> latency for ultra-low power ESP32 sensor sleep cycles before delegating critical surges to XGBoost.
                 </p>
               </div>
               <div className="pt-3 border-t border-zinc-200/60 text-[11px] font-mono text-amber-700 font-semibold">
-                ✓ Confidence-bounded evac route routing
+                ✓ Ultra-low battery consumption
               </div>
             </div>
           </div>
