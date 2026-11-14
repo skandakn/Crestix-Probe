@@ -8,7 +8,9 @@ The unified ML backend (`backend/app/api/ml.py`) exposes both **XGBoost** (point
 Crestix-Probe/
 ├── ml/
 │   ├── xgboost/               # Submodule: https://github.com/skandakn/XGBoost-Crestix-Probe.git
-│   └── pino/                  # Submodule: https://github.com/skandakn/PINO-Crestix-Probe.git
+│   ├── pino/                  # Submodule: https://github.com/skandakn/PINO-Crestix-Probe.git
+│   ├── linear-regression/     # Submodule: https://github.com/skandakn/Linear-Regression---Crestix-Probe.git
+│   └── random-forest/         # Submodule: https://github.com/skandakn/Random-Forest---Crestix-Probe.git
 ├── backend/
 │   ├── app/
 │   │   ├── api/ml.py          # Unified FastAPI ML endpoints (/api/ml/*)
@@ -29,27 +31,29 @@ Crestix-Probe/
 
 ---
 
-## 2. Git Submodule Setup & Pinning
+## 2. Git Submodule Setup & Pinned Commits
 
-> **Current Upstream Repository Status Notice:**  
-> At the time of this integration PR, `https://github.com/skandakn/XGBoost-Crestix-Probe.git` and `https://github.com/skandakn/PINO-Crestix-Probe.git` exist on GitHub with **0 commits (`size: 0`)**. Because Git cannot create a `.gitmodules` gitlink entry pointing to a repository with no commits, `git submodule add` returns `fatal: You appear to have cloned an empty repository` until the XGBoost and PINO model teams push their initial commits.
+All four model and evaluation repositories are attached and pinned on `main`:
 
-Once both model repositories contain at least one commit on `main`, attach and pin tested commits using:
-
-```bash
-git submodule add https://github.com/skandakn/XGBoost-Crestix-Probe.git ml/xgboost
-git submodule add https://github.com/skandakn/PINO-Crestix-Probe.git ml/pino
-git commit -m "chore(ml): pin tested XGBoost and PINO submodule commits"
-```
+| Submodule Path | Upstream Repository | Pinned Commit (`main`) | Key Capabilities Included |
+| :--- | :--- | :--- | :--- |
+| `ml/xgboost` | `https://github.com/skandakn/XGBoost-Crestix-Probe.git` | `cbc47a6bc156135571182efa98703805f6857abe` | `src/crestix_xgb/` training/inference, Person 9 common contract & integration tests |
+| `ml/pino` | `https://github.com/skandakn/PINO-Crestix-Probe.git` | `79c20675316f393eb196089f0e8340b9f250ca98` | `src/crestix_pino/` model/loader/predictor, LarNO data pipeline, `physics_validation/` & diagnostics (`6de65e1`), checkpoint CLI |
+| `ml/linear-regression` | `https://github.com/skandakn/Linear-Regression---Crestix-Probe.git` | `bf28ee548d81a739171f3b1511dc330a9e24743e` | Shared evaluation framework (`evaluation_metrics.py`, `evaluate_model.py`, `plotting_utils.py`), LR pipeline & Person 9 contract |
+| `ml/random-forest` | `https://github.com/skandakn/Random-Forest---Crestix-Probe.git` | `0e904e72de88766ac78a2b4b06a251ed58ce59c9` | Random Forest pipeline, committed `artifacts/random_forest_model.joblib`, Person 9 contract & integration tests |
 
 ### Initializing & Updating Submodules (For Contributors & CI)
 
 ```bash
-# After cloning Crestix-Probe:
+# After cloning Crestix-Probe (or when cloning fresh):
+git clone --recurse-submodules https://github.com/skandakn/Crestix-Probe.git
+
+# Inside an existing clone:
+git submodule sync --recursive
 git submodule update --init --recursive
 
-# To pull newer tested commits from upstream model repos:
-git submodule update --remote --merge ml/xgboost ml/pino
+# To update submodules to latest remote tracked commits (`main`):
+git submodule update --remote --merge
 ```
 
 ---

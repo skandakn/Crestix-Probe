@@ -1,0 +1,16 @@
+[submodule "ml/xgboost"]
+	path = ml/xgboost
+	url = https://github.com/skandakn/XGBoost-Crestix-Probe.git
+	branch = main
+[submodule "ml/pino"]
+	path = ml/pino
+	url = https://github.com/skandakn/PINO-Crestix-Probe.git
+	branch = main
+[submodule "ml/linear-regression"]
+	path = ml/linear-regression
+	url = https://github.com/skandakn/Linear-Regression---Crestix-Probe.git
+	branch = main
+[submodule "ml/random-forest"]
+	path = ml/random-forest
+	url = https://github.com/skandakn/Random-Forest---Crestix-Probe.git
+	branch = main
