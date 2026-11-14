@@ -206,5 +206,6 @@ export function normalizeIngestedReading(
         ? Math.round(payload.rssiDbm)
         : null,
     faultCode,
+    depthProbes: payload.depthProbes,
   };
 }

@@ -1,17 +1,20 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
 // ==========================================
-// ⚠️ HACKATHON SETTINGS - CHANGE THESE ⚠️
+// ⚠️ CRESTIX PROBE HACKATHON CONFIGURATION ⚠️
 // ==========================================
 const char* ssid = "Shreeyansh";
 const char* password = "shree2006";
 
-// Put your laptop's 10.X.X.X address here!
-const char* serverUrl = "http://10.159.108.42:5000/update"; 
+// Live Render HTTPS Endpoint (Default Production Bridge)
+// Or local laptop IP: "http://10.159.108.42:5000/update" or "http://10.159.108.42:3000/update"
+const char* serverUrl = "https://crestix-probe-aqua.onrender.com/update";
+const char* localBackupUrl = "http://10.159.108.42:5000/update"; 
 // ==========================================
 
 const char* nodeId = "river_sensor_alpha";
@@ -50,6 +53,8 @@ void setup() {
   Serial.println("\n✅ Connected to WiFi!");
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
+  Serial.print("Ingestion Target: ");
+  Serial.println(serverUrl);
 }
 
 float getUltrasonicDepth() {
@@ -68,6 +73,35 @@ float getUltrasonicDepth() {
   
   if (waterDepth < 0) waterDepth = 0;
   return waterDepth;
+}
+
+bool postPayload(const char* url, const String& jsonString) {
+  HTTPClient http;
+  bool isHttps = strncmp(url, "https://", 8) == 0;
+  
+  if (isHttps) {
+    WiFiClientSecure client;
+    client.setInsecure(); // Skip SSL certificate verification for cloud Render host
+    http.begin(client, url);
+  } else {
+    WiFiClient client;
+    http.begin(client, url);
+  }
+
+  http.addHeader("Content-Type", "application/json");
+  http.setTimeout(4000);
+  
+  int httpResponseCode = http.POST(jsonString);
+  bool success = (httpResponseCode == 200 || httpResponseCode == 201);
+  
+  if (success) {
+    Serial.printf("✅ Ingested [%s]: %s\n", url, jsonString.c_str());
+  } else {
+    Serial.printf("❌ Ingestion Failed [%s] (Code: %d)\n", url, httpResponseCode);
+  }
+  
+  http.end();
+  return success;
 }
 
 void sendDataToServer() {
@@ -98,17 +132,13 @@ void sendDataToServer() {
   String jsonString;
   serializeJson(doc, jsonString);
   
-  HTTPClient http;
-  http.begin(serverUrl);
-  http.addHeader("Content-Type", "application/json");
+  // Try Render cloud endpoint first
+  bool ok = postPayload(serverUrl, jsonString);
   
-  int httpResponseCode = http.POST(jsonString);
-  if (httpResponseCode == 200) {
-    Serial.println("✅ Sent to Python: " + jsonString);
-  } else {
-    Serial.println("❌ Server Unreachable. Is Python running?");
+  // If cloud fails, fallback to local backup address
+  if (!ok && localBackupUrl && strlen(localBackupUrl) > 0) {
+    postPayload(localBackupUrl, jsonString);
   }
-  http.end();
 }
 
 void loop() {
