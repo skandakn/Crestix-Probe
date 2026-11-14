@@ -1,4 +1,4 @@
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 import assert from "node:assert";
 import { SIMULATION_SCENARIOS, SIMULATION_DISCLAIMER } from "../data/simulationData";
 import { TECHNOLOGY_PILLARS } from "../data/techData";

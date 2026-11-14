@@ -313,7 +313,7 @@ export function HardwareProbe() {
                 <p className="text-xs text-slate-300 leading-relaxed font-sans">
                   The speed of sound in air is strictly a thermodynamic function of
                   absolute ambient temperature. Ultrasonic transducers that assume a static room-temperature
-                  constant ($343.2\text{ m/s}$) incur severe ranging drift (up to $\pm 12\text{ cm}$) during summer asphalt heatwaves or sub-zero night chills. The Crestix Field Probe samples an onboard thermistor concurrently with each sonic ping, applying immediate firmware-level correction.
+                  constant (343.2 m/s) incur severe ranging drift (up to ±12 cm) during summer asphalt heatwaves or sub-zero night chills. The Crestix Field Probe samples an onboard thermistor concurrently with each sonic ping, applying immediate firmware-level correction.
                 </p>
               </div>
 

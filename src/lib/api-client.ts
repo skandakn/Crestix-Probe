@@ -1,11 +1,11 @@
 import type { ApiResponse, ApiError, ApiRequestOptions } from "@/types/api";
 
 function getBaseUrl(): string {
-  // In Vercel serverless functions, use the internal service binding URL if injected
+  // In Vercel serverless functions / SSR runtime, use internal service binding URL if injected
   if (typeof window === "undefined" && process.env.BACKEND_URL) {
     return process.env.BACKEND_URL.replace(/\/$/, "");
   }
-  return (process.env.NEXT_PUBLIC_API_URL || "/api").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 }
 
 export class ProbeApiError extends Error implements ApiError {
@@ -32,7 +32,25 @@ export async function fetchWithEnvelope<T>(
 ): Promise<ApiResponse<T>> {
   const { params, headers, ...restOptions } = options;
 
-  let url = endpoint.startsWith("http") ? endpoint : `${BASE_URL}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+  const baseUrl = getBaseUrl();
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  let url: string;
+  if (cleanEndpoint.startsWith("http://") || cleanEndpoint.startsWith("https://")) {
+    url = cleanEndpoint;
+  } else if (baseUrl) {
+    // If endpoint doesn't have /api prefix, add it so it routes to backend domain routers
+    const apiPath = cleanEndpoint.startsWith("/api") ? cleanEndpoint : `/api${cleanEndpoint}`;
+    // Avoid double /api prefix if baseUrl ends with /api
+    if (baseUrl.endsWith("/api") && apiPath.startsWith("/api")) {
+      url = `${baseUrl.slice(0, -4)}${apiPath}`;
+    } else {
+      url = `${baseUrl}${apiPath}`;
+    }
+  } else {
+    // In browser client: ensure /api prefix is present for Vercel rewrite
+    url = cleanEndpoint.startsWith("/api") ? cleanEndpoint : `/api${cleanEndpoint}`;
+  }
 
   if (params) {
     const searchParams = new URLSearchParams();
@@ -98,21 +116,18 @@ export async function fetchWithEnvelope<T>(
 export const apiClient = {
   get: <T>(endpoint: string, options?: ApiRequestOptions) =>
     fetchWithEnvelope<T>(endpoint, { method: "GET", ...options }),
-
-  post: <T>(endpoint: string, body?: unknown, options?: ApiRequestOptions) =>
+  post: <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) =>
     fetchWithEnvelope<T>(endpoint, {
       method: "POST",
-      body: body ? JSON.stringify(body) : undefined,
+      body: data ? JSON.stringify(data) : undefined,
       ...options,
     }),
-
-  put: <T>(endpoint: string, body?: unknown, options?: ApiRequestOptions) =>
+  put: <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) =>
     fetchWithEnvelope<T>(endpoint, {
       method: "PUT",
-      body: body ? JSON.stringify(body) : undefined,
+      body: data ? JSON.stringify(data) : undefined,
       ...options,
     }),
-
   delete: <T>(endpoint: string, options?: ApiRequestOptions) =>
     fetchWithEnvelope<T>(endpoint, { method: "DELETE", ...options }),
 };
