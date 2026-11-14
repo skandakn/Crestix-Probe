@@ -7,7 +7,6 @@ import {
   Play,
   Radio,
   ChevronRight,
-  Compass,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 
@@ -58,31 +57,6 @@ export function Hero() {
             strokeWidth="1.6"
           />
         </svg>
-      </div>
-
-      {/* Metadata Telemetry Coordinates Strip */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-slate-400 border-b border-slate-800/80 pb-3">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-cyan-400 font-semibold">
-              <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              GEO-BASIN: URBAN SECTOR 04-METRO
-            </span>
-            <span className="hidden sm:inline text-slate-600">/</span>
-            <span className="hidden sm:inline">LAT 37°46&apos;38&quot;N</span>
-            <span className="hidden sm:inline">LON 122°25&apos;09&quot;W</span>
-            <span className="hidden md:inline">DATUM WGS84</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="px-2 py-0.5 rounded bg-cyan-950/70 border border-cyan-500/30 text-cyan-300">
-              SWE-PINO RESOLUTION: 0.5M
-            </span>
-            <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400 flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              16 SENSORS LINKED
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Main Hero Container */}
