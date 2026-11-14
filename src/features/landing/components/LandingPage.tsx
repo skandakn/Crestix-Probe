@@ -5,6 +5,7 @@ import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
+import { ResearchBenchmarks } from "./ResearchBenchmarks";
 import { HardwareProbe } from "./HardwareProbe";
 import { CallToAction } from "./CallToAction";
 import { Footer } from "./Footer";
@@ -26,10 +27,13 @@ export function LandingPage() {
         {/* 4. Problem Statement: Urban Inundation Crisis */}
         <ProblemStatement />
 
-        {/* 5. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
+        {/* 5. Empirical Model Benchmarks: AUROC, PR-AUC & F1-Score */}
+        <ResearchBenchmarks />
+
+        {/* 7. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />
 
-        {/* 6. Final Call-to-Action */}
+        {/* 8. Final Call-to-Action */}
         <CallToAction />
       </main>
 

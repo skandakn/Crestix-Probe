@@ -117,6 +117,8 @@ export interface SensorReading {
   rssiDbm: number | null;
   /** Fault code attached to this frame */
   faultCode: SensorFaultCode;
+  /** Discrete 6-stage contact probe pin states [p0, p1, p2, p3, p4, p5] (1=submerged, 0=dry) */
+  depthProbes?: number[];
 }
 
 /**
@@ -159,6 +161,7 @@ export interface SensorIngestPayload {
   ldrLightLevelLux?: number | null;
   rssiDbm?: number | null;
   faultCode?: SensorFaultCode;
+  depthProbes?: number[];
 }
 
 /**

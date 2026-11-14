@@ -10,6 +10,9 @@ import {
   Waves,
   Wifi,
   WifiOff,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { SIMULATION_SCENARIOS } from "../data/simulationData";
 import { cn } from "../utils/cn";
@@ -42,6 +45,31 @@ export function SimulationPreview() {
 
   const scenario = SIMULATION_SCENARIOS[selectedScenarioIndex];
   const currentStep = scenario.timesteps[currentStepIndex];
+
+  // Customizable Initial Boundary Values at t = 0 (beginning of simulation)
+  const defaultStep0 = scenario.timesteps[0];
+  const [initialWaterDepthM, setInitialWaterDepthM] = useState<number>(0.04);
+  const [initialPeakDischargeM3s, setInitialPeakDischargeM3s] = useState<number>(1.2);
+  const [initialInundatedAreaKm2, setInitialInundatedAreaKm2] = useState<number>(0.12);
+  const [initialRainfallMmH, setInitialRainfallMmH] = useState<number>(78.4);
+  const [showInitialConfig, setShowInitialConfig] = useState<boolean>(false);
+
+  // Sync initial values when user switches scenario
+  useEffect(() => {
+    const sZero = scenario.timesteps[0];
+    setInitialWaterDepthM(sZero.maxDepthMeters);
+    setInitialPeakDischargeM3s(sZero.peakDischargeM3s);
+    setInitialInundatedAreaKm2(sZero.inundatedAreaKm2);
+    setInitialRainfallMmH(parseFloat(scenario.rainfallIntensity) || 78.4);
+  }, [selectedScenarioIndex, scenario]);
+
+  const handleResetInitialValues = () => {
+    const sZero = scenario.timesteps[0];
+    setInitialWaterDepthM(sZero.maxDepthMeters);
+    setInitialPeakDischargeM3s(sZero.peakDischargeM3s);
+    setInitialInundatedAreaKm2(sZero.inundatedAreaKm2);
+    setInitialRainfallMmH(parseFloat(scenario.rainfallIntensity) || 78.4);
+  };
 
   // Poll live hardware telemetry when ESP32 sync is activated
   useEffect(() => {
@@ -80,14 +108,48 @@ export function SimulationPreview() {
     };
   }, [isHardwareSynced]);
 
+  // Baseline initial values of scenario at t=0
+  const baseT0Depth = defaultStep0.maxDepthMeters;
+  const baseT0Discharge = defaultStep0.peakDischargeM3s;
+  const baseT0Area = defaultStep0.inundatedAreaKm2;
+  const baseRainfall = parseFloat(scenario.rainfallIntensity) || 78.4;
+  const rainScaling = baseRainfall > 0 ? initialRainfallMmH / baseRainfall : 1.0;
+
+  // Additional storm depth, discharge, and inundated area added at this timestep
+  const depthDeltaStep = Math.max(0, currentStep.maxDepthMeters - baseT0Depth);
+  const dischargeDeltaStep = Math.max(0, currentStep.peakDischargeM3s - baseT0Discharge);
+  const areaDeltaStep = Math.max(0, currentStep.inundatedAreaKm2 - baseT0Area);
+
+  // Compute effective water surface elevation based on initial conditions + storm evolution
+  const baselineDepth = currentStepIndex === 0
+    ? initialWaterDepthM
+    : initialWaterDepthM + (depthDeltaStep * rainScaling);
+
   const cxN01BaseDepth =
     currentStep.sensorReadings.find((n) => n.nodeId === "CX-N01")?.waterDepthM ??
     currentStep.maxDepthMeters;
-  const effectiveCxN01Depth = cxN01LiveDepth ?? cxN01BaseDepth;
+  const effectiveCxN01Depth = cxN01LiveDepth ?? Math.max(0.01, cxN01BaseDepth + (initialWaterDepthM - baseT0Depth));
   const effectiveWaterSurfaceElevation = Math.max(
     0,
-    currentStep.maxDepthMeters + (effectiveCxN01Depth - cxN01BaseDepth)
+    baselineDepth + (cxN01LiveDepth !== null ? (cxN01LiveDepth - cxN01BaseDepth) : 0)
   );
+
+  const effectivePeakDischarge = currentStepIndex === 0
+    ? initialPeakDischargeM3s
+    : Math.max(0, initialPeakDischargeM3s + (dischargeDeltaStep * rainScaling));
+
+  const effectiveInundatedArea = currentStepIndex === 0
+    ? initialInundatedAreaKm2
+    : Math.max(0, Math.min(4.5, initialInundatedAreaKm2 + (areaDeltaStep * Math.sqrt(rainScaling))));
+
+  const effectiveRiskLevel =
+    effectiveWaterSurfaceElevation >= 0.70
+      ? "critical"
+      : effectiveWaterSurfaceElevation >= 0.30
+      ? "warning"
+      : effectiveWaterSurfaceElevation >= 0.15
+      ? "advisory"
+      : "nominal";
 
   // Render terrain-conforming 64x64 water-depth heatmap onto <canvas>
   useEffect(() => {
@@ -546,13 +608,18 @@ export function SimulationPreview() {
                         setIsPlaying(false);
                       }}
                       className={cn(
-                        "px-3 py-1 rounded-full text-xs font-mono transition-all font-medium",
+                        "px-3 py-1 rounded-full text-xs font-mono transition-all font-medium flex items-center gap-1",
                         currentStepIndex === idx
                           ? "bg-white text-[#1d1d1f] shadow-xs font-bold"
                           : "text-[#6e6e73] hover:text-[#1d1d1f]"
                       )}
                     >
-                      {ts.minute}m
+                      <span>{ts.minute}m</span>
+                      {idx === 0 && (
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-blue-100/80 text-[#0071e3] font-semibold">
+                          Start
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -563,52 +630,312 @@ export function SimulationPreview() {
             <div className="lg:col-span-4 p-4 lg:p-6 bg-white flex flex-col justify-between">
               <div>
                 {/* Telemetry Status Bar */}
-                <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-100 text-xs font-mono">
-                  <span className="text-[#86868b] uppercase tracking-wider font-medium">
-                    Hydro-Telemetry Readout
-                  </span>
-                  <span
-                    className={cn(
-                      "px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase",
-                      getRiskColor(currentStep.riskLevel)
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-zinc-100 text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#86868b] uppercase tracking-wider font-medium">
+                      Hydro-Telemetry Readout
+                    </span>
+                    {currentStepIndex === 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-blue-50 text-[#0071e3] text-[10px] font-semibold border border-blue-200">
+                        t = 0m (Start)
+                      </span>
                     )}
-                  >
-                    Status: {currentStep.riskLevel}
-                  </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowInitialConfig(!showInitialConfig)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium transition-all border",
+                        showInitialConfig
+                          ? "bg-[#0071e3] text-white border-[#0071e3] shadow-xs"
+                          : "bg-zinc-100 hover:bg-zinc-200/80 text-[#1d1d1f] border-zinc-200"
+                      )}
+                      title="Configure initial values at the beginning of simulation"
+                      aria-label="Configure initial values at the beginning of simulation"
+                    >
+                      <Sliders className="w-3 h-3" />
+                      <span>{showInitialConfig ? "Hide Config" : "Change Initial Values"}</span>
+                      {showInitialConfig ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </button>
+                    <span
+                      className={cn(
+                        "px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase",
+                        getRiskColor(effectiveRiskLevel)
+                      )}
+                    >
+                      Status: {effectiveRiskLevel}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Expandable Initial Values Setup Drawer (t = 0m) */}
+                {showInitialConfig && (
+                  <div className="p-3.5 mb-5 rounded-2xl bg-[#f8fafc] border border-blue-200/80 shadow-xs font-mono text-xs">
+                    <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200/80">
+                      <div className="flex items-center gap-1.5 text-[#0071e3] font-semibold text-[11px]">
+                        <Sliders className="w-3.5 h-3.5" />
+                        <span>INITIAL SIMULATION BOUNDARY VALUES (t = 0m)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleResetInitialValues}
+                        className="text-[10px] text-[#0071e3] hover:underline flex items-center gap-1 font-medium"
+                      >
+                        <RotateCcw className="w-2.5 h-2.5" />
+                        Reset Defaults
+                      </button>
+                    </div>
+
+                    {/* Quick Preset Buttons */}
+                    <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
+                      <span className="text-[10px] text-[#86868b] mr-1">Presets:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInitialWaterDepthM(0.00);
+                          setInitialPeakDischargeM3s(0.0);
+                          setInitialInundatedAreaKm2(0.01);
+                          setInitialRainfallMmH(45.0);
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-white border border-zinc-200 hover:border-[#0071e3] text-[10px] text-[#1d1d1f] transition-colors"
+                      >
+                        Dry (0.00m)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInitialWaterDepthM(0.04);
+                          setInitialPeakDischargeM3s(1.2);
+                          setInitialInundatedAreaKm2(0.12);
+                          setInitialRainfallMmH(78.4);
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-white border border-blue-300 text-[#0071e3] text-[10px] font-semibold transition-colors"
+                      >
+                        Nominal (0.04m)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInitialWaterDepthM(0.18);
+                          setInitialPeakDischargeM3s(3.5);
+                          setInitialInundatedAreaKm2(0.45);
+                          setInitialRainfallMmH(110.0);
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-white border border-zinc-200 hover:border-[#0071e3] text-[10px] text-[#1d1d1f] transition-colors"
+                      >
+                        Pre-Saturated (0.18m)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInitialWaterDepthM(0.35);
+                          setInitialPeakDischargeM3s(7.2);
+                          setInitialInundatedAreaKm2(0.90);
+                          setInitialRainfallMmH(140.0);
+                        }}
+                        className="px-2 py-0.5 rounded-md bg-white border border-zinc-200 hover:border-[#0071e3] text-[10px] text-[#1d1d1f] transition-colors"
+                      >
+                        Flash Surge (0.35m)
+                      </button>
+                    </div>
+
+                    {/* Sliders Grid */}
+                    <div className="space-y-3">
+                      {/* Initial Water Depth h0 */}
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-[#6e6e73]">Initial Water Depth (h₀):</span>
+                          <span className="text-[#0071e3] font-bold">{initialWaterDepthM.toFixed(2)} m</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="0.60"
+                          step="0.01"
+                          value={initialWaterDepthM}
+                          onChange={(e) => setInitialWaterDepthM(parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#0071e3]"
+                          aria-label="Initial Water Depth"
+                        />
+                      </div>
+
+                      {/* Initial Peak Discharge Q0 */}
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-[#6e6e73]">Initial Conduit Discharge (Q₀):</span>
+                          <span className="text-[#0284c7] font-bold">{initialPeakDischargeM3s.toFixed(1)} m³/s</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="5.0"
+                          step="0.1"
+                          value={initialPeakDischargeM3s}
+                          onChange={(e) => setInitialPeakDischargeM3s(parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#0284c7]"
+                          aria-label="Initial Peak Discharge"
+                        />
+                      </div>
+
+                      {/* Initial Inundated Area A0 */}
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-[#6e6e73]">Initial Inundated Area (A₀):</span>
+                          <span className="text-[#1d1d1f] font-bold">{initialInundatedAreaKm2.toFixed(2)} km²</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1.00"
+                          step="0.01"
+                          value={initialInundatedAreaKm2}
+                          onChange={(e) => setInitialInundatedAreaKm2(parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#1d1d1f]"
+                          aria-label="Initial Inundated Area"
+                        />
+                      </div>
+
+                      {/* Storm Rainfall Intensity */}
+                      <div>
+                        <div className="flex justify-between text-[11px] mb-1">
+                          <span className="text-[#6e6e73]">Storm Rainfall Intensity (R):</span>
+                          <span className="text-teal-700 font-bold">{initialRainfallMmH.toFixed(1)} mm/h</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="150"
+                          step="1"
+                          value={initialRainfallMmH}
+                          onChange={(e) => setInitialRainfallMmH(parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+                          aria-label="Storm Rainfall Intensity"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* 4 Metric Cards */}
                 <div className="grid grid-cols-2 gap-2.5 mb-5 font-mono">
-                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
-                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
-                      Max Water Depth
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04] transition-all">
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
+                      <span>Max Water Depth</span>
+                      {currentStepIndex === 0 && (
+                        <span className="text-[9px] text-[#0071e3] font-semibold bg-blue-50 px-1 rounded border border-blue-200">
+                          t=0
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xl font-bold text-[#0071e3]">
-                      {effectiveWaterSurfaceElevation.toFixed(2)} m
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-[#0071e3]">
+                        {effectiveWaterSurfaceElevation.toFixed(2)} m
+                      </div>
+                      {currentStepIndex === 0 && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setInitialWaterDepthM((prev) => Math.max(0, Math.round((prev - 0.01) * 100) / 100))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Decrease initial depth by 0.01m"
+                            aria-label="Decrease initial depth"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setInitialWaterDepthM((prev) => Math.min(1.0, Math.round((prev + 0.01) * 100) / 100))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Increase initial depth by 0.01m"
+                            aria-label="Increase initial depth"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
                       at Sector Charlie
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
-                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
-                      Peak Discharge
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04] transition-all">
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
+                      <span>Peak Discharge</span>
+                      {currentStepIndex === 0 && (
+                        <span className="text-[9px] text-[#0284c7] font-semibold bg-sky-50 px-1 rounded border border-sky-200">
+                          t=0
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xl font-bold text-[#0284c7]">
-                      {currentStep.peakDischargeM3s.toFixed(1)} m³/s
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-[#0284c7]">
+                        {effectivePeakDischarge.toFixed(1)} m³/s
+                      </div>
+                      {currentStepIndex === 0 && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setInitialPeakDischargeM3s((prev) => Math.max(0, Math.round((prev - 0.1) * 10) / 10))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Decrease initial discharge by 0.1 m³/s"
+                            aria-label="Decrease initial discharge"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setInitialPeakDischargeM3s((prev) => Math.min(10.0, Math.round((prev + 0.1) * 10) / 10))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Increase initial discharge by 0.1 m³/s"
+                            aria-label="Increase initial discharge"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
                       conduit throat
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
-                    <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
-                      Inundated Area
+                  <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04] transition-all">
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
+                      <span>Inundated Area</span>
+                      {currentStepIndex === 0 && (
+                        <span className="text-[9px] text-[#1d1d1f] font-semibold bg-zinc-200 px-1 rounded border border-zinc-300">
+                          t=0
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xl font-bold text-[#1d1d1f]">
-                      {currentStep.inundatedAreaKm2.toFixed(2)} km²
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-[#1d1d1f]">
+                        {effectiveInundatedArea.toFixed(2)} km²
+                      </div>
+                      {currentStepIndex === 0 && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setInitialInundatedAreaKm2((prev) => Math.max(0, Math.round((prev - 0.01) * 100) / 100))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Decrease initial inundated area by 0.01 km²"
+                            aria-label="Decrease initial inundated area"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setInitialInundatedAreaKm2((prev) => Math.min(3.0, Math.round((prev + 0.01) * 100) / 100))}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-zinc-100 text-[#1d1d1f] font-bold text-xs flex items-center justify-center border border-zinc-200 shadow-2xs transition-colors"
+                            title="Increase initial inundated area by 0.01 km²"
+                            aria-label="Increase initial inundated area"
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
                       surface flood pool
@@ -705,6 +1032,24 @@ export function SimulationPreview() {
                   <div className="text-[10px] text-[#86868b] font-mono mt-1 text-center">
                     Ground Bathymetry vs Dynamic Water Elevation
                   </div>
+                  {currentStepIndex === 0 && (
+                    <div className="mt-2.5 pt-2 border-t border-zinc-100 flex items-center justify-between gap-3 text-xs font-mono">
+                      <span className="text-[10px] text-[#86868b] whitespace-nowrap">Initial Depth (h₀):</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="0.60"
+                        step="0.01"
+                        value={initialWaterDepthM}
+                        onChange={(e) => setInitialWaterDepthM(parseFloat(e.target.value))}
+                        className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-[#0071e3]"
+                        aria-label="Transect initial depth slider"
+                      />
+                      <span className="text-[11px] font-bold text-[#0071e3] min-w-[42px] text-right">
+                        {initialWaterDepthM.toFixed(2)}m
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sensor Node Card (shows selected or top active) */}
@@ -763,7 +1108,7 @@ export function SimulationPreview() {
                         {activeNode.nodeId === "CX-N01" && (
                           <div className="pt-1.5 pb-1">
                             <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
-                              <span>Manual Probe Calibrator:</span>
+                              <span>Manual In-Situ Probe Calibrator:</span>
                               {cxN01LiveDepth !== null && !isHardwareSynced && (
                                 <button
                                   type="button"
@@ -780,14 +1125,16 @@ export function SimulationPreview() {
                               max={2.2}
                               step={0.05}
                               value={effectiveCxN01Depth}
-                              disabled={isHardwareSynced}
+                              disabled={isHardwareSynced && hardwareNodeStatus === "CONNECTED"}
                               onChange={(e) =>
                                 setCxN01LiveDepth(parseFloat(e.target.value))
                               }
                               aria-label="CX-N01 Observed Water Depth"
                               className={cn(
                                 "w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-[#0071e3]",
-                                isHardwareSynced ? "bg-emerald-200 opacity-60 cursor-not-allowed" : "bg-zinc-200"
+                                isHardwareSynced && hardwareNodeStatus === "CONNECTED"
+                                  ? "bg-emerald-200 opacity-60 cursor-not-allowed"
+                                  : "bg-zinc-200"
                               )}
                             />
                           </div>
@@ -807,57 +1154,15 @@ export function SimulationPreview() {
                           </span>
                         </div>
 
-                        {/* Live ESP32 Hardware Integration Toggle */}
+                        {/* Direct Jump to Dedicated Hardware Showcase Section */}
                         <div className="pt-2 border-t border-zinc-100 flex items-center justify-between">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (isHardwareSynced) {
-                                setIsHardwareSynced(false);
-                                setCxN01LiveDepth(null);
-                              } else {
-                                setIsHardwareSynced(true);
-                              }
-                            }}
-                            className={cn(
-                              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-all border",
-                              isHardwareSynced
-                                ? hardwareNodeStatus === "CONNECTED"
-                                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs"
-                                  : "bg-amber-50 border-amber-300 text-amber-700"
-                                : "bg-zinc-100 border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f]"
-                            )}
+                          <a
+                            href="#hardware"
+                            className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold text-[#0071e3] hover:underline"
                           >
-                            {isHardwareSynced && hardwareNodeStatus === "CONNECTED" ? (
-                              <Wifi className="w-3 h-3 text-emerald-600" />
-                            ) : (
-                              <Radio className="w-3 h-3 text-[#0071e3]" />
-                            )}
-                            <span>
-                              {isHardwareSynced
-                                ? hardwareNodeStatus === "CONNECTED"
-                                  ? `SYNCED: ${hardwareReadingCm?.toFixed(1)} cm`
-                                  : "CONNECTING..."
-                                : "LINK LIVE ESP32 SENSOR"}
-                            </span>
-                          </button>
-
-                          {isHardwareSynced ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsHardwareSynced(false);
-                                setCxN01LiveDepth(null);
-                              }}
-                              className="text-[10px] text-[#0071e3] hover:underline"
-                            >
-                              Reset to Benchmark
-                            </button>
-                          ) : (
-                            <span className="text-[10px] text-[#86868b] font-mono">
-                              Benchmark Mode
-                            </span>
-                          )}
+                            <Radio className="w-3 h-3 text-[#0071e3]" />
+                            <span>Dedicated Hardware Showcase Below ↓</span>
+                          </a>
                         </div>
                       </div>
                     );

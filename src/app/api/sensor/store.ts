@@ -79,7 +79,7 @@ export function normalizeIncomingPayload(
     raw.experimentId || raw.experiment_id || "EXP-2026-FLOOD-01"
   );
   const deviceId = String(
-    raw.deviceId || raw.device_id || "ESP32-WROOM-FLOOD-01"
+    raw.deviceId || raw.device_id || raw.node_id || raw.nodeId || "ESP32-WROOM-FLOOD-01"
   );
   const firmwareVersion = String(
     raw.firmwareVersion || raw.firmware_version || "v2.5.0-aqua"
@@ -92,7 +92,14 @@ export function normalizeIncomingPayload(
   const position: MeasurementPositionId =
     rawPos === "P1" || rawPos === "P2" || rawPos === "P3" ? rawPos : "P2";
 
-  const defaultRef = POSITION_CALIBRATIONS[position]?.referenceHeightCm ?? 32.5;
+  // Teammate firmware calibration: totalHeightCm = 28.63 cm
+  const defaultRef =
+    typeof raw.totalHeightCm === "number" && raw.totalHeightCm > 0
+      ? raw.totalHeightCm
+      : typeof raw.total_height_cm === "number" && raw.total_height_cm > 0
+      ? raw.total_height_cm
+      : POSITION_CALIBRATIONS[position]?.referenceHeightCm ?? 28.63;
+
   const rawRefHeight =
     raw.referenceHeightCm ??
     raw.reference_height_cm ??
@@ -102,6 +109,16 @@ export function normalizeIncomingPayload(
     typeof rawRefHeight === "number" && Number.isFinite(rawRefHeight) && rawRefHeight > 0
       ? rawRefHeight
       : defaultRef;
+
+  // Direct water depth from teammate's ESP32 probe (depth_sonic)
+  const candidateDirectDepth =
+    typeof raw.depth_sonic === "number" && Number.isFinite(raw.depth_sonic)
+      ? raw.depth_sonic
+      : typeof raw.depthSonic === "number" && Number.isFinite(raw.depthSonic)
+      ? raw.depthSonic
+      : typeof raw.water_depth_cm === "number" && Number.isFinite(raw.water_depth_cm)
+      ? raw.water_depth_cm
+      : null;
 
   // Raw distance parsing
   let measuredDistanceCm: number | null = null;
@@ -120,14 +137,18 @@ export function normalizeIncomingPayload(
     candidateDistance > 0
   ) {
     measuredDistanceCm = Math.round(candidateDistance * 100) / 100;
+  } else if (candidateDirectDepth !== null) {
+    // If ESP32 sends calculated depth_sonic directly:
+    measuredDistanceCm = Math.max(0, Math.round((referenceHeightCm - candidateDirectDepth) * 100) / 100);
   }
 
-  // Temperature parsing
+  // Temperature parsing (supports temp_c from Dallas DS18B20)
   let ambientTemperatureC: number | null = null;
   const candidateTemp =
     raw.ambientTemperatureC ??
     raw.ambient_temperature_c ??
     raw.temperature_c ??
+    raw.temp_c ??
     raw.temperature;
   if (
     candidateTemp !== null &&
@@ -136,6 +157,14 @@ export function normalizeIncomingPayload(
     Number.isFinite(candidateTemp)
   ) {
     ambientTemperatureC = Math.round(candidateTemp * 10) / 10;
+  }
+
+  // Teammate 6-pin contact probe array parsing [p0, p1, p2, p3, p4, p5]
+  let depthProbes: number[] | undefined = undefined;
+  if (Array.isArray(raw.depth_probes)) {
+    depthProbes = raw.depth_probes.map((v) => (Number(v) > 0 ? 1 : 0));
+  } else if (Array.isArray(raw.depthProbes)) {
+    depthProbes = raw.depthProbes.map((v) => (Number(v) > 0 ? 1 : 0));
   }
 
   // LDR parsing
@@ -209,6 +238,7 @@ export function normalizeIncomingPayload(
     ldrLightLevelLux,
     rssiDbm,
     faultCode,
+    depthProbes,
   };
 
   return normalizeIngestedReading(ingestPayload, stepIndex);
