@@ -4,7 +4,6 @@ import React from "react";
 import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
-import { ProblemStatement } from "./ProblemStatement";
 import { HardwareProbe } from "./HardwareProbe";
 import { Footer } from "./Footer";
 import { BackToTop } from "./BackToTop";
@@ -22,10 +21,7 @@ export function LandingPage() {
         {/* 3. Interactive Truthful Flood Propagation Preview */}
         <SimulationPreview />
 
-        {/* 4. Problem Statement: Urban Inundation Crisis */}
-        <ProblemStatement />
-
-        {/* 5. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
+        {/* 4. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />
       </main>
 
