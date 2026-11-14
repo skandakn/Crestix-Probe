@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { SensorMonitoringDashboard } from "../../features/sensors/SensorMonitoringDashboard";
 
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function SensorsPage() {
-  return <SensorMonitoringDashboard />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#07090e]" />}>
+      <SensorMonitoringDashboard />
+    </Suspense>
+  );
 }
