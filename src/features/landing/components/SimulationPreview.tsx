@@ -5,12 +5,11 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Info,
   Radio,
   BarChart2,
   Waves,
 } from "lucide-react";
-import { SIMULATION_SCENARIOS, SIMULATION_DISCLAIMER } from "../data/simulationData";
+import { SIMULATION_SCENARIOS } from "../data/simulationData";
 import { cn } from "../utils/cn";
 
 export function SimulationPreview() {
@@ -78,12 +77,6 @@ export function SimulationPreview() {
             overland flood wave propagation, culvert choke points, and surface
             flow velocities.
           </p>
-
-          {/* Research Disclaimer Pill */}
-          <div className="mt-4 flex items-start gap-2.5 p-3 rounded-xl bg-slate-900/80 border border-amber-500/30 text-amber-300/90 text-xs font-mono leading-relaxed">
-            <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-            <span>{SIMULATION_DISCLAIMER}</span>
-          </div>
         </div>
 
         {/* Main Simulator Card */}
