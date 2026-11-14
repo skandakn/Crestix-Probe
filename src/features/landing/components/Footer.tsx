@@ -64,7 +64,15 @@ export function Footer() {
             <ul className="space-y-2.5 font-sans">
               <li>
                 <a
-                  href="#features"
+                  href="#benchmarks"
+                  className="hover:text-[#0071e3] transition-colors"
+                >
+                  ML Model Benchmarks (AUROC / F1)
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#simulation"
                   className="hover:text-[#0071e3] transition-colors"
                 >
                   2D Shallow Water Equations
@@ -72,7 +80,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#features"
+                  href="#simulation"
                   className="hover:text-[#0071e3] transition-colors"
                 >
                   Fourier Neural Operators (FNO)
@@ -80,7 +88,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#features"
+                  href="#simulation"
                   className="hover:text-[#0071e3] transition-colors"
                 >
                   Physics-Informed PINO Loss
@@ -96,7 +104,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#features"
+                  href="#hardware"
                   className="hover:text-[#0071e3] transition-colors"
                 >
                   Ensemble Kalman Assimilation
