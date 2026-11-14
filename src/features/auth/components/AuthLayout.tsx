@@ -129,7 +129,7 @@ export function AuthLayout({
       {/* Ground Station Footer */}
       <footer className="relative z-10 w-full border-t border-slate-900 bg-slate-950/80 backdrop-blur-md px-6 py-3 text-center sm:flex sm:justify-between sm:items-center text-[11px] font-mono text-slate-400">
         <div>
-          CRESTIX PROBE FLIGHT DATA SYSTEMS &copy; {new Date().getFullYear()}
+          CRESTIX PROBE FLIGHT DATA SYSTEMS &copy; 2026
         </div>
         <div className="flex justify-center gap-4 mt-2 sm:mt-0 text-slate-400">
           <span>OPERATIONS PROTOCOL V3</span>
