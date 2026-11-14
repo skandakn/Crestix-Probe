@@ -22,3 +22,11 @@ uploads/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# ML model checkpoints (never commit large weights)
+weights/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.ubj

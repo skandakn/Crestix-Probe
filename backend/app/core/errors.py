@@ -61,6 +61,36 @@ class InvalidPayloadError(CrestixAPIError):
         )
 
 
+class ModelNotInstalledError(CrestixAPIError):
+    """Raised when an ML model submodule or checkpoint weight file is not installed."""
+
+    def __init__(self, model_id: str, message: str, details: Optional[Any] = None) -> None:
+        merged_details = {"model_id": model_id}
+        if isinstance(details, dict):
+            merged_details.update(details)
+        super().__init__(
+            code="MODEL_NOT_INSTALLED",
+            message=message,
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            details=merged_details,
+        )
+
+
+class ModelInferenceError(CrestixAPIError):
+    """Raised when a loaded ML model fails during inference execution."""
+
+    def __init__(self, model_id: str, message: str, details: Optional[Any] = None) -> None:
+        merged_details = {"model_id": model_id}
+        if isinstance(details, dict):
+            merged_details.update(details)
+        super().__init__(
+            code="MODEL_INFERENCE_ERROR",
+            message=message,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            details=merged_details,
+        )
+
+
 def _error_envelope(
     code: str,
     message: str,

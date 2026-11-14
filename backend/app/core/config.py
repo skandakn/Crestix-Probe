@@ -44,6 +44,18 @@ class Settings(BaseSettings):
     max_sensor_distance_cm: float = 400.0
     min_sensor_distance_cm: float = 1.0
 
+    # ML model integration paths (no secrets; weights stored outside git repo)
+    ml_models_base_dir: str = "../ml"
+    ml_weights_base_dir: str = "./weights"
+    ml_xgboost_submodule_dir: str = "../ml/xgboost"
+    ml_xgboost_weights_path: str = "./weights/xgboost/model.json"
+    ml_xgboost_version: str = "1.0.0"
+    ml_pino_submodule_dir: str = "../ml/pino"
+    ml_pino_weights_path: str = "./weights/pino/model.pt"
+    ml_pino_version: str = "1.0.0"
+    ml_pino_device: str = "cpu"
+    ml_allow_cpu_fallback: bool = True
+
     # Research engines status (explicit stub declaration until actual engines are integrated)
     simulation_adapter_mode: str = "stub"
     forecast_adapter_mode: str = "stub"
