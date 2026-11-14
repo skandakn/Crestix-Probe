@@ -1,0 +1,61 @@
+{
+  "event_id": "r100y_p0.1_d3h_1",
+  "split": "train",
+  "sample_type": "canonical_fixture",
+  "crop_bounds": {
+    "row_start": 12,
+    "row_end": 44,
+    "col_start": 32,
+    "col_end": 64,
+    "height": 32,
+    "width": 32,
+    "spatial_resolution_m": 8.0,
+    "physical_span_m": [
+      256.0,
+      256.0
+    ]
+  },
+  "temporal": {
+    "num_timesteps": 36,
+    "timestep_interval_min": 5,
+    "duration_hours": 3.0
+  },
+  "arrays": {
+    "dem": {
+      "shape": [
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "nan_count": 0
+    },
+    "rainfall": {
+      "shape": [
+        36,
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "nan_count": 0
+    },
+    "h": {
+      "shape": [
+        36,
+        32,
+        32
+      ],
+      "dtype": "float32",
+      "nan_count": 0
+    }
+  },
+  "units": {
+    "dem": "m",
+    "rainfall": "mm/5min",
+    "h": "m"
+  },
+  "checksums": {
+    "dem_sha256": "193784a7291c4b5d21a7688a9e2154b813fe9832a22b4afd43440b804d531d83",
+    "rainfall_sha256": "2f462a91a79b73ed0ad3354baaea823f53d394d290d7ae3e00ba021662755236",
+    "h_sha256": "dd87cece3b2cfea8003961907e0959a5f9aa96dca0778ce67fbe98011925eb36"
+  }
+}

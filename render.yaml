@@ -22,7 +22,7 @@ services:
       - key: AUTH_API_KEY
         sync: false
       - key: CORS_ORIGINS
-        value: https://crestix-probe.vercel.app
+        value: https://crestix-probe-aqua.onrender.com,https://crestix-probe.vercel.app
       - key: SIMULATION_ADAPTER_MODE
         value: stub
       - key: FORECAST_ADAPTER_MODE

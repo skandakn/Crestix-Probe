@@ -85,6 +85,7 @@ describe("UI Quality Assurance Audit (Layout, Typography, States, Links, Assets)
       for (const file of files) {
         const fullPath = path.join(publicDir, file);
         const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) continue;
         expect(stat.size).toBeGreaterThan(0);
         expect(stat.size).toBeLessThan(5 * 1024 * 1024);
       }

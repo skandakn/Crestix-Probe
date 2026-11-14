@@ -46,6 +46,8 @@ next-env.d.ts
 .pytest_cache/
 __pycache__/
 *.pyc
+*.py[cod]
+*$py.class
 /uploads/
 
 # ML model checkpoints (never commit large weights)

@@ -1,0 +1,173 @@
+{
+  "$schema": "./schemas/sample_schema.json",
+  "dataset_name": "LarNO UKEA 8m / 5min Flood Benchmark",
+  "split_protocol": "event_level_chronological_invariant",
+  "split_rationale": "Strict event-level partition. Official LarNO benchmark defines 8 training events and 12 testing events. To prevent test-set leakage, the validation partition (2 events, 25% of development set) is carved strictly out of the 8 training events, preserving stratified representation across return periods (100y, 200y, 300y, 500y).",
+  "summary": {
+    "total_events": 20,
+    "train_events_count": 6,
+    "val_events_count": 2,
+    "test_events_count": 12,
+    "train_fraction_of_dev": 0.75,
+    "val_fraction_of_dev": 0.25,
+    "total_timesteps_per_event": 36,
+    "time_interval_minutes": 5,
+    "event_duration_hours": 3.0
+  },
+  "splits": {
+    "train": [
+      {
+        "event_id": "r100y_p0.1_d3h_1",
+        "return_period_years": 100,
+        "peak_factor": 0.1,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "100-year storm event with low peak concentration (p0.1)"
+      },
+      {
+        "event_id": "r100y_p0.8_d3h_1",
+        "return_period_years": 100,
+        "peak_factor": 0.8,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "100-year storm event with late peak concentration (p0.8)"
+      },
+      {
+        "event_id": "r200y_p0.3_d3h_1",
+        "return_period_years": 200,
+        "peak_factor": 0.3,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "200-year storm event with early-mid peak concentration (p0.3)"
+      },
+      {
+        "event_id": "r300y_p0.1_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.1,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "300-year storm event with low peak factor (p0.1)"
+      },
+      {
+        "event_id": "r300y_p0.5_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.5,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "300-year storm event with symmetrical central peak (p0.5)"
+      },
+      {
+        "event_id": "r500y_p0.2_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.2,
+        "duration_hours": 3,
+        "role": "development_training",
+        "rationale": "Severe 500-year extreme return period event (p0.2)"
+      }
+    ],
+    "val": [
+      {
+        "event_id": "r100y_p0.5_d3h_1",
+        "return_period_years": 100,
+        "peak_factor": 0.5,
+        "duration_hours": 3,
+        "role": "hyperparameter_tuning_model_selection",
+        "rationale": "Carved from official train set: 100-year event with central peak (p0.5) to evaluate mid-range hyetograph generalization."
+      },
+      {
+        "event_id": "r200y_p0.7_d3h_1",
+        "return_period_years": 200,
+        "peak_factor": 0.7,
+        "duration_hours": 3,
+        "role": "hyperparameter_tuning_model_selection",
+        "rationale": "Carved from official train set: 200-year event with late peak (p0.7) to evaluate high-intensity surge generalization."
+      }
+    ],
+    "test": [
+      {
+        "event_id": "r100y_p0.6_d3h_1",
+        "return_period_years": 100,
+        "peak_factor": 0.6,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r100y_p0.7_d3h_1",
+        "return_period_years": 100,
+        "peak_factor": 0.7,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r200y_p0.5_d3h_1",
+        "return_period_years": 200,
+        "peak_factor": 0.5,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r300y_p0.4_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.4,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r300y_p0.6_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.6,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r300y_p0.8_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.8,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r300y_p0.9_d3h_1",
+        "return_period_years": 300,
+        "peak_factor": 0.9,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r500y_p0.1_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.1,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r500y_p0.3_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.3,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r500y_p0.4_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.4,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r500y_p0.6_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.6,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      },
+      {
+        "event_id": "r500y_p0.9_d3h_1",
+        "return_period_years": 500,
+        "peak_factor": 0.9,
+        "duration_hours": 3,
+        "role": "official_benchmark_evaluation"
+      }
+    ]
+  }
+}
