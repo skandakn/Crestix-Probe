@@ -16,7 +16,7 @@ import type {
   SensorReading,
   SensorStatusResponse,
   TransportProtocol,
-} from "./types.ts";
+} from "./types";
 
 export interface SimulationConfig {
   experimentId: string;

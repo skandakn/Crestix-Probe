@@ -1,6 +1,12 @@
 import type { ApiResponse, ApiError, ApiRequestOptions } from "@/types/api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+function getBaseUrl(): string {
+  // In Vercel serverless functions, use the internal service binding URL if injected
+  if (typeof window === "undefined" && process.env.BACKEND_URL) {
+    return process.env.BACKEND_URL.replace(/\/$/, "");
+  }
+  return (process.env.NEXT_PUBLIC_API_URL || "/api").replace(/\/$/, "");
+}
 
 export class ProbeApiError extends Error implements ApiError {
   code: string;

@@ -4,15 +4,8 @@ import React from "react";
 import Link from "next/link";
 import {
   Waves,
-  Radio,
-  Cpu,
   ArrowUp,
-  ShieldCheck,
-  Compass,
-  FileText,
   ExternalLink,
-  Activity,
-  Code2,
 } from "lucide-react";
 
 export function Footer() {

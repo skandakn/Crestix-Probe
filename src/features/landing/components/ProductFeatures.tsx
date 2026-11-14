@@ -8,11 +8,9 @@ import {
   Radio,
   Compass,
   Server,
-  ArrowRight,
   Sparkles,
 } from "lucide-react";
 import { PRODUCT_FEATURES, ProductFeature } from "../data/featuresData";
-import { cn } from "../utils/cn";
 
 export function ProductFeatures() {
   const getIcon = (name: string) => {

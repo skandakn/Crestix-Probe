@@ -107,3 +107,4 @@ export const TECHNOLOGY_PILLARS: TechnologyPillar[] = [
       "Combines distributed edge IoT water-level sensing with sequential data assimilation methods commonly utilized in numerical weather prediction and physical oceanography.",
   },
 ];
+
