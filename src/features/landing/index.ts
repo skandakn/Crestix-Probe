@@ -3,7 +3,6 @@ export { Navbar } from "./components/Navbar";
 export { Hero } from "./components/Hero";
 export { SimulationPreview } from "./components/SimulationPreview";
 export { TechnologyPillars } from "./components/TechnologyPillars";
-export { ProductFeatures } from "./components/ProductFeatures";
 export { WorkflowPipeline } from "./components/WorkflowPipeline";
 export { ResearchBenchmarks } from "./components/ResearchBenchmarks";
 export { HardwareProbe } from "./components/HardwareProbe";

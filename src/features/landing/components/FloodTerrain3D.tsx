@@ -139,41 +139,255 @@ export function FloodTerrain3D({
     scene.add(wireframe);
     wireframeRef.current = wireframe;
 
-    // 2. 3D Extruded Building Blocks
-    const buildingGroup = new THREE.Group();
+    // 2. High-Detail Procedural Architectural Facade Textures (Open-Source GIS Style)
+    const facadeCanvas = document.createElement("canvas");
+    facadeCanvas.width = 512;
+    facadeCanvas.height = 1024;
+    const fCtx = facadeCanvas.getContext("2d");
+
+    const emissiveCanvas = document.createElement("canvas");
+    emissiveCanvas.width = 512;
+    emissiveCanvas.height = 1024;
+    const eCtx = emissiveCanvas.getContext("2d");
+
+    if (fCtx && eCtx) {
+      // Dark slate architectural composite cladding
+      fCtx.fillStyle = "#1e293b";
+      fCtx.fillRect(0, 0, 512, 1024);
+
+      eCtx.fillStyle = "#000000";
+      eCtx.fillRect(0, 0, 512, 1024);
+
+      const cols = 8;
+      const colWidth = 512 / cols;
+      const rows = 24;
+      const rowHeight = 1024 / rows;
+
+      // Vertical structural mullion lines
+      for (let c = 0; c <= cols; c++) {
+        fCtx.fillStyle = "#0f172a";
+        fCtx.fillRect(c * colWidth - 2, 0, 4, 1024);
+      }
+
+      // Windows and floor spandrels
+      for (let r = 0; r < rows; r++) {
+        const y = r * rowHeight;
+        // Floor slab divider
+        fCtx.fillStyle = "#090d16";
+        fCtx.fillRect(0, y, 512, 6);
+
+        for (let c = 0; c < cols; c++) {
+          const x = c * colWidth + 5;
+          const w = colWidth - 10;
+          const h = rowHeight - 9;
+          const hash = Math.sin(r * 127.1 + c * 311.7) * 0.5 + 0.5;
+
+          if (r === rows - 1) {
+            // Ground floor lobby: brightly illuminated entrance glass
+            fCtx.fillStyle = "#38bdf8";
+            fCtx.fillRect(x, y + 6, w, h);
+            eCtx.fillStyle = "#0284c7";
+            eCtx.fillRect(x, y + 6, w, h);
+          } else if (hash > 0.62) {
+            // Cool cyan smart city interior glow
+            fCtx.fillStyle = "#7dd3fc";
+            fCtx.fillRect(x, y + 6, w, h);
+            eCtx.fillStyle = "#0369a1";
+            eCtx.fillRect(x, y + 6, w, h);
+          } else if (hash > 0.42) {
+            // Warm incandescent office lighting
+            fCtx.fillStyle = "#fef08a";
+            fCtx.fillRect(x, y + 6, w, h);
+            eCtx.fillStyle = "#a16207";
+            eCtx.fillRect(x, y + 6, w, h);
+          } else {
+            // Dark tinted architectural reflective glass
+            fCtx.fillStyle = "#0b1220";
+            fCtx.fillRect(x, y + 6, w, h);
+            fCtx.fillStyle = "#1e293b";
+            fCtx.fillRect(x + 2, y + 8, w - 4, 2);
+          }
+        }
+      }
+    }
+
+    const facadeTexture = new THREE.CanvasTexture(facadeCanvas);
+    facadeTexture.wrapS = THREE.RepeatWrapping;
+    facadeTexture.wrapT = THREE.RepeatWrapping;
+
+    const facadeEmissive = new THREE.CanvasTexture(emissiveCanvas);
+    facadeEmissive.wrapS = THREE.RepeatWrapping;
+    facadeEmissive.wrapT = THREE.RepeatWrapping;
+
+    // Materials
     const buildingMat = new THREE.MeshStandardMaterial({
-      color: 0x64748b,
-      emissive: 0x1e293b,
-      emissiveIntensity: 0.45,
-      roughness: 0.45,
-      metalness: 0.25,
+      map: facadeTexture,
+      emissiveMap: facadeEmissive,
+      emissive: new THREE.Color(0xffffff),
+      emissiveIntensity: 0.55,
+      roughness: 0.35,
+      metalness: 0.35,
     });
+
+    const concretePodiumMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      roughness: 0.85,
+      metalness: 0.15,
+    });
+
+    const roofMachineryMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.7,
+      metalness: 0.5,
+    });
+
+    const culvertMat = new THREE.MeshStandardMaterial({
+      color: 0x475569,
+      roughness: 0.9,
+      metalness: 0.1,
+    });
+
     const edgeMat = new THREE.LineBasicMaterial({
       color: 0x38bdf8,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.75,
     });
 
+    const beaconMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const helipadMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.5 });
+
+    const buildingGroup = new THREE.Group();
     const buildingGeos: THREE.BufferGeometry[] = [];
+    const beaconMeshes: THREE.Mesh[] = [];
+
     CITY_BUILDINGS.forEach((b, idx) => {
       const bw = (b.width / VIEWBOX_WIDTH) * WORLD_WIDTH;
       const bd = (b.height / VIEWBOX_HEIGHT) * WORLD_DEPTH;
-      const bh = 2.0 + (idx % 3) * 0.45;
+      // Building height variation: index 2 and 5 are skyscrapers, others are commercial blocks
+      const bh = idx === 2 || idx === 5 ? 3.4 : 1.9 + (idx % 3) * 0.45;
       const [wx, wz] = viewboxToWorld(b.x + b.width / 2, b.y + b.height / 2);
       const baseElev = sampleDemAtViewbox(dem, b.x + b.width / 2, b.y + b.height / 2) * ELEV_SCALE;
 
+      // A. Ground Sidewalk / Curb Plinth Foundation (stabilizes structure against terrain)
+      const plinthGeo = new THREE.BoxGeometry(bw * 1.08, 0.22, bd * 1.08);
+      buildingGeos.push(plinthGeo);
+      const plinthMesh = new THREE.Mesh(plinthGeo, concretePodiumMat);
+      plinthMesh.position.set(wx, baseElev + 0.11 - 0.15, wz);
+      buildingGroup.add(plinthMesh);
+
+      // B. Main Architectural Tower Body
       const boxGeo = new THREE.BoxGeometry(bw, bh, bd);
       buildingGeos.push(boxGeo);
       const mesh = new THREE.Mesh(boxGeo, buildingMat);
-      mesh.position.set(wx, baseElev + bh / 2 - 0.15, wz);
+      mesh.position.set(wx, baseElev + bh / 2 - 0.05, wz);
       buildingGroup.add(mesh);
 
+      // Building Wireframe Edges (Cyan Architectural Linework)
       const edges = new THREE.EdgesGeometry(boxGeo);
       buildingGeos.push(edges);
       const line = new THREE.LineSegments(edges, edgeMat);
       line.position.copy(mesh.position);
       buildingGroup.add(line);
+
+      // C. Rooftop Mechanical Penthouse / Elevator Core (HVAC)
+      const roofY = baseElev + bh - 0.05;
+      const hvacGeo = new THREE.BoxGeometry(bw * 0.38, 0.38, bd * 0.38);
+      buildingGeos.push(hvacGeo);
+      const hvacMesh = new THREE.Mesh(hvacGeo, roofMachineryMat);
+      hvacMesh.position.set(wx, roofY + 0.19, wz);
+      buildingGroup.add(hvacMesh);
+
+      // D. Architectural Signature Elements by Building Type
+      if (idx === 2 || idx === 5) {
+        // Skyscraper Communication Spire & Aviation Beacon
+        const spireGeo = new THREE.CylinderGeometry(0.03, 0.08, 1.4, 8);
+        buildingGeos.push(spireGeo);
+        const spireMesh = new THREE.Mesh(spireGeo, roofMachineryMat);
+        spireMesh.position.set(wx, roofY + 0.38 + 0.7, wz);
+        buildingGroup.add(spireMesh);
+
+        const beaconGeo = new THREE.SphereGeometry(0.08, 12, 12);
+        buildingGeos.push(beaconGeo);
+        const beaconMesh = new THREE.Mesh(beaconGeo, beaconMat);
+        beaconMesh.position.set(wx, roofY + 0.38 + 1.4, wz);
+        buildingGroup.add(beaconMesh);
+        beaconMeshes.push(beaconMesh);
+      } else if (idx === 4) {
+        // Emergency Response Center: Rooftop Helipad
+        const heliGeo = new THREE.CylinderGeometry(Math.min(bw, bd) * 0.32, Math.min(bw, bd) * 0.32, 0.05, 24);
+        buildingGeos.push(heliGeo);
+        const heliMesh = new THREE.Mesh(heliGeo, helipadMat);
+        heliMesh.position.set(wx, roofY + 0.03, wz);
+        buildingGroup.add(heliMesh);
+      } else if (idx % 2 === 0) {
+        // Rooftop Twin Chiller Fans
+        const fan1Geo = new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12);
+        buildingGeos.push(fan1Geo);
+        const fan1 = new THREE.Mesh(fan1Geo, roofMachineryMat);
+        fan1.position.set(wx - bw * 0.25, roofY + 0.08, wz - bd * 0.2);
+        buildingGroup.add(fan1);
+
+        const fan2Geo = new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12);
+        buildingGeos.push(fan2Geo);
+        const fan2 = new THREE.Mesh(fan2Geo, roofMachineryMat);
+        fan2.position.set(wx + bw * 0.25, roofY + 0.08, wz - bd * 0.2);
+        buildingGroup.add(fan2);
+      }
+
+      // E. Ground-Floor Glazed Entrance Canopy Overhang
+      const canopyGeo = new THREE.BoxGeometry(bw * 0.45, 0.05, bd * 0.3);
+      buildingGeos.push(canopyGeo);
+      const canopyMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.5,
+        roughness: 0.2,
+      });
+      const canopyMesh = new THREE.Mesh(canopyGeo, canopyMat);
+      canopyMesh.position.set(wx, baseElev + 0.45, wz + bd / 2 + 0.12);
+      buildingGroup.add(canopyMesh);
     });
+
+    // 3. In-Situ Stormwater Culvert Portal Structure (Deployed at Node CX-N01)
+    const [culvertWx, culvertWz] = viewboxToWorld(220, 240);
+    const culvertElev = sampleDemAtViewbox(dem, 220, 240) * ELEV_SCALE;
+
+    // Headwall structure
+    const headwallGeo = new THREE.BoxGeometry(1.6, 0.85, 0.45);
+    buildingGeos.push(headwallGeo);
+    const headwallMesh = new THREE.Mesh(headwallGeo, culvertMat);
+    headwallMesh.position.set(culvertWx, culvertElev + 0.42, culvertWz);
+    buildingGroup.add(headwallMesh);
+
+    // Twin Culvert Barrel Openings (Dark drainage intakes)
+    const intakeMat = new THREE.MeshBasicMaterial({ color: 0x020617 });
+    const intake1Geo = new THREE.CylinderGeometry(0.24, 0.24, 0.5, 16);
+    intake1Geo.rotateX(Math.PI / 2);
+    buildingGeos.push(intake1Geo);
+    const intake1 = new THREE.Mesh(intake1Geo, intakeMat);
+    intake1.position.set(culvertWx - 0.42, culvertElev + 0.32, culvertWz + 0.02);
+    buildingGroup.add(intake1);
+
+    const intake2Geo = new THREE.CylinderGeometry(0.24, 0.24, 0.5, 16);
+    intake2Geo.rotateX(Math.PI / 2);
+    buildingGeos.push(intake2Geo);
+    const intake2 = new THREE.Mesh(intake2Geo, intakeMat);
+    intake2.position.set(culvertWx + 0.42, culvertElev + 0.32, culvertWz + 0.02);
+    buildingGroup.add(intake2);
+
+    // Culvert Wingwalls (Angled concrete retaining barriers)
+    const wingwallGeo = new THREE.BoxGeometry(0.18, 0.75, 0.8);
+    buildingGeos.push(wingwallGeo);
+    const leftWing = new THREE.Mesh(wingwallGeo, culvertMat);
+    leftWing.position.set(culvertWx - 0.95, culvertElev + 0.37, culvertWz + 0.35);
+    leftWing.rotation.y = -0.45;
+    buildingGroup.add(leftWing);
+
+    const rightWing = new THREE.Mesh(wingwallGeo, culvertMat);
+    rightWing.position.set(culvertWx + 0.95, culvertElev + 0.37, culvertWz + 0.35);
+    rightWing.rotation.y = 0.45;
+    buildingGroup.add(rightWing);
+
     scene.add(buildingGroup);
 
     // 3. Dynamic Translucent Floodwater Mesh (64x64)
@@ -218,6 +432,11 @@ export function FloodTerrain3D({
     const animate = () => {
       rafId = requestAnimationFrame(animate);
       controls.update();
+
+      // Subtle pulse for rooftop aviation warning beacons
+      const beaconIntensity = Math.sin(Date.now() * 0.006) * 0.5 + 0.5;
+      beaconMat.color.setRGB(1.0, 0.2 * beaconIntensity, 0.2 * beaconIntensity);
+
       renderer.render(scene, camera);
 
       const cw = container.clientWidth;
@@ -249,7 +468,15 @@ export function FloodTerrain3D({
       waterGeo.dispose();
       waterMat.dispose();
       buildingMat.dispose();
+      concretePodiumMat.dispose();
+      roofMachineryMat.dispose();
+      culvertMat.dispose();
+      intakeMat.dispose();
+      beaconMat.dispose();
+      helipadMat.dispose();
       edgeMat.dispose();
+      facadeTexture.dispose();
+      facadeEmissive.dispose();
       buildingGeos.forEach((g) => g.dispose());
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
