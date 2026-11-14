@@ -84,7 +84,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await registerMockApiRoutes(page);
     await navigateToCrestixRoute(page, "/terrain");
 
-    await expect(page.getByText(/MEMBER 4: TERRAIN/i)).toBeVisible({ timeout: 20000 });
+    await expect(
+      page.getByRole("banner").getByText(/MEMBER 4: TERRAIN/i)
+    ).toBeVisible({ timeout: 20000 });
     await expect(page.getByRole("button", { name: /Upload DEM/i })).toBeVisible();
   });
 
@@ -128,7 +130,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await expect(page.getByRole("heading", { name: "flume_basin" })).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.getByText(/Parsed from ASCII Grid \(3x3/i)).toBeVisible();
+    await expect(
+      page.getByRole("main").getByText(/Parsed from ASCII Grid \(3x3/i)
+    ).toBeVisible();
   });
 
   test("6. Simulation controls function (Launch, Pause/Play, Reset)", async ({ page }) => {
@@ -155,7 +159,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     await navigateToCrestixRoute(page, "/forecasting");
 
     await expect(page.getByRole("heading", { name: /FORECASTING/i })).toBeVisible();
-    await expect(page.getByText(/MEMBER 6: AI HYDRODYNAMICS/i)).toBeVisible();
+    await expect(
+      page.getByRole("banner").getByText(/MEMBER 6: AI HYDRODYNAMICS/i)
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: /Simulation Studio/i })).toBeVisible();
   });
 

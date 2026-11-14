@@ -25,13 +25,21 @@ export class HttpSimulationApiAdapter implements ISimulationApiAdapter {
 
   private baseUrl: string;
 
-  constructor(baseUrl: string = "") {
-    this.baseUrl = baseUrl.replace(/\/$/, "");
+  constructor(baseUrl?: string) {
+    const serverBackendUrl = typeof window === "undefined" && process.env.BACKEND_URL
+      ? process.env.BACKEND_URL.replace(/\/$/, "")
+      : undefined;
+    this.baseUrl = (baseUrl ?? serverBackendUrl ?? process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+  }
+
+  private resolveUrl(path: string): string {
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    return this.baseUrl ? `${this.baseUrl}${cleanPath}` : cleanPath;
   }
 
   async checkHealth(): Promise<{ ok: boolean; message: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/simulation/health`, {
+      const response = await fetch(this.resolveUrl("/api/simulation/health"), {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -57,7 +65,7 @@ export class HttpSimulationApiAdapter implements ISimulationApiAdapter {
   }
 
   async runSimulation(request: SimulationRunRequest): Promise<SimulationRunResponse> {
-    const url = `${this.baseUrl}/api/simulation/run`;
+    const url = this.resolveUrl("/api/simulation/run");
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -80,7 +88,7 @@ export class HttpSimulationApiAdapter implements ISimulationApiAdapter {
   }
 
   async getSimulationStatus(simulationId: string): Promise<SimulationStatusResponse> {
-    const url = `${this.baseUrl}/api/simulation/${encodeURIComponent(simulationId)}`;
+    const url = this.resolveUrl(`/api/simulation/${encodeURIComponent(simulationId)}`);
     try {
       const res = await fetch(url, {
         method: "GET",
@@ -102,7 +110,7 @@ export class HttpSimulationApiAdapter implements ISimulationApiAdapter {
   }
 
   async getSimulationFrames(simulationId: string): Promise<SimulationFramesResponse> {
-    const url = `${this.baseUrl}/api/simulation/${encodeURIComponent(simulationId)}/frames`;
+    const url = this.resolveUrl(`/api/simulation/${encodeURIComponent(simulationId)}/frames`);
     try {
       const res = await fetch(url, {
         method: "GET",

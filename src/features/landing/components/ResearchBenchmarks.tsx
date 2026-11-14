@@ -6,12 +6,6 @@ import {
   AlertTriangle,
   Info,
   BookOpen,
-  ExternalLink,
-  Cpu,
-  Zap,
-  TrendingUp,
-  ShieldCheck,
-  FileText,
 } from "lucide-react";
 import {
   RESEARCH_DISCLAIMER,

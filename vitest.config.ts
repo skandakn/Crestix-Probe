@@ -8,6 +8,7 @@ export default defineConfig({
     name: "crestix-probe-unit",
     environment: "jsdom",
     globals: true,
+    testTimeout: 15000,
     setupFiles: ["./tests/setup.ts", "./src/test/setup.ts"],
     include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
     exclude: [

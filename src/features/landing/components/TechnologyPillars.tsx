@@ -3,15 +3,10 @@
 import React, { useState } from "react";
 import {
   Cpu,
-  Layers,
-  Radio,
-  ShieldCheck,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
-  Terminal,
-  Activity,
   Code2,
+  Sliders,
 } from "lucide-react";
 import { TECHNOLOGY_PILLARS } from "../data/techData";
 import { cn } from "../utils/cn";
@@ -20,6 +15,9 @@ export function TechnologyPillars() {
   const [selectedPillarId, setSelectedPillarId] = useState(
     TECHNOLOGY_PILLARS[0].id
   );
+
+  // Spectral cut-off interactive state for FNO pillar
+  const [spectralKmax, setSpectralKmax] = useState<number>(32);
 
   const activePillar =
     TECHNOLOGY_PILLARS.find((p) => p.id === selectedPillarId) ||
@@ -244,35 +242,86 @@ export function TechnologyPillars() {
                 )}
 
                 {activePillar.id === "neural-operators" && (
-                  <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-                      <div className="text-cyan-300 font-bold mb-1">
-                        1. Coordinate Lifting Layer P(x)
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+                        <div className="text-cyan-300 font-bold mb-1">
+                          1. Coordinate Lifting Layer P(x)
+                        </div>
+                        <p className="text-slate-400 text-[11px] font-sans">
+                          Projects low-dimensional spatial input (z_bed, R_t, h_t)
+                          into high-dimensional channel space (d_model = 64).
+                        </p>
                       </div>
-                      <p className="text-slate-400 text-[11px] font-sans">
-                        Projects low-dimensional spatial input (z_bed, R_t, h_t)
-                        into high-dimensional channel space (d_model = 64).
-                      </p>
+
+                      <div className="p-3 rounded-lg bg-cyan-950/40 border border-cyan-500/30">
+                        <div className="text-teal-300 font-bold mb-1">
+                          2. 4x Fourier Spectral Integral Layers
+                        </div>
+                        <p className="text-slate-400 text-[11px] font-sans">
+                          2D Fast Fourier Transform (FFT) → Complex frequency tensor
+                          multiplication with learnable R_k → Inverse 2D FFT.
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+                        <div className="text-slate-300 font-bold mb-1">
+                          3. Physics-Informed Residual Projection Q(x)
+                        </div>
+                        <p className="text-slate-400 text-[11px] font-sans">
+                          Back-projects into continuous water depth and velocity
+                          space while penalizing continuity violation gradients.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-cyan-950/40 border border-cyan-500/30">
-                      <div className="text-teal-300 font-bold mb-1">
-                        2. 4x Fourier Spectral Integral Layers
+                    {/* Interactive Fourier Spectral Mode Selector */}
+                    <div className="p-3.5 rounded-lg bg-slate-950/80 border border-cyan-500/30 font-mono text-xs space-y-2.5">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-cyan-300 font-bold flex items-center gap-1.5">
+                          <Sliders className="w-3 h-3 text-cyan-400" />
+                          <span>Fourier Truncation Cutoff (k_max):</span>
+                        </span>
+                        <span className="bg-cyan-950 text-cyan-200 px-2 py-0.5 rounded border border-cyan-500/40 font-bold">
+                          k = {spectralKmax} modes
+                        </span>
                       </div>
-                      <p className="text-slate-400 text-[11px] font-sans">
-                        2D Fast Fourier Transform (FFT) → Complex frequency tensor
-                        multiplication with learnable R_k → Inverse 2D FFT.
-                      </p>
-                    </div>
 
-                    <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-                      <div className="text-slate-300 font-bold mb-1">
-                        3. Physics-Informed Residual Projection Q(x)
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[12, 16, 32, 64].map((k) => (
+                          <button
+                            key={k}
+                            type="button"
+                            onClick={() => setSpectralKmax(k)}
+                            className={cn(
+                              "py-1 text-[10px] rounded transition-colors border",
+                              spectralKmax === k
+                                ? "bg-cyan-500/30 text-cyan-200 border-cyan-400 font-bold"
+                                : "bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200"
+                            )}
+                          >
+                            k={k}
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-slate-400 text-[11px] font-sans">
-                        Back-projects into continuous water depth and velocity
-                        space while penalizing continuity violation gradients.
-                      </p>
+
+                      <div className="pt-2 border-t border-slate-800/80 space-y-1 text-[11px]">
+                        <div className="flex justify-between text-slate-400">
+                          <span>Wavenumber Tensor:</span>
+                          <span className="text-teal-300">
+                            [-{spectralKmax}, +{spectralKmax}]² ℂ-modes
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-slate-400">
+                          <span>Mesh Resolution:</span>
+                          <span className="text-emerald-400 font-semibold">
+                            Zero-shot Super-Resolution
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-sans pt-1 leading-tight">
+                          Higher modes capture street-level curb channels; low modes maintain macro-drainage conservation across regional basins.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}

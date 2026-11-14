@@ -37,7 +37,11 @@ export class HttpForecastApiAdapter implements ForecastApiAdapter {
   private defaultHeaders: HeadersInit;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl ?? (process.env.NEXT_PUBLIC_FORECAST_API_URL || '');
+    const serverBackendUrl =
+      typeof window === 'undefined' && process.env.BACKEND_URL
+        ? process.env.BACKEND_URL.replace(/\/$/, '')
+        : undefined;
+    this.baseUrl = baseUrl ?? (serverBackendUrl || process.env.NEXT_PUBLIC_FORECAST_API_URL || '');
     this.defaultHeaders = {
       'Content-Type': 'application/json',
       Accept: 'application/json'
@@ -49,7 +53,8 @@ export class HttpForecastApiAdapter implements ForecastApiAdapter {
   }
 
   private isNodeTestEnvironment(): boolean {
-    return typeof window === 'undefined' && !this.baseUrl.startsWith('http');
+    const isTest = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+    return (isTest || typeof window === 'undefined') && !this.baseUrl.startsWith('http');
   }
 
   /**

@@ -1,19 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Play,
   Pause,
   RotateCcw,
-  Sliders,
-  Layers,
-  Activity,
   Info,
-  Maximize2,
-  AlertTriangle,
   Radio,
-  Eye,
-  ShieldAlert,
   BarChart2,
   Waves,
 } from "lucide-react";

@@ -3,16 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import {
-  Waves,
   ArrowRight,
   Play,
   Radio,
-  Cpu,
-  Layers,
-  ShieldCheck,
   ChevronRight,
-  Activity,
-  Maximize2,
   Compass,
 } from "lucide-react";
 import { cn } from "../utils/cn";

@@ -83,3 +83,4 @@ export interface ResearchBenchmark {
   massConservationLoss: string;
   calibrationStatus: "Illustrative Prototype";
 }
+
