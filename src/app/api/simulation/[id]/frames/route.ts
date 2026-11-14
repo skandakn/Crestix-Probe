@@ -4,13 +4,14 @@ import { TERRAIN_PRESETS } from "@/features/simulation/data/terrain-presets";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const job = getSimulationJob(params.id);
+    const { id } = await params;
+    const job = getSimulationJob(id);
     if (!job) {
       return NextResponse.json(
-        { error: `Simulation frames not found for id: ${params.id}` },
+        { error: `Simulation frames not found for id: ${id}` },
         { status: 404 }
       );
     }

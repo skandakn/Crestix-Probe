@@ -3,13 +3,14 @@ import { getSimulationJob } from "@/app/api/simulation/store";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const job = getSimulationJob(params.id);
+    const { id } = await params;
+    const job = getSimulationJob(id);
     if (!job) {
       return NextResponse.json(
-        { error: `Simulation not found: ${params.id}` },
+        { error: `Simulation not found: ${id}` },
         { status: 404 }
       );
     }
@@ -26,7 +27,9 @@ export async function GET(
       config: job.config,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Internal server error" },
+      { status: 500 }
+    );
   }
 }
