@@ -80,3 +80,4 @@ export const ACADEMIC_CITATIONS = [
     contribution: "Foundational methodology for embedding PDE residuals into gradient-based neural network backpropagation.",
   },
 ];
+

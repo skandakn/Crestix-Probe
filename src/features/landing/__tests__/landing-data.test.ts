@@ -1,11 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { SIMULATION_SCENARIOS, SIMULATION_DISCLAIMER } from "../data/simulationData.ts";
-import { TECHNOLOGY_PILLARS } from "../data/techData.ts";
-import { WORKFLOW_STAGES } from "../data/workflowData.ts";
-import { PRODUCT_FEATURES } from "../data/featuresData.ts";
-import { HARDWARE_COMPONENTS, PROTOTYPE_METRICS, SAMPLE_SERIAL_PACKETS } from "../data/hardwareData.ts";
-import { BENCHMARK_COMPARISONS, RESEARCH_DISCLAIMER, ACADEMIC_CITATIONS } from "../data/researchData.ts";
+import { SIMULATION_SCENARIOS, SIMULATION_DISCLAIMER } from "../data/simulationData";
+import { TECHNOLOGY_PILLARS } from "../data/techData";
+import { WORKFLOW_STAGES } from "../data/workflowData";
+import { PRODUCT_FEATURES } from "../data/featuresData";
+import { HARDWARE_COMPONENTS, PROTOTYPE_METRICS, SAMPLE_SERIAL_PACKETS } from "../data/hardwareData";
+import { BENCHMARK_COMPARISONS, RESEARCH_DISCLAIMER, ACADEMIC_CITATIONS } from "../data/researchData";
 
 describe("Crestix Probe Landing Page Specifications & Contracts", () => {
   it("verifies simulation scenarios and hydrodynamic time steps", () => {
@@ -81,3 +81,4 @@ describe("Crestix Probe Landing Page Specifications & Contracts", () => {
     assert.strictEqual(ACADEMIC_CITATIONS.length, 4, "Must include 4 academic citations");
   });
 });
+

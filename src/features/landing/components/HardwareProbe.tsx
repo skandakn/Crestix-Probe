@@ -8,6 +8,13 @@ import {
   Pause,
   RotateCcw,
   ArrowRight,
+  Thermometer,
+  Sliders,
+  Copy,
+  Check,
+  Download,
+  Activity,
+  Layers,
 } from "lucide-react";
 import {
   HARDWARE_COMPONENTS,
@@ -17,9 +24,25 @@ import {
 import { cn } from "../utils/cn";
 
 export function HardwareProbe() {
-  const [activeTab, setActiveTab] = useState<"specs" | "serial">("specs");
+  const [activeTab, setActiveTab] = useState<"specs" | "compensator" | "serial">("specs");
   const [isTerminalStreaming, setIsTerminalStreaming] = useState(true);
   const [packets, setPackets] = useState(SAMPLE_SERIAL_PACKETS);
+  const [isCopied, setIsCopied] = useState(false);
+
+  // Compensator interactive state
+  const [ambientTempC, setAmbientTempC] = useState<number>(24.0);
+  const [targetDatumM, setTargetDatumM] = useState<number>(2.5);
+
+  // Calculations for Acoustic Speed-of-Sound
+  // c(T) = 331.3 + 0.606 * T (m/s)
+  const speedOfSound = 331.3 + 0.606 * ambientTempC;
+  // Round trip ToF in microseconds (2 * distance / speed * 1,000,000)
+  const tofUs = Math.round(((2 * targetDatumM) / speedOfSound) * 1000000);
+  // Uncalibrated room-speed baseline (fixed at 343.2 m/s @ 20°C)
+  const uncalibratedSpeed = 343.2;
+  const uncalibratedDistM = (uncalibratedSpeed * (tofUs / 1000000)) / 2;
+  const errorMm = (uncalibratedDistM - targetDatumM) * 1000;
+  const errorPercent = ((uncalibratedDistM - targetDatumM) / targetDatumM) * 100;
 
   // Live serial terminal stream simulator
   useEffect(() => {
@@ -28,7 +51,15 @@ export function HardwareProbe() {
       interval = setInterval(() => {
         const randomNodeIndex = Math.floor(Math.random() * 3) + 1;
         const now = new Date();
-        const timeStr = now.toTimeString().split(" ")[0] + "." + Math.floor(now.getMilliseconds());
+        const timeStr =
+          now.toTimeString().split(" ")[0] +
+          "." +
+          String(now.getMilliseconds()).padStart(3, "0");
+
+        const simulatedTemp = Number((ambientTempC + (Math.random() * 0.8 - 0.4)).toFixed(1));
+        const simSpeed = 331.3 + 0.606 * simulatedTemp;
+        const simDist = Number((targetDatumM + (Math.random() * 0.04 - 0.02)).toFixed(3));
+        const simTof = Math.round(((2 * simDist) / simSpeed) * 1000000);
 
         const newPacket = {
           timestamp: timeStr,
@@ -37,9 +68,9 @@ export function HardwareProbe() {
             node_id: `CX-NODE-0${randomNodeIndex}`,
             hw_rev: "v1.4",
             datum_m: Number((8.0 + randomNodeIndex * 2.2).toFixed(3)),
-            tof_us: Math.floor(13000 + Math.random() * 6000),
-            temp_c: Number((21.0 + Math.random() * 1.5).toFixed(1)),
-            water_depth_m: Number((0.65 + Math.random() * 0.8).toFixed(3)),
+            tof_us: simTof,
+            temp_c: simulatedTemp,
+            water_depth_m: Number(Math.max(0, 8.0 + randomNodeIndex * 2.2 - simDist).toFixed(3)),
             rate_rise_cm_h: Number((12.0 + Math.random() * 20.0).toFixed(1)),
             batt_mv: Math.floor(3300 + Math.random() * 50),
             rssi_dbm: Math.floor(-85 + Math.random() * 18),
@@ -49,13 +80,38 @@ export function HardwareProbe() {
           },
         };
 
-        setPackets((prev) => [newPacket, ...prev.slice(0, 9)]);
+        setPackets((prev) => [newPacket, ...prev.slice(0, 14)]);
       }, 3000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTerminalStreaming]);
+  }, [isTerminalStreaming, ambientTempC, targetDatumM]);
+
+  // Copy packets to clipboard
+  const handleCopyPackets = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(packets, null, 2));
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch {
+      // Fallback if clipboard API is restricted
+      setIsCopied(false);
+    }
+  };
+
+  // Download packets as JSON file
+  const handleDownloadPackets = () => {
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(packets, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `crestix-telemetry-feed-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
 
   return (
     <section
@@ -137,7 +193,7 @@ export function HardwareProbe() {
           </div>
         </div>
 
-        {/* Main Hardware Container: Schematics & Live Terminal */}
+        {/* Main Hardware Container: Schematics, Physics Compensator & Live Terminal */}
         <div className="rounded-2xl bg-[#0b0f17] border border-cyan-500/20 shadow-2xl shadow-cyan-950/40 overflow-hidden">
           {/* Top Bar with View Mode Tabs */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 bg-[#0e1422] border-b border-slate-800">
@@ -151,19 +207,35 @@ export function HardwareProbe() {
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab("specs")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border",
+                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border flex items-center gap-1.5",
                   activeTab === "specs"
                     ? "bg-cyan-950 border-cyan-500 text-cyan-300"
                     : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
                 )}
               >
-                Subsystem Specifications
+                <Layers className="w-3.5 h-3.5" />
+                <span>Subsystem Specs</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("compensator")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-mono transition-colors border flex items-center gap-1.5",
+                  activeTab === "compensator"
+                    ? "bg-cyan-950 border-cyan-500 text-cyan-300"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                )}
+              >
+                <Thermometer className="w-3.5 h-3.5 text-teal-400" />
+                <span>Speed-of-Sound Physics</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setActiveTab("serial")}
@@ -175,7 +247,7 @@ export function HardwareProbe() {
                 )}
               >
                 <Terminal className="w-3.5 h-3.5" />
-                <span>Live Serial Terminal Stream</span>
+                <span>Live Serial Stream</span>
               </button>
             </div>
           </div>
@@ -223,11 +295,182 @@ export function HardwareProbe() {
             </div>
           )}
 
+          {/* Acoustic Speed-of-Sound Thermistor Compensator Interactive View */}
+          {activeTab === "compensator" && (
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/40 via-teal-950/20 to-slate-900/60 border border-cyan-500/30">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Thermometer className="w-4 h-4 text-cyan-400" />
+                    <span className="font-mono text-xs font-bold text-white">
+                      PHYSICS SIMULATOR: NTC TEMPERATURE SPEED-OF-SOUND CORRECTION
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-teal-400 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-500/30">
+                    Real-time Equation: v(T) = 331.3 + 0.606·T [m/s]
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                  The speed of sound in air is strictly a thermodynamic function of
+                  absolute ambient temperature. Ultrasonic transducers that assume a static room-temperature
+                  constant ($343.2\text{ m/s}$) incur severe ranging drift (up to $\pm 12\text{ cm}$) during summer asphalt heatwaves or sub-zero night chills. The Crestix Field Probe samples an onboard thermistor concurrently with each sonic ping, applying immediate firmware-level correction.
+                </p>
+              </div>
+
+              {/* Interactive Controls & Telemetry Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                {/* Left 6 cols: Sliders */}
+                <div className="lg:col-span-6 p-5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between gap-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label
+                        htmlFor="temp-slider"
+                        className="text-xs font-mono text-slate-300 flex items-center gap-1.5"
+                      >
+                        <Thermometer className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>In-Situ Air Temperature (T):</span>
+                      </label>
+                      <span className="text-sm font-mono font-bold text-cyan-300 bg-slate-800 px-2 py-0.5 rounded">
+                        {ambientTempC.toFixed(1)}°C
+                      </span>
+                    </div>
+                    <input
+                      id="temp-slider"
+                      type="range"
+                      min="-10.0"
+                      max="45.0"
+                      step="0.5"
+                      value={ambientTempC}
+                      onChange={(e) => setAmbientTempC(parseFloat(e.target.value))}
+                      className="w-full accent-cyan-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                      <span>-10°C (Freezing Storm)</span>
+                      <span>20°C (Standard Lab)</span>
+                      <span>+45°C (Heatwave)</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label
+                        htmlFor="distance-slider"
+                        className="text-xs font-mono text-slate-300 flex items-center gap-1.5"
+                      >
+                        <Sliders className="w-3.5 h-3.5 text-teal-400" />
+                        <span>True Transducer-to-Water Distance (d):</span>
+                      </label>
+                      <span className="text-sm font-mono font-bold text-teal-300 bg-slate-800 px-2 py-0.5 rounded">
+                        {targetDatumM.toFixed(2)} m
+                      </span>
+                    </div>
+                    <input
+                      id="distance-slider"
+                      type="range"
+                      min="0.5"
+                      max="5.0"
+                      step="0.05"
+                      value={targetDatumM}
+                      onChange={(e) => setTargetDatumM(parseFloat(e.target.value))}
+                      className="w-full accent-teal-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
+                    />
+                    <div className="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                      <span>0.50 m (Near Brim)</span>
+                      <span>2.50 m (Canal Bed)</span>
+                      <span>5.00 m (Deep Culvert)</span>
+                    </div>
+                  </div>
+
+                  {/* Calculated Acoustic Parameters */}
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800 font-mono text-xs">
+                    <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 uppercase block">Compensated Sonic Speed</span>
+                      <span className="text-sm font-bold text-white">{speedOfSound.toFixed(2)} m/s</span>
+                    </div>
+                    <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800">
+                      <span className="text-[10px] text-slate-500 uppercase block">Echo Round-Trip (ToF)</span>
+                      <span className="text-sm font-bold text-cyan-300">{tofUs.toLocaleString()} µs</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right 6 cols: Error Comparison Matrix */}
+                <div className="lg:col-span-6 p-5 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between gap-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <span className="font-mono text-xs font-bold text-white flex items-center gap-1.5">
+                      <Activity className="w-3.5 h-3.5 text-teal-400" />
+                      CALIBRATED VS UNCALIBRATED TELEMETRY
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono font-bold px-2 py-0.5 rounded",
+                        Math.abs(errorMm) < 5
+                          ? "bg-emerald-950 text-emerald-300 border border-emerald-500/40"
+                          : "bg-amber-950 text-amber-300 border border-amber-500/40"
+                      )}
+                    >
+                      {Math.abs(errorMm) < 5 ? "STABLE REGIME" : "CRITICAL OFFSET"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 font-mono text-xs">
+                    {/* Crestix Corrected Reading */}
+                    <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30 flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase text-emerald-400 font-bold">
+                          Crestix Probe (NTC Thermistor Corrected)
+                        </div>
+                        <div className="text-slate-300 text-[11px]">
+                          Firmware dynamically compensates for {ambientTempC}°C
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-emerald-300">
+                          {targetDatumM.toFixed(3)} m
+                        </div>
+                        <div className="text-[10px] text-emerald-400 font-bold">
+                          Error: ±0.0 mm
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Naive / Uncalibrated Sensor Reading */}
+                    <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-500/30 flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase text-rose-400 font-bold">
+                          Uncalibrated Sensor (Static 343.2 m/s Baseline)
+                        </div>
+                        <div className="text-slate-300 text-[11px]">
+                          Assumes 20°C regardless of real environment
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-rose-300">
+                          {uncalibratedDistM.toFixed(3)} m
+                        </div>
+                        <div className="text-[10px] text-rose-400 font-bold">
+                          Offset: {errorMm >= 0 ? "+" : ""}
+                          {errorMm.toFixed(1)} mm ({errorPercent.toFixed(2)}%)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Impact Insight Callout */}
+                  <div className="p-3 rounded-lg bg-[#06080d] border border-slate-800 text-[11px] text-slate-400 leading-relaxed font-sans">
+                    <span className="font-semibold text-slate-200">Municipal Impact: </span>
+                    An uncalibrated {Math.abs(errorMm).toFixed(1)} mm ({Math.abs(errorMm / 10).toFixed(1)} cm) offset at this temperature would distort hydraulic head calculations and trigger either premature evacuation alarms or undetected roadway overtopping.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Live Serial Terminal View */}
           {activeTab === "serial" && (
             <div className="p-4 sm:p-6 bg-[#06080d] flex flex-col">
               {/* Terminal Controls Bar */}
-              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 font-mono text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-800/80 font-mono text-xs">
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
@@ -240,7 +483,36 @@ export function HardwareProbe() {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyPackets}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] transition-colors"
+                    title="Copy JSON Payload Buffer"
+                  >
+                    {isCopied ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-300">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-cyan-400" />
+                        <span>Copy JSON</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadPackets}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[11px] transition-colors"
+                    title="Export Stream as JSON"
+                  >
+                    <Download className="w-3 h-3 text-teal-400" />
+                    <span>Export JSON</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setIsTerminalStreaming(!isTerminalStreaming)}
@@ -249,12 +521,12 @@ export function HardwareProbe() {
                     {isTerminalStreaming ? (
                       <>
                         <Pause className="w-3 h-3 text-amber-400" />
-                        <span>Pause Feed</span>
+                        <span>Pause</span>
                       </>
                     ) : (
                       <>
                         <Play className="w-3 h-3 text-emerald-400" />
-                        <span>Resume Feed</span>
+                        <span>Resume</span>
                       </>
                     )}
                   </button>
@@ -302,7 +574,7 @@ export function HardwareProbe() {
                 )}
               </div>
 
-              <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
                 <span>Adaptive Telemetry Rate: 30s Burst during Storm Rise</span>
                 <span className="text-teal-400">
                   Data Assimilation Protocol: EnKF v2.1
