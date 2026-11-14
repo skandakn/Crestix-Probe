@@ -8,7 +8,6 @@ import {
   Menu,
   X,
   ArrowRight,
-  Activity,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 
@@ -173,15 +172,6 @@ export function Navbar() {
             >
               <span>Launch Platform</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-
-            {/* Operator Portal Link */}
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-300 hover:text-white text-xs font-mono transition-all duration-200"
-            >
-              <Activity className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Live Telemetry</span>
             </Link>
           </div>
 
