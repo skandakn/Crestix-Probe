@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: crestix-probe-api
+    runtime: python
+    rootDir: backend
+    plan: starter
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    preDeployCommand: alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: crestix-probe-db
+          property: connectionString
+      - key: AUTH_SECRET_KEY
+        generateValue: true
+      - key: AUTH_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://crestix-probe.vercel.app
+      - key: SIMULATION_ADAPTER_MODE
+        value: stub
+      - key: FORECAST_ADAPTER_MODE
+        value: stub
+
+databases:
+  - name: crestix-probe-db
+    plan: basic-256mb
+    databaseName: crestix_probe
+    user: crestix_user
