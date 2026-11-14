@@ -1,4 +1,4 @@
-import test from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert';
 import { parseAsciiGrid } from '../processing/ascii-grid-parser';
 import { SAMPLE_ASCII_GRID_DATA } from '../assets/sample-dem-data';

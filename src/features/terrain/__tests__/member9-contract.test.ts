@@ -1,4 +1,4 @@
-import test from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert';
 import { Member9IntegrationService } from '../services/member9-contract';
 import { getSampleTerrain } from '../samples/sample-terrains';

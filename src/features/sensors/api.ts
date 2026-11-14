@@ -3,7 +3,7 @@ import {
   POSITION_CALIBRATIONS,
   evaluateStaleStatus,
   normalizeIngestedReading,
-} from "./calibration.ts";
+} from "./calibration";
 import type {
   DataSourceMode,
   Esp32ConnectionState,
