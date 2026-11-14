@@ -4,8 +4,6 @@ import React from "react";
 import {
   AlertTriangle,
   Clock,
-  CheckCircle2,
-  XCircle,
   Building2,
   EyeOff,
 } from "lucide-react";
@@ -130,128 +128,6 @@ export function ProblemStatement() {
               <span>Satellite Storm Penetration:</span>
               <span className="text-cyan-400 font-bold">0% Optical View</span>
             </div>
-          </div>
-        </div>
-
-        {/* Paradigm Comparison Table: Legacy vs Crestix Probe */}
-        <div className="rounded-2xl bg-[#0b0f17] border border-slate-800 overflow-hidden shadow-xl">
-          <div className="p-5 sm:p-6 bg-[#0e1422] border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h4 className="text-lg font-bold text-white">
-                Architectural Paradigm Comparison
-              </h4>
-              <p className="text-xs font-mono text-slate-400">
-                Legacy Numerical Modeling vs The Crestix Probe Unified Platform
-              </p>
-            </div>
-            <div className="text-xs font-mono px-3 py-1 rounded bg-cyan-950/60 border border-cyan-500/30 text-cyan-300">
-              PHYSICS + NEURAL OPERATOR + HARDWARE
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm font-sans">
-              <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-mono text-xs">
-                  <th className="py-3 px-4 sm:px-6">Capability Dimension</th>
-                  <th className="py-3 px-4 sm:px-6 text-red-300/90">
-                    Legacy 2D Hydrodynamic Models
-                  </th>
-                  <th className="py-3 px-4 sm:px-6 text-cyan-300 font-bold">
-                    Crestix Probe Architecture
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/70 text-slate-300">
-                <tr className="hover:bg-slate-900/30">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-medium text-white">
-                    Forward Forecast Latency
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-slate-400 flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                    <span>2 to 6 Hours (Finite Volume CPU/GPU)</span>
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-cyan-300 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>&lt; 42 Milliseconds (Fourier Neural Operator)</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-slate-900/30">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-medium text-white">
-                    Conservation Law Guarantee
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span>Strict (but computationally crippling)</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-cyan-300 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>PINO Residual Loss: &lt; 0.4% Mass Error Bound</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-slate-900/30">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-medium text-white">
-                    Topographic Spatial Resolution
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                      <span>Coarse 10m–30m DEM (Misses curbs &amp; ditches)</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-cyan-300 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>0.5m LiDAR Mesh + Zero-Shot Super-Resolution</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-slate-900/30">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-medium text-white">
-                    Ground-Truth Feedback Loop
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                      <span>Uncalibrated / Static historical gauge lookup</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-cyan-300 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>ESP32 In-Situ Ultrasonic Continuous Kalman Ingestion</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr className="hover:bg-slate-900/30">
-                  <td className="py-4 px-4 sm:px-6 font-mono font-medium text-white">
-                    Emergency Evacuation Guidance
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                      <span>Static floodplain zones (No live road routing)</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 sm:px-6 text-cyan-300 font-semibold">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Dynamic Depth-Weighted Road Network Dijkstra Routing</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
