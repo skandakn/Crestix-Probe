@@ -31,5 +31,19 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "src/test", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx", "vitest.config.ts", "vitest.config.mts", "vitest.config.*", "vitest.setup.ts"]
+  "exclude": [
+    "node_modules",
+    "src/test",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "playwright.config.ts",
+    "e2e/**",
+    "tests/**",
+    "vitest.config.ts",
+    "vitest.config.mts",
+    "vitest.config.*",
+    "vitest.setup.ts"
+  ]
 }
