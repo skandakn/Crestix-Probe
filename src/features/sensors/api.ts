@@ -253,6 +253,16 @@ export function deriveIndividualSensorHealth(
 }
 
 /**
+ * Helper to resolve backend endpoint on server or client.
+ */
+function getSensorApiEndpoint(path: string): string {
+  if (typeof window === "undefined" && process.env.BACKEND_URL) {
+    return `${process.env.BACKEND_URL.replace(/\/$/, "")}${path.startsWith("/") ? "" : "/"}${path}`;
+  }
+  return path;
+}
+
+/**
  * Client API helpers for Member 9 Backend Endpoints:
  * - GET /api/sensor/latest
  * - GET /api/sensor/history
@@ -267,7 +277,7 @@ export async function fetchSensorLatest(
     const params = new URLSearchParams();
     if (experimentId) params.set("experimentId", experimentId);
     if (position) params.set("position", position);
-    const res = await fetch(`/api/sensor/latest?${params.toString()}`, {
+    const res = await fetch(getSensorApiEndpoint(`/api/sensor/latest?${params.toString()}`), {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -287,7 +297,7 @@ export async function fetchSensorHistory(
     if (experimentId) params.set("experimentId", experimentId);
     if (position) params.set("position", position);
     params.set("limit", String(limit));
-    const res = await fetch(`/api/sensor/history?${params.toString()}`, {
+    const res = await fetch(getSensorApiEndpoint(`/api/sensor/history?${params.toString()}`), {
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -301,7 +311,7 @@ export async function postSensorReading(
   payload: SensorIngestPayload
 ): Promise<{ ok: boolean; reading?: SensorReading; error?: string }> {
   try {
-    const res = await fetch("/api/sensor/readings", {
+    const res = await fetch(getSensorApiEndpoint("/api/sensor/readings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -320,7 +330,7 @@ export async function postSensorReading(
 
 export async function fetchSensorStatus(): Promise<SensorStatusResponse | null> {
   try {
-    const res = await fetch("/api/sensor/status", { cache: "no-store" });
+    const res = await fetch(getSensorApiEndpoint("/api/sensor/status"), { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as SensorStatusResponse;
   } catch {
