@@ -8,7 +8,7 @@
 
 | Field | Detail |
 | :--- | :--- |
-| **Hackathon** | 24-Hour AI & Urban Climate Resilience Hackathon |
+| **Hackathon** | **Build and Beyond 2026** |
 | **Project Title** | **Crestix Probe**: Physics-Informed Neural Surrogate & IoT Sensing for Real-Time Urban Flood Forecasting |
 | **Problem Statement** | **PS 1.2 \| Physics-Informed Neural Surrogate for Real-Time Urban Flood Forecasting** |
 | **Team Name** | **WeGrow Architects** |

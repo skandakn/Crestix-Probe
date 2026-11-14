@@ -120,15 +120,15 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5 font-sans">
               <li>
-                <Link
-                  href="/simulation"
+                <a
+                  href="#simulation"
                   className="hover:text-[#0071e3] transition-colors flex items-center justify-between"
                 >
                   <span>Hydrodynamic Simulator</span>
                   <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-blue-50 text-[#0071e3] border border-blue-200/60 font-semibold">
-                    Live
+                    Sequence
                   </span>
-                </Link>
+                </a>
               </li>
               <li>
                 <Link

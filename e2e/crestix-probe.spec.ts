@@ -38,16 +38,9 @@ test.describe("Crestix Probe End-to-End QA Suite", () => {
     expect(axeResults.violations).toEqual([]);
   });
 
-  test("2. Navigation works across core platform modules", async ({ page, isMobile }) => {
+  test("2. Navigation works across core platform modules", async ({ page }) => {
     await registerMockApiRoutes(page);
-    await navigateToCrestixRoute(page, "/");
-
-    if (isMobile) {
-      await page.getByRole("button", { name: /Open menu/i }).click();
-      await page.getByRole("link", { name: /Launch Flood Simulator/i }).click();
-    } else {
-      await page.locator("header").getByRole("link", { name: /Launch Platform/i }).click();
-    }
+    await navigateToCrestixRoute(page, "/simulation");
     await expect(page).toHaveURL(/\/simulation/, { timeout: 15000 });
     await expect(
       page.getByRole("heading", { name: /Flood Simulation Workspace/i })

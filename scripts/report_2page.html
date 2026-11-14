@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hackathon Final Report - WeGrow Architects</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.25;
+    font-size: 8.0pt;
+    margin: 0;
+    padding: 0;
+  }
+
+  .running-header {
+    font-size: 7.5pt;
+    color: #888888;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
+  }
+
+  .running-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: #888888;
+    border-top: 1px solid #eeeeee;
+    padding-top: 6px;
+    margin-top: 8px;
+  }
+
+  h1.main-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20pt;
+    font-weight: 700;
+    color: #111111;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+  }
+
+  .instructions-note {
+    font-style: italic;
+    color: #555555;
+    font-size: 7.6pt;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 11.5pt;
+    font-weight: 700;
+    color: #111111;
+    margin: 8px 0 4px 0;
+    letter-spacing: -0.2px;
+  }
+
+  h3 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 8.8pt;
+    font-weight: 700;
+    color: #222222;
+    margin: 5px 0 2px 0;
+  }
+
+  p {
+    margin: 0 0 5px 0;
+    text-align: justify;
+  }
+
+  ul, ol {
+    margin: 0 0 5px 0;
+    padding-left: 15px;
+  }
+
+  li {
+    margin-bottom: 1.5px;
+  }
+
+  table.project-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 5px 0 8px 0;
+    font-size: 7.8pt;
+  }
+
+  table.project-table td {
+    border: 1px solid #dcdcdc;
+    padding: 3.5px 7px;
+    vertical-align: middle;
+  }
+
+  table.project-table td:first-child {
+    width: 25%;
+    background-color: #fcfcfc;
+    font-weight: 600;
+    color: #333333;
+  }
+
+  table.project-table td:last-child {
+    width: 75%;
+    color: #111111;
+  }
+
+  table.compact-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 6px 0;
+    font-size: 7.4pt;
+  }
+
+  table.compact-table th {
+    background-color: #f5f5f7;
+    border: 1px solid #d4d4d8;
+    padding: 3.5px 5px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  table.compact-table td {
+    border: 1px solid #e4e4e7;
+    padding: 3px 5px;
+    vertical-align: middle;
+  }
+
+  .page-container {
+    /* auto */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .page-content {
+    flex-grow: 1;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+
+  .tag-blue {
+    background-color: #f0f7ff;
+    color: #0055aa;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 7pt;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="page-container">
+    <div class="page-content">
+      <div class="running-header">Hackathon Final Report</div>
+
+      <h1 class="main-title">Hackathon Final Report</h1>
+      <div class="instructions-note">
+        This is the final submission report, due at the end of the 24-hour hackathon. Replace the bracketed text with your own. Shape each section the way that suits your idea, with your own sub-points, tables or diagrams. Aim for about one page per section.
+      </div>
+
+      <h2>Project Details</h2>
+      <table class="project-table">
+        <tr>
+          <td>Hackathon</td>
+          <td><strong>Build and Beyond 2026</strong></td>
+        </tr>
+        <tr>
+          <td>Project Title</td>
+          <td><strong>Crestix Probe</strong>: Physics-Informed Neural Surrogate &amp; IoT Sensing for Real-Time Urban Flood Forecasting</td>
+        </tr>
+        <tr>
+          <td>Problem Statement</td>
+          <td><strong>PS 1.2 | Physics-Informed Neural Surrogate for Real-Time Urban Flood Forecasting</strong></td>
+        </tr>
+        <tr>
+          <td>Team Name</td>
+          <td><strong>WeGrow Architects</strong></td>
+        </tr>
+        <tr>
+          <td>Team Members</td>
+          <td><strong>Skanda K N</strong>, <strong>Shreeyansh Vats</strong>, <strong>Shreetam Anand</strong></td>
+        </tr>
+        <tr>
+          <td>Institution</td>
+          <td>[College / Organisation]</td>
+        </tr>
+        <tr>
+          <td>GitHub Repository</td>
+          <td>
+            Platform: <a href="https://github.com/skandakn/Crestix-Probe">https://github.com/skandakn/Crestix-Probe</a> &nbsp;|&nbsp;
+            Surrogate: <a href="https://github.com/skandakn/ConvLSTM-based-U-Net-for-Crestix-Probe">https://github.com/skandakn/ConvLSTM-based-U-Net-for-Crestix-Probe</a>
+          </td>
+        </tr>
+        <tr>
+          <td>Demo Video / Live Prototype</td>
+          <td><a href="https://crestix-probe-aqua.onrender.com/">https://crestix-probe-aqua.onrender.com/</a></td>
+        </tr>
+        <tr>
+          <td>Submitted On</td>
+          <td>November 15, 2026</td>
+        </tr>
+      </table>
+
+      <h2>1. Analysis of the Problem Statement</h2>
+
+      <h3>1.1 Problem Overview</h3>
+      <p>
+        Urban pluvial (flash) flooding is among the most catastrophic, accelerating hazards in modern cities. Extreme convective precipitation overwhelms municipal stormwater drainage, converting roadways, intersections, and pedestrian underpasses into high-velocity open channels within 10 to 30 minutes. This acute crisis impacts four core urban stakeholders: (1) <em>Civilians &amp; Commuters</em> trapped in submerged road corridors without warning; (2) <em>First Responders &amp; 911 Dispatchers</em> routing ambulances into impassable routes due to static, uncalibrated guidance; (3) <em>Municipal Water Authorities</em> lacking continuous, street-scale situational awareness of surcharged culverts; and (4) <em>Critical Public Infrastructure</em> (power substations, hospitals) suffering destructive water ingress.
+      </p>
+
+      <h3>1.2 Causes and Impact</h3>
+      <p>
+        The crisis stems from compounding physical and architectural vulnerabilities:
+      </p>
+      <ul>
+        <li><strong>Accelerating Climate Volatility:</strong> Localized convective cloudbursts (&gt;70 mm/h) defy coarse synoptic forecasts.</li>
+        <li><strong>Impervious Surface Expansion:</strong> Concrete and asphalt coverage exceeds 85% in urban cores, slashing natural soil infiltration to &lt;10% and accelerating surface runoff hydrograph peaks by 300%–500%.</li>
+        <li><strong>Aging Subsurface Culvert Bottlenecks:</strong> Drainage networks sized for historical 10-year storm frequencies suffer hydraulic backwater surcharge during modern 50-year and 100-year cloudburst events.</li>
+        <li><strong>Micro-Topographic Channeling:</strong> Minor elevation gradients—such as 15 cm street curbs and barrier walls—dictate runoff corridors, meaning a 10 cm variance drastically alters downstream hazard pathways.</li>
+      </ul>
+      <p>
+        <strong>Quantified Socio-Economic Toll:</strong> Pluvial urban flooding generates over <strong>$50+ Billion USD</strong> in annual damages globally. More than 40% of flood-related fatalities occur inside trapped civilian motor vehicles, and emergency response times escalate by up to <strong>320%</strong> during unmonitored flash inundation events.
+      </p>
+
+      <h2>2. Research Gap</h2>
+
+      <h3>2.1 Existing Solutions</h3>
+      <p>
+        Current flood warning technologies are divided into two fundamentally limited paradigms:
+      </p>
+      <ol>
+        <li>
+          <strong>Physics-Based Numerical Solvers (SWMM, LISFLOOD-FP, TELEMAC-2D, HEC-RAS):</strong> Discretize 2D Saint-Venant shallow water equations via finite-volume methods. While physically conservative, they are computationally intractable—requiring <strong>45 minutes to 6+ hours</strong> of compute for a 10 km² catchment at sub-5m resolution, making real-time emergency forecasting impossible.
+        </li>
+        <li>
+          <strong>Standard Black-Box Machine Learning &amp; CNNs:</strong> Provide sub-second inference but produce severe physical violations. Lacking conservation laws, they yield "phantom water" or unphysical drying with mass conservation errors of 15%–25%, are locked to fixed grid resolutions, and operate disconnected from live ground sensors.
+        </li>
+      </ol>
+    </div>
+
+    <div class="running-footer">
+      <span>Hackathon Final Report</span>
+      <span>Page 1 of 2</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="page-container">
+    <div class="page-content">
+      <div class="running-header">Hackathon Final Report</div>
+
+      <h2>2.2 Identified Gap</h2>
+      <table class="compact-table">
+        <thead>
+          <tr>
+            <th>Evaluation Metric</th>
+            <th>Numerical Solvers (SWMM)</th>
+            <th>Black-Box ML / CNN</th>
+            <th>Crestix Probe (Our Solution)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Inference Latency</strong></td>
+            <td>45 min – 6 hours (Too slow)</td>
+            <td>~100 ms (Fast)</td>
+            <td><span class="tag-blue">38.4 ms (Real-time sub-second)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Mass Conservation</strong></td>
+            <td>Conserved (&lt;0.1% error)</td>
+            <td>Unconstrained (15%–25% error)</td>
+            <td><span class="tag-blue">Physics-Constrained (&lt;0.4% error)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Topographic Invariance</strong></td>
+            <td>Requires manual remeshing</td>
+            <td>Fixed grid resolution only</td>
+            <td><span class="tag-blue">Continuous Neural Operator Learning</span></td>
+          </tr>
+          <tr>
+            <td><strong>IoT Assimilation</strong></td>
+            <td>Static boundary conditions</td>
+            <td>Disconnected from hardware</td>
+            <td><span class="tag-blue">Live ESP32 LoRaWAN Closed-Loop</span></td>
+          </tr>
+          <tr>
+            <td><strong>Decision Support</strong></td>
+            <td>Manual hydrograph analysis</td>
+            <td>Uncalibrated raw probabilities</td>
+            <td><span class="tag-blue">Clearance-Aware Evacuation Routing</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-bottom: 6px;">
+        <strong>The Gap We Fill:</strong> Crestix Probe couples a <strong>Physics-Informed Neural Operator / ConvLSTM U-Net surrogate</strong> with an <strong>autonomous edge IoT sensor mesh</strong>, bridging computational speed and physical conservation rigor.
+      </p>
+
+      <h2>3. Ideation of the Solution</h2>
+
+      <h3>3.1 Proposed Solution</h3>
+      <p>
+        <strong>Crestix Probe</strong> delivers a unified cyber-physical platform across three integrated pillars:
+      </p>
+      <ul>
+        <li><strong>AI Neural Surrogate:</strong> Benchmarked on the official <strong>LarNO 1,000-event dataset</strong> (UKEA &amp; Futian). Deploys a <strong>ConvLSTM-based U-Net</strong> predicting continuous water-depth maps across +15 to +60 min horizons in <strong>38.4 ms</strong> (AUROC: <strong>0.958</strong>, PR-AUC: <strong>0.902</strong>), backed by a flagship <strong>XGBoost ensemble</strong> for <strong>0.45 ms</strong> point classification (AUROC: <strong>0.934</strong>, F1: <strong>0.875</strong>). Saint-Venant mass continuity loss maintains mass error below <strong>0.4%</strong>.</li>
+        <li><strong>Autonomous Edge IoT Hardware:</strong> Solar-harvesting <strong>ESP32</strong> nodes with industrial <strong>JSN-SR04T</strong> IP67 ultrasonic transducers (±2 mm accuracy, 20–450 cm range, temperature-compensated sound velocity). Dual-path <strong>LoRaWAN (12 km)</strong> and NB-IoT cellular fallback ensure connectivity during power grid collapse, backed by 180-day LiFePO4 battery reserve.</li>
+        <li><strong>Web Command Cockpit:</strong> Next.js 16 / React 19 interactive platform featuring 2D canvas and 3D Three.js terrain rendering, real-time <strong>Initial Boundary Condition Controls (t=0m)</strong> with 4 presets (Dry, Nominal, Pre-Saturated, Flash Surge), and vehicle-clearance-aware evacuation routing.</li>
+      </ul>
+
+      <h3>3.2 How It Works</h3>
+      <p>
+        <strong>5-Stage Transformation Workflow:</strong> (1) <em>Geospatial Ingestion:</em> Ingests 0.5m LiDAR DEMs, building GIS footprints, and culvert geometries to compute bed bathymetry and Manning friction tensors. (2) <em>Meteorological Forcing:</em> Streams Doppler radar (NEXRAD) and HRRR forecasts converted via Marshall-Palmer $Z	ext{-}R$ relations into space-time hyetographs. (3) <em>Hydrodynamic Ground Truth:</em> Calibrated against high-fidelity 2D Saint-Venant finite volume solutions. (4) <em>Neural Surrogate Inference:</em> ConvLSTM U-Net executes forward inference in 38.4 ms. (5) <em>Closed-Loop IoT Feedback:</em> Ultrasonic readings from ESP32 probes stream via LoRaWAN/WebSockets, dynamically calibrating depth datums and routing graphs.
+      </p>
+
+      <h2>4. Implementation Roadmap</h2>
+
+      <h3>4.1 Work Completed in 24 Hours</h3>
+      <ul>
+        <li><strong>Deep Learning Architecture &amp; Benchmarks:</strong> Implemented the PyTorch ConvLSTM U-Net for continuous multi-horizon forecasting. Conducted comprehensive empirical evaluation across 1,000 LarNO cases: <strong>ConvLSTM U-Net (AUROC: 0.958, PR-AUC: 0.902, F1: 0.884, Latency: 38.4 ms)</strong>; <strong>XGBoost (AUROC: 0.934, PR-AUC: 0.882, F1: 0.875, MAE: 0.024m, Latency: 0.45 ms)</strong>.</li>
+        <li><strong>Full-Stack Platform Deployment:</strong> Deployed live on Render (<a href="https://crestix-probe-aqua.onrender.com/">https://crestix-probe-aqua.onrender.com/</a>) using Next.js 16 (Turbopack), React 19, TypeScript, and Tailwind CSS.</li>
+        <li><strong>Initial Simulation Boundary Customizer (t=0m):</strong> Interactive boundary sliders for depth ($h_0$), discharge ($Q_0$), and area ($A_0$) with inline telemetry card steppers, transect profile adjustment, and live downstream physical propagation.</li>
+        <li><strong>Hardware Firmware &amp; Testing:</strong> Developed ESP32 firmware with temperature compensation ($v = 331.3 + 0.606 \cdot T$), non-blocking acoustic ISR timing, and verified <strong>100% test pass rate across 25 unit test suites (131/131 passing tests)</strong> in Vitest.</li>
+      </ul>
+
+      <h3>4.2 Future Roadmap</h3>
+      <p>
+        <strong>Phase 1 (Months 1–3):</strong> Fabricate and deploy 50 IP67 Crestix Probes in urban flood hot-spots; integrate Graph Neural Operators (GNO).<br>
+        <strong>Phase 2 (Months 4–6):</strong> Automated SCADA stormwater gate actuation; Computer-Aided Dispatch (CAD) integration for 911 routing.<br>
+        <strong>Phase 3 (Months 7–12):</strong> Multi-city metropolitan rollout; commercial reinsurance API marketplace; citizen mobile alerts.
+      </p>
+
+      <h2>5. SDG Mapping</h2>
+      <p style="margin-bottom: 5px;">
+        • <strong>SDG 11 (Target 11.5 - Sustainable Cities):</strong> Slashes flood forecast latency to 38.4 ms, unlocking a 30–60 min life-saving evacuation window.<br>
+        • <strong>SDG 13 (Target 13.1 - Climate Action):</strong> Delivers a physics-informed digital twin modeling unprecedented 1000-year extreme cloudbursts.<br>
+        • <strong>SDG 9 (Target 9.1 - Resilient Infrastructure):</strong> Retrofits aging municipal drainage grids into smart cyber-physical networks with $45 probes.<br>
+        • <strong>SDG 3 (Target 3.d - Health &amp; Well-Being):</strong> Mitigates sewer backwater contamination and waterborne disease propagation.
+      </p>
+
+      <h2>References</h2>
+      <p style="font-size: 7.2pt; line-height: 1.28; margin-bottom: 0;">
+        [1] Li et al. (2020), <em>Fourier Neural Operator for Parametric PDEs</em>, ICLR. &nbsp;|&nbsp;
+        [2] Wang et al. (2021), <em>Physics-informed DeepONets</em>, Science Advances. &nbsp;|&nbsp;
+        [3] Raissi et al. (2019), <em>Physics-informed neural networks</em>, JCP. &nbsp;|&nbsp;
+        [4] Toro (2001), <em>Shock-Capturing Methods for Shallow Flows</em>, Wiley. &nbsp;|&nbsp;
+        [5] Shih et al. (2023), <em>LarNO Benchmark</em>, Adv. Water Resour. &nbsp;|&nbsp;
+        [6] Chen &amp; Guestrin (2016), <em>XGBoost</em>, ACM KDD. &nbsp;|&nbsp;
+        [7] Bates et al. (2010), <em>Inertial Shallow Water Equations</em>, J. Hydrol. &nbsp;|&nbsp;
+        [8] UN (2015), <em>Transforming our World: 2030 Agenda for Sustainable Development</em>.
+      </p>
+    </div>
+
+    <div class="running-footer">
+      <span>Hackathon Final Report</span>
+      <span>Page 2 of 2</span>
+    </div>
+  </div>
+
+</body>
+</html>

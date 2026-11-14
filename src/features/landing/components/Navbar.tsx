@@ -151,27 +151,19 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Action Buttons */}
+          {/* Telemetry Status */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Launch Platform Link (Apple Action Blue) */}
-            <Link
-              href="/simulation"
-              className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs tracking-normal shadow-sm shadow-blue-500/25 transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]"
-            >
-              <span>Launch Platform</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            {/* Live Status Pill */}
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f5f5f7] border border-black/[0.05] text-[11px] font-mono text-[#515154]">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>SURROGATE: ACTIVE</span>
+              <span className="text-zinc-300">|</span>
+              <span className="text-[#0071e3] font-semibold">t &lt; 42ms</span>
+            </div>
           </div>
 
           {/* Mobile Menu Hamburger Button */}
           <div className="flex xl:hidden items-center gap-2">
-            <Link
-              href="/simulation"
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#0071e3] text-white text-xs font-medium"
-            >
-              <span>Demo</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -227,14 +219,14 @@ export function Navbar() {
           })}
 
           <div className="pt-6 mt-4 border-t border-zinc-100 flex flex-col gap-3">
-            <Link
-              href="/simulation"
+            <a
+              href="#simulation"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-sm shadow-md shadow-blue-500/20"
             >
-              <span>Launch Flood Simulator</span>
+              <span>Explore 3D Simulation</span>
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </a>
 
             <Link
               href="/sensors"
