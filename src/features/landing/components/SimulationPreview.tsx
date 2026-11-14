@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Play,
   Pause,
@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import { SIMULATION_SCENARIOS } from "../data/simulationData";
 import { cn } from "../utils/cn";
+import {
+  createCityDEM,
+  renderFloodHeatmapCanvas,
+  VIEWBOX_WIDTH,
+  VIEWBOX_HEIGHT,
+} from "../utils/floodHeatmap";
 
 export function SimulationPreview() {
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
@@ -21,9 +27,34 @@ export function SimulationPreview() {
   const [showContoursLayer, setShowContoursLayer] = useState(true);
   const [showSensorsLayer, setShowSensorsLayer] = useState(true);
   const [selectedSensorNode, setSelectedSensorNode] = useState<string | null>(null);
+  const [cxN01LiveDepth, setCxN01LiveDepth] = useState<number | null>(null);
+
+  const heatmapCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const cityDem = useMemo(() => createCityDEM(), []);
 
   const scenario = SIMULATION_SCENARIOS[selectedScenarioIndex];
   const currentStep = scenario.timesteps[currentStepIndex];
+
+  const cxN01BaseDepth =
+    currentStep.sensorReadings.find((n) => n.nodeId === "CX-N01")?.waterDepthM ??
+    currentStep.maxDepthMeters;
+  const effectiveCxN01Depth = cxN01LiveDepth ?? cxN01BaseDepth;
+  const effectiveWaterSurfaceElevation = Math.max(
+    0,
+    currentStep.maxDepthMeters + (effectiveCxN01Depth - cxN01BaseDepth)
+  );
+
+  // Render terrain-conforming 64x64 water-depth heatmap onto <canvas>
+  useEffect(() => {
+    const canvas = heatmapCanvasRef.current;
+    if (!canvas) return;
+    if (!showDepthLayer) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    renderFloodHeatmapCanvas(canvas, cityDem, effectiveWaterSurfaceElevation);
+  }, [cityDem, effectiveWaterSurfaceElevation, showDepthLayer]);
 
   // Auto-play interval
   useEffect(() => {
@@ -181,33 +212,24 @@ export function SimulationPreview() {
                 </div>
               </div>
 
-              {/* Main Vector SVG Simulation Visualization */}
+              {/* Main Vector SVG + 64x64 Canvas Flood Heatmap */}
               <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl bg-[#080b12] border border-slate-800/90 overflow-hidden flex items-center justify-center shadow-inner">
+                {/* 64x64 Terrain-Conforming Water-Depth Heatmap (<canvas> beneath sensor pins) */}
+                <canvas
+                  ref={heatmapCanvasRef}
+                  width={VIEWBOX_WIDTH}
+                  height={VIEWBOX_HEIGHT}
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  aria-label="64x64 terrain-masked water depth heatmap"
+                />
+
                 <svg
-                  className="w-full h-full"
+                  className="relative z-10 w-full h-full"
                   viewBox="0 0 800 480"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <defs>
-                    {/* Gradients for dynamic depth levels */}
-                    <linearGradient id="depthLevel1" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#16a34a" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#14532d" stopOpacity="0.15" />
-                    </linearGradient>
-                    <linearGradient id="depthLevel2" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#16a34a" stopOpacity="0.55" />
-                      <stop offset="100%" stopColor="#14532d" stopOpacity="0.35" />
-                    </linearGradient>
-                    <linearGradient id="depthLevel3" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#22c55e" stopOpacity="0.75" />
-                      <stop offset="100%" stopColor="#15803d" stopOpacity="0.5" />
-                    </linearGradient>
-                    <linearGradient id="depthLevel4" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#4ade80" stopOpacity="0.85" />
-                      <stop offset="100%" stopColor="#16a34a" stopOpacity="0.65" />
-                    </linearGradient>
-
                     <radialGradient id="sensorAura" cx="50%" cy="50%" r="50%">
                       <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
                       <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
@@ -240,8 +262,8 @@ export function SimulationPreview() {
                     </g>
                   )}
 
-                  {/* Built Environment Structures (Building Obstacles) */}
-                  <g opacity="0.35" fill="#1e293b" stroke="#475569" strokeWidth="1">
+                  {/* Built Environment Structures (Building Obstacles, DEM > 5.0m) */}
+                  <g opacity="0.92" fill="#0f172a" stroke="#475569" strokeWidth="1.2">
                     <rect x="180" y="70" width="70" height="40" rx="3" />
                     <rect x="290" y="65" width="85" height="45" rx="3" />
                     <rect x="420" y="80" width="60" height="40" rx="3" />
@@ -260,37 +282,6 @@ export function SimulationPreview() {
                     <line x1="220" y1="240" x2="480" y2="260" />
                     <line x1="480" y1="260" x2="680" y2="350" />
                   </g>
-
-                  {/* Hydrodynamic Inundation Water Zones (Dynamic by Step) */}
-                  {showDepthLayer && (
-                    <g className="transition-all duration-700 ease-in-out">
-                      {currentStep.floodZones.map((zone) => {
-                        let fillUrl = "url(#depthLevel1)";
-                        let strokeColor = "#16a34a";
-                        if (zone.depthLevel === 2) {
-                          fillUrl = "url(#depthLevel2)";
-                          strokeColor = "#22c55e";
-                        } else if (zone.depthLevel === 3) {
-                          fillUrl = "url(#depthLevel3)";
-                          strokeColor = "#4ade80";
-                        } else if (zone.depthLevel === 4) {
-                          fillUrl = "url(#depthLevel4)";
-                          strokeColor = "#86efac";
-                        }
-
-                        return (
-                          <path
-                            key={zone.id}
-                            d={zone.path}
-                            fill={fillUrl}
-                            stroke={strokeColor}
-                            strokeWidth="1.8"
-                            className="transition-all duration-700"
-                          />
-                        );
-                      })}
-                    </g>
-                  )}
 
                   {/* Surface Velocity Flow Vectors Layer */}
                   {showVelocityLayer && (
@@ -372,7 +363,7 @@ export function SimulationPreview() {
                                 fontFamily="monospace"
                                 fontWeight="bold"
                               >
-                                {node.nodeId}: {node.waterDepthM}m
+                                {node.nodeId}: {node.nodeId === "CX-N01" ? effectiveCxN01Depth.toFixed(2) : node.waterDepthM}m
                               </text>
                             </g>
                           </g>
@@ -383,24 +374,24 @@ export function SimulationPreview() {
                 </svg>
 
                 {/* Depth Legend Floating Box */}
-                <div className="absolute bottom-3 left-3 p-2.5 rounded-lg bg-[#07090e]/90 backdrop-blur-md border border-slate-800 text-[10px] font-mono text-slate-300">
+                <div className="absolute bottom-3 left-3 z-20 p-2.5 rounded-lg bg-[#07090e]/90 backdrop-blur-md border border-slate-800 text-[10px] font-mono text-slate-300">
                   <div className="text-slate-400 font-bold mb-1.5 uppercase tracking-wider">
                     Water Depth (h)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-emerald-950/70 border border-emerald-700" />
+                    <span className="w-3 h-3 rounded bg-[#0284c7]/70 border border-[#0284c7]" />
                     <span>0.1m</span>
-                    <span className="w-3 h-3 rounded bg-emerald-800 border border-emerald-500" />
+                    <span className="w-3 h-3 rounded bg-[#38bdf8] border border-sky-200" />
                     <span>0.5m</span>
-                    <span className="w-3 h-3 rounded bg-emerald-600 border border-emerald-400" />
+                    <span className="w-3 h-3 rounded bg-[#facc15] border border-yellow-200" />
                     <span>1.0m</span>
-                    <span className="w-3 h-3 rounded bg-emerald-400 border border-emerald-200" />
+                    <span className="w-3 h-3 rounded bg-[#ef4444] border border-red-200" />
                     <span>&gt;1.5m</span>
                   </div>
                 </div>
 
                 {/* Real-time Step Label in Corner */}
-                <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700/80 font-mono text-xs">
+                <div className="absolute top-3 right-3 z-20 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-700/80 font-mono text-xs">
                   <span className="text-slate-400">Storm Time: </span>
                   <span className="text-cyan-300 font-bold">
                     t = {currentStep.minute} min
@@ -566,10 +557,10 @@ export function SimulationPreview() {
 
                       {/* Dynamic Water Level (Rises with currentStep) */}
                       {(() => {
-                        // Calculate dynamic water level y based on maxDepthMeters
+                        // Calculate dynamic water level y based on effectiveWaterSurfaceElevation
                         const waterHeightPx = Math.min(
                           45,
-                          currentStep.maxDepthMeters * 22
+                          effectiveWaterSurfaceElevation * 22
                         );
                         const waterSurfaceY = 65 - waterHeightPx;
 
@@ -591,7 +582,7 @@ export function SimulationPreview() {
                               fontFamily="monospace"
                               textAnchor="middle"
                             >
-                              h = {currentStep.maxDepthMeters.toFixed(2)}m
+                              h = {effectiveWaterSurfaceElevation.toFixed(2)}m
                             </text>
                           </g>
                         );
@@ -632,6 +623,10 @@ export function SimulationPreview() {
                       currentStep.sensorReadings.find(
                         (n) => n.nodeId === selectedSensorNode
                       ) || currentStep.sensorReadings[0];
+                    const displayedObservedDepth =
+                      activeNode.nodeId === "CX-N01"
+                        ? effectiveCxN01Depth
+                        : activeNode.waterDepthM;
 
                     return (
                       <div className="space-y-1.5 text-xs font-mono">
@@ -644,9 +639,37 @@ export function SimulationPreview() {
                         <div className="flex justify-between text-slate-300">
                           <span className="text-slate-400">Observed Water Depth:</span>
                           <span className="text-slate-100 font-semibold">
-                            {activeNode.waterDepthM.toFixed(3)} m (±2mm)
+                            {displayedObservedDepth.toFixed(3)} m (±2mm)
                           </span>
                         </div>
+                        {activeNode.nodeId === "CX-N01" && (
+                          <div className="pt-1 pb-1">
+                            <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                              <span>Live CX-N01 Probe Sync:</span>
+                              {cxN01LiveDepth !== null && (
+                                <button
+                                  type="button"
+                                  onClick={() => setCxN01LiveDepth(null)}
+                                  className="text-cyan-400 hover:text-cyan-300 underline"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                            <input
+                              type="range"
+                              min={0}
+                              max={2.2}
+                              step={0.05}
+                              value={effectiveCxN01Depth}
+                              onChange={(e) =>
+                                setCxN01LiveDepth(parseFloat(e.target.value))
+                              }
+                              aria-label="CX-N01 Observed Water Depth"
+                              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                            />
+                          </div>
+                        )}
                         <div className="flex justify-between text-slate-300">
                           <span className="text-slate-400">Flow Velocity:</span>
                           <span className="text-teal-300 font-semibold">
