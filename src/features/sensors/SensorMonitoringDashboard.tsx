@@ -56,7 +56,13 @@ export function SensorMonitoringDashboard() {
   const [activePosition, setActivePosition] = useState<MeasurementPositionId>("P2");
   const [sourceMode, setSourceMode] = useState<DataSourceMode>("SIMULATED");
   const [protocol, setProtocol] = useState<TransportProtocol>("WEBSOCKET");
-  const [streamUrl, setStreamUrl] = useState<string>("ws://localhost:3000/api/sensor/stream");
+  const [streamUrl, setStreamUrl] = useState<string>(() => {
+    if (typeof window !== "undefined" && window.location?.host) {
+      const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      return `${wsProtocol}//${window.location.host}/api/sensor/stream`;
+    }
+    return "ws://localhost:3000/api/sensor/stream";
+  });
   const [isStreaming, setIsStreaming] = useState<boolean>(true);
   const [ldrEnabled, setLdrEnabled] = useState<boolean>(true);
   const [injectedFault, setInjectedFault] = useState<SensorFaultCode>("NONE");

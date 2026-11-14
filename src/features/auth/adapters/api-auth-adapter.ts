@@ -31,8 +31,14 @@ export class ApiAuthAdapter implements AuthAdapter {
   private readonly timeoutMs: number;
 
   constructor(config?: ApiAuthAdapterConfig) {
+    const serverBackendUrl =
+      typeof window === "undefined" && process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL.replace(/\/$/, "")}/api/v1/auth`
+        : undefined;
+
     this.baseUrl =
       config?.baseUrl ||
+      serverBackendUrl ||
       process.env.NEXT_PUBLIC_AUTH_API_URL ||
       "/api/v1/auth";
     this.timeoutMs = config?.timeoutMs || 10000;
