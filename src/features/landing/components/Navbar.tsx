@@ -8,7 +8,6 @@ import {
   Menu,
   X,
   ArrowRight,
-  Activity,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 
@@ -22,10 +21,7 @@ const NAV_LINKS: NavLink[] = [
   { label: "Overview", href: "#overview" },
   { label: "Simulation", href: "#simulation", badge: "Interactive" },
   { label: "The Crisis", href: "#problem" },
-  { label: "Technology", href: "#technology" },
   { label: "Features", href: "#features" },
-  { label: "Pipeline", href: "#workflow" },
-  { label: "Benchmarks", href: "#research" },
   { label: "Hardware Node", href: "#hardware", badge: "ESP32" },
 ];
 
@@ -173,15 +169,6 @@ export function Navbar() {
             >
               <span>Launch Platform</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-
-            {/* Operator Portal Link (Clean Outline Pill) */}
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#f5f5f7] border border-zinc-200/90 text-[#1d1d1f] text-xs font-mono transition-all duration-200 shadow-xs"
-            >
-              <Activity className="w-3.5 h-3.5 text-[#0071e3]" />
-              <span>Live Telemetry</span>
             </Link>
           </div>
 

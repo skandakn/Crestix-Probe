@@ -96,7 +96,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="#workflow"
+                  href="#features"
                   className="hover:text-[#0071e3] transition-colors"
                 >
                   Ensemble Kalman Assimilation

@@ -5,10 +5,7 @@ import { Navbar } from "./Navbar";
 import { Hero } from "./Hero";
 import { SimulationPreview } from "./SimulationPreview";
 import { ProblemStatement } from "./ProblemStatement";
-import { TechnologyPillars } from "./TechnologyPillars";
 import { ProductFeatures } from "./ProductFeatures";
-import { WorkflowPipeline } from "./WorkflowPipeline";
-import { ResearchBenchmarks } from "./ResearchBenchmarks";
 import { HardwareProbe } from "./HardwareProbe";
 import { CallToAction } from "./CallToAction";
 import { Footer } from "./Footer";
@@ -30,22 +27,13 @@ export function LandingPage() {
         {/* 4. Problem Statement: Urban Inundation Crisis */}
         <ProblemStatement />
 
-        {/* 5. Technology Pillars: 2D SWE, FNO/PINO, and In-Situ Hardware */}
-        <TechnologyPillars />
-
-        {/* 6. Product Features: High-Performance Capabilities */}
+        {/* 5. Product Features: High-Performance Capabilities */}
         <ProductFeatures />
 
-        {/* 7. Workflow: Terrain -> Rainfall -> Simulation -> AI Forecast -> Sensor Validation */}
-        <WorkflowPipeline />
-
-        {/* 8. Research & Performance: Illustrative Scientific Benchmarks */}
-        <ResearchBenchmarks />
-
-        {/* 9. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
+        {/* 6. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />
 
-        {/* 10. Final Call-to-Action */}
+        {/* 7. Final Call-to-Action */}
         <CallToAction />
       </main>
 
