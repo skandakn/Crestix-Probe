@@ -23,11 +23,11 @@ export function LandingPage() {
         {/* 3. Interactive Truthful Flood Propagation Preview */}
         <SimulationPreview />
 
-        {/* 4. Problem Statement: Urban Inundation Crisis */}
-        <ProblemStatement />
-
-        {/* 5. Physical Prototype: ESP32 & Ultrasonic Sensor Integration */}
+        {/* 4. Dedicated Physical Hardware Showcase: ESP32 & Ultrasonic Sensor Integration */}
         <HardwareProbe />
+
+        {/* 5. Problem Statement: Urban Inundation Crisis */}
+        <ProblemStatement />
 
         {/* 6. Final Call-to-Action */}
         <CallToAction />

@@ -19,9 +19,9 @@ interface NavLink {
 
 const NAV_LINKS: NavLink[] = [
   { label: "Overview", href: "#overview" },
-  { label: "Simulation", href: "#simulation", badge: "Interactive" },
+  { label: "Simulation", href: "#simulation", badge: "Sequence" },
+  { label: "Hardware Node", href: "#hardware", badge: "Live ESP32" },
   { label: "The Crisis", href: "#problem" },
-  { label: "Hardware Node", href: "#hardware", badge: "ESP32" },
 ];
 
 export function Navbar() {
