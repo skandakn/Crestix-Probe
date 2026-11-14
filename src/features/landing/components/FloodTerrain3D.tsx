@@ -142,11 +142,17 @@ export function FloodTerrain3D({
     // 2. 3D Extruded Building Blocks
     const buildingGroup = new THREE.Group();
     const buildingMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      roughness: 0.7,
-      metalness: 0.15,
+      color: 0x64748b,
+      emissive: 0x1e293b,
+      emissiveIntensity: 0.45,
+      roughness: 0.45,
+      metalness: 0.25,
     });
-    const edgeMat = new THREE.LineBasicMaterial({ color: 0x334155 });
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.8,
+    });
 
     const buildingGeos: THREE.BufferGeometry[] = [];
     CITY_BUILDINGS.forEach((b, idx) => {
