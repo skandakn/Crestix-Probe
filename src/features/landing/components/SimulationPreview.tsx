@@ -23,7 +23,7 @@ export function SimulationPreview() {
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(2); // default t=30min
   const [isPlaying, setIsPlaying] = useState(false);
-  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const [showDepthLayer, setShowDepthLayer] = useState(true);
   const [showVelocityLayer, setShowVelocityLayer] = useState(true);
   const [showContoursLayer, setShowContoursLayer] = useState(true);
