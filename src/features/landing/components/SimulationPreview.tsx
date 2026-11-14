@@ -32,6 +32,7 @@ export function SimulationPreview() {
   const [showContoursLayer, setShowContoursLayer] = useState(true);
   const [showSensorsLayer, setShowSensorsLayer] = useState(true);
   const [selectedSensorNode, setSelectedSensorNode] = useState<string | null>(null);
+  const [isHardwareMode, setIsHardwareMode] = useState<boolean>(false);
   const [cxN01LiveDepth, setCxN01LiveDepth] = useState<number | null>(null);
   const [isHardwareSynced, setIsHardwareSynced] = useState<boolean>(false);
   const [hardwareNodeStatus, setHardwareNodeStatus] = useState<"IDLE" | "CONNECTED" | "OFFLINE">("IDLE");
@@ -83,11 +84,13 @@ export function SimulationPreview() {
   const cxN01BaseDepth =
     currentStep.sensorReadings.find((n) => n.nodeId === "CX-N01")?.waterDepthM ??
     currentStep.maxDepthMeters;
-  const effectiveCxN01Depth = cxN01LiveDepth ?? cxN01BaseDepth;
-  const effectiveWaterSurfaceElevation = Math.max(
-    0,
-    currentStep.maxDepthMeters + (effectiveCxN01Depth - cxN01BaseDepth)
-  );
+  const effectiveCxN01Depth = cxN01LiveDepth ?? (isHardwareMode ? 0.08 : cxN01BaseDepth);
+  const effectiveWaterSurfaceElevation = isHardwareMode
+    ? Math.max(0.01, effectiveCxN01Depth)
+    : Math.max(
+        0,
+        currentStep.maxDepthMeters + (effectiveCxN01Depth - cxN01BaseDepth)
+      );
 
   // Render terrain-conforming 64x64 water-depth heatmap onto <canvas>
   useEffect(() => {
@@ -170,13 +173,14 @@ export function SimulationPreview() {
                   key={sc.id}
                   type="button"
                   onClick={() => {
+                    setIsHardwareMode(false);
                     setSelectedScenarioIndex(idx);
                     setCurrentStepIndex(0);
                     setIsPlaying(false);
                   }}
                   className={cn(
                     "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
-                    selectedScenarioIndex === idx
+                    !isHardwareMode && selectedScenarioIndex === idx
                       ? "bg-[#1d1d1f] border-[#1d1d1f] text-white shadow-xs font-semibold"
                       : "bg-white border-zinc-200 text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-zinc-50"
                   )}
@@ -184,6 +188,33 @@ export function SimulationPreview() {
                   {sc.name}
                 </button>
               ))}
+
+              {/* Dedicated Live ESP32 Hardware Feature */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsHardwareMode(true);
+                  setIsHardwareSynced(true);
+                  setIsPlaying(false);
+                }}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border flex items-center gap-1.5",
+                  isHardwareMode
+                    ? "bg-emerald-600 border-emerald-600 text-white shadow-xs font-semibold ring-2 ring-emerald-400/30"
+                    : "bg-emerald-50/70 border-emerald-200 text-emerald-800 hover:bg-emerald-100/80 font-semibold"
+                )}
+              >
+                <Radio className={cn("w-3.5 h-3.5", isHardwareMode ? "animate-pulse" : "text-emerald-600")} />
+                <span>Live ESP32 Hardware Probe</span>
+                <span
+                  className={cn(
+                    "text-[9px] px-1.5 py-0.5 rounded-full font-mono uppercase font-bold",
+                    isHardwareMode ? "bg-white/25 text-white" : "bg-emerald-200/80 text-emerald-900"
+                  )}
+                >
+                  Feature
+                </span>
+              </button>
             </div>
 
             {/* Visual Layer Toggles */}
@@ -251,13 +282,19 @@ export function SimulationPreview() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[#86868b]">BASIN:</span>
                   <span className="text-[#0071e3] font-semibold">
-                    Shenzhen Urban Catchment (Futian Sector • 22.5431° N, 114.0579° E)
+                    {isHardwareMode
+                      ? "Shenzhen Catchment • Node CX-N01 (Calibrated Flume Testbed)"
+                      : "Shenzhen Urban Catchment (Futian Sector • 22.5431° N, 114.0579° E)"}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="hidden sm:flex items-center gap-1.5">
                     <span className="text-[#86868b]">FORCING:</span>
-                    <span className="text-[#1d1d1f] font-medium">{scenario.rainfallIntensity}</span>
+                    <span className="text-[#1d1d1f] font-medium">
+                      {isHardwareMode
+                        ? "0.0 mm/h (Controlled In-Situ Drainage Flow)"
+                        : scenario.rainfallIntensity}
+                    </span>
                   </div>
                   <div
                     role="group"
@@ -303,8 +340,18 @@ export function SimulationPreview() {
                     showSensorsLayer={showSensorsLayer}
                     sensors={currentStep.sensorReadings.map((n) => ({
                       nodeId: n.nodeId,
-                      waterDepthM: n.nodeId === "CX-N01" ? effectiveCxN01Depth : n.waterDepthM,
-                      status: n.status,
+                      waterDepthM: isHardwareMode
+                        ? n.nodeId === "CX-N01"
+                          ? effectiveCxN01Depth
+                          : Math.min(0.04, effectiveCxN01Depth * 0.4)
+                        : n.nodeId === "CX-N01"
+                        ? effectiveCxN01Depth
+                        : n.waterDepthM,
+                      status: isHardwareMode
+                        ? n.nodeId === "CX-N01"
+                          ? effectiveCxN01Depth > 0.25 ? "critical" : effectiveCxN01Depth > 0.15 ? "rising" : "nominal"
+                          : "nominal"
+                        : n.status,
                     }))}
                     selectedSensorNode={selectedSensorNode}
                     onSelectSensorNode={setSelectedSensorNode}
@@ -570,10 +617,25 @@ export function SimulationPreview() {
                   <span
                     className={cn(
                       "px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase",
-                      getRiskColor(currentStep.riskLevel)
+                      getRiskColor(
+                        isHardwareMode
+                          ? effectiveCxN01Depth > 0.25
+                            ? "warning"
+                            : effectiveCxN01Depth > 0.15
+                            ? "advisory"
+                            : "nominal"
+                          : currentStep.riskLevel
+                      )
                     )}
                   >
-                    Status: {currentStep.riskLevel}
+                    Status:{" "}
+                    {isHardwareMode
+                      ? effectiveCxN01Depth > 0.25
+                        ? "WARNING"
+                        : effectiveCxN01Depth > 0.15
+                        ? "ADVISORY"
+                        : "NOMINAL"
+                      : currentStep.riskLevel}
                   </span>
                 </div>
 
@@ -581,25 +643,29 @@ export function SimulationPreview() {
                 <div className="grid grid-cols-2 gap-2.5 mb-5 font-mono">
                   <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
                     <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
-                      Max Water Depth
+                      {isHardwareMode ? "Probe Water Depth" : "Max Water Depth"}
                     </div>
                     <div className="text-xl font-bold text-[#0071e3]">
-                      {effectiveWaterSurfaceElevation.toFixed(2)} m
+                      {isHardwareMode
+                        ? `${(effectiveCxN01Depth * 100).toFixed(1)} cm`
+                        : `${effectiveWaterSurfaceElevation.toFixed(2)} m`}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
-                      at Sector Charlie
+                      {isHardwareMode ? "at Culvert CX-N01" : "at Sector Charlie"}
                     </div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[#f5f5f7] border border-black/[0.04]">
                     <div className="text-[10px] text-[#86868b] uppercase tracking-wider mb-1">
-                      Peak Discharge
+                      {isHardwareMode ? "Culvert Discharge" : "Peak Discharge"}
                     </div>
                     <div className="text-xl font-bold text-[#0284c7]">
-                      {currentStep.peakDischargeM3s.toFixed(1)} m³/s
+                      {isHardwareMode
+                        ? `${(effectiveCxN01Depth * 2.8).toFixed(1)} m³/s`
+                        : `${currentStep.peakDischargeM3s.toFixed(1)} m³/s`}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
-                      conduit throat
+                      {isHardwareMode ? "bench flume throat" : "conduit throat"}
                     </div>
                   </div>
 
@@ -608,10 +674,12 @@ export function SimulationPreview() {
                       Inundated Area
                     </div>
                     <div className="text-xl font-bold text-[#1d1d1f]">
-                      {currentStep.inundatedAreaKm2.toFixed(2)} km²
+                      {isHardwareMode
+                        ? `${Math.max(0.01, effectiveCxN01Depth * 0.15).toFixed(2)} km²`
+                        : `${currentStep.inundatedAreaKm2.toFixed(2)} km²`}
                     </div>
                     <div className="text-[10px] text-[#86868b] mt-0.5">
-                      surface flood pool
+                      {isHardwareMode ? "in-situ drain pool" : "surface flood pool"}
                     </div>
                   </div>
 
@@ -763,7 +831,11 @@ export function SimulationPreview() {
                         {activeNode.nodeId === "CX-N01" && (
                           <div className="pt-1.5 pb-1">
                             <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
-                              <span>Manual Probe Calibrator:</span>
+                              <span>
+                                {isHardwareMode
+                                  ? "Bench Probe Water Level (0 - 35 cm):"
+                                  : "Manual Probe Calibrator:"}
+                              </span>
                               {cxN01LiveDepth !== null && !isHardwareSynced && (
                                 <button
                                   type="button"
@@ -777,19 +849,30 @@ export function SimulationPreview() {
                             <input
                               type="range"
                               min={0}
-                              max={2.2}
-                              step={0.05}
+                              max={isHardwareMode ? 0.35 : 2.2}
+                              step={isHardwareMode ? 0.005 : 0.05}
                               value={effectiveCxN01Depth}
-                              disabled={isHardwareSynced}
+                              disabled={isHardwareSynced && hardwareNodeStatus === "CONNECTED"}
                               onChange={(e) =>
                                 setCxN01LiveDepth(parseFloat(e.target.value))
                               }
                               aria-label="CX-N01 Observed Water Depth"
                               className={cn(
                                 "w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-[#0071e3]",
-                                isHardwareSynced ? "bg-emerald-200 opacity-60 cursor-not-allowed" : "bg-zinc-200"
+                                isHardwareSynced && hardwareNodeStatus === "CONNECTED"
+                                  ? "bg-emerald-200 opacity-60 cursor-not-allowed"
+                                  : "bg-zinc-200"
                               )}
                             />
+                            {isHardwareMode && (
+                              <div className="flex justify-between text-[9px] text-[#86868b] font-mono mt-0.5">
+                                <span>0 cm (Dry Sump)</span>
+                                <span className="text-[#0071e3] font-bold">
+                                  {(effectiveCxN01Depth * 100).toFixed(1)} cm
+                                </span>
+                                <span>35 cm (Flume Max)</span>
+                              </div>
+                            )}
                           </div>
                         )}
                         <div className="flex justify-between text-[#1d1d1f]">
@@ -799,9 +882,11 @@ export function SimulationPreview() {
                           </span>
                         </div>
                         <div className="flex justify-between text-[#1d1d1f]">
-                          <span className="text-[#86868b]">Residual vs Neural Model:</span>
+                          <span className="text-[#86868b]">ML Input Feature:</span>
                           <span className="text-emerald-600 font-semibold">
-                            {isHardwareSynced && activeNode.nodeId === "CX-N01"
+                            {isHardwareMode
+                              ? "h(t) In-Situ Ground Truth Active"
+                              : isHardwareSynced && activeNode.nodeId === "CX-N01"
                               ? `Δ = ${(displayedObservedDepth - cxN01BaseDepth) >= 0 ? "+" : ""}${(displayedObservedDepth - cxN01BaseDepth).toFixed(3)} m (Live In-Situ)`
                               : "Δ = +0.012 m (Assimilated)"}
                           </span>
@@ -867,7 +952,9 @@ export function SimulationPreview() {
 
               {/* Bottom Scenario Description */}
               <div className="mt-4 pt-3 border-t border-zinc-100 text-[11px] text-[#86868b] leading-relaxed font-sans">
-                {scenario.description}
+                {isHardwareMode
+                  ? "In-Situ ESP32 Hardware Feature: Isolates physical ultrasonic water-depth measurements from macro-scale storm forcing. Demonstrates real-time edge-to-cloud data assimilation (h_t ground truth input) at Node CX-N01 scaled to laboratory bench flume conditions without catastrophic overland flood."
+                  : scenario.description}
               </div>
             </div>
           </div>
