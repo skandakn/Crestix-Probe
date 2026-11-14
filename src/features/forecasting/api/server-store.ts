@@ -36,3 +36,4 @@ export function findForecastRecord(id: string): ForecastRecord {
   globalStore.set(id, generated);
   return generated;
 }
+

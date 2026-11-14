@@ -256,3 +256,4 @@ export const VelocityMap: React.FC<VelocityMapProps> = ({
     </div>
   );
 };
+

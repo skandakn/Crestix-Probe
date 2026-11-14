@@ -82,3 +82,4 @@ export const ForecastingEmptyState: React.FC<{ onInitiateClick: () => void }> = 
     </div>
   );
 };
+

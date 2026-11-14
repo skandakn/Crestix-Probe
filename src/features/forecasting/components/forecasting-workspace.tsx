@@ -283,3 +283,4 @@ export const ForecastingWorkspace: React.FC = () => {
     </div>
   );
 };
+

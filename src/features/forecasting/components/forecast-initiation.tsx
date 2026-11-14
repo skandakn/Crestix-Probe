@@ -180,3 +180,4 @@ export const ForecastInitiation: React.FC<ForecastInitiationProps> = ({
     </div>
   );
 };
+

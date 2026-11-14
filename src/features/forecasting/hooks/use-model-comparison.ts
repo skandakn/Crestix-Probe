@@ -46,3 +46,4 @@ export function useModelComparison(scenarioId: string = 'krishna-inflow-surge') 
     error
   };
 }
+

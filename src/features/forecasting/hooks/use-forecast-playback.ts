@@ -96,3 +96,4 @@ export function useForecastPlayback(frames: ForecastFrame[]) {
     setPlaybackSpeed
   };
 }
+

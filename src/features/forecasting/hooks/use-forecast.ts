@@ -105,3 +105,4 @@ export function useForecast(initialModelId: AIModelId = 'pino-swe', initialScena
     runForecast
   };
 }
+

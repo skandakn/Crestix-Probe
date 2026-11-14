@@ -138,3 +138,4 @@ export const ScenarioSummary: React.FC<ScenarioSummaryProps> = ({
     </div>
   );
 };
+

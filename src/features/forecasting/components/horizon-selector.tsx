@@ -79,3 +79,4 @@ export const HorizonSelector: React.FC<HorizonSelectorProps> = ({
     </div>
   );
 };
+
