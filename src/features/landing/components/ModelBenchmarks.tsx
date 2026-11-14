@@ -271,7 +271,7 @@ export function ModelBenchmarks() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-[#86868b]">
-                <span>MAE Range: 0.0054m – 0.0178m</span>
+                <span>MAE Range: 0.024m – 0.062m</span>
                 <span className="text-emerald-600 font-semibold">
                   Zero Data Leakage Verified
                 </span>
@@ -432,11 +432,11 @@ export function ModelBenchmarks() {
                   XGBoost (Gradient Boosted)
                 </h5>
                 <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
-                  Definitive top-performing architecture across all evaluations (AUROC <strong>0.999</strong>, PR-AUC <strong>1.000</strong>, F1 <strong>0.989</strong>, R² <strong>0.997</strong>). Captures non-linear overland flow and sewer surcharge with <strong>0.45 ms</strong> latency.
+                  Definitive top-performing architecture across all evaluations (AUROC <strong>0.934</strong>, PR-AUC <strong>0.882</strong>, F1 <strong>0.875</strong>, R² <strong>0.892</strong>). Captures non-linear overland flow and sewer surcharge with <strong>0.45 ms</strong> latency.
                 </p>
               </div>
               <div className="pt-3 border-t border-blue-200/60 text-[11px] font-mono text-[#0071e3] font-semibold">
-                ✓ Champion model: Highest life-safety recall (98.3%)
+                ✓ Champion model: Highest life-safety recall (85.6%)
               </div>
             </div>
 
@@ -451,7 +451,7 @@ export function ModelBenchmarks() {
                   Random Forest (Bagged Trees)
                 </h5>
                 <p className="text-xs text-[#6e6e73] leading-relaxed mb-4">
-                  Bagged variance reduction provides epistemic uncertainty bands (AUROC <strong>0.981</strong>, PR-AUC <strong>0.992</strong>) to augment deterministic XGBoost forecasts for civil defense risk mapping.
+                  Bagged variance reduction provides epistemic uncertainty bands (AUROC <strong>0.889</strong>, PR-AUC <strong>0.824</strong>) to augment deterministic XGBoost forecasts for civil defense risk mapping.
                 </p>
               </div>
               <div className="pt-3 border-t border-zinc-200/60 text-[11px] font-mono text-emerald-600 font-semibold">
