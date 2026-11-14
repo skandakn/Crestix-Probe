@@ -14,8 +14,6 @@ import {
   Cpu,
   Droplets,
   Gauge,
-  Sparkles,
-  TrendingUp,
 } from "lucide-react";
 import {
   HARDWARE_COMPONENTS,
@@ -132,24 +130,6 @@ export function HardwareProbe() {
       return next.slice(-14);
     });
   };
-
-  // ==========================================
-  // REAL VALUE: AI CLOSED-LOOP PREDICTIONS (+30 MIN LEAD TIME)
-  // Evaluated using Person 1's Common Feature Schema:
-  // Features: h_t (current depth in m), DEM slope (0.015), rainfall forcing (48.2 mm/h)
-  // ==========================================
-  const currentDepthM = benchWaterDepthCm / 100;
-  const rainIntensityMmh = 48.2;
-  const xgbForecastDepthM = Math.round((currentDepthM * 1.38 + (rainIntensityMmh / 100) * 0.18) * 1000) / 1000;
-  const rfForecastDepthM = Math.round((currentDepthM * 1.31 + (rainIntensityMmh / 100) * 0.16) * 1000) / 1000;
-  const lrForecastDepthM = Math.round((currentDepthM * 1.22 + (rainIntensityMmh / 100) * 0.14) * 1000) / 1000;
-
-  const floodRiskLevel =
-    xgbForecastDepthM >= 0.25
-      ? "CRITICAL GATE CLOSURE"
-      : xgbForecastDepthM >= 0.15
-      ? "ADVISORY SURCHARGE"
-      : "NOMINAL BASEFLOW";
 
   return (
     <section
@@ -294,15 +274,6 @@ export function HardwareProbe() {
           {/* TAB 1: Live Working Bench (Showcase of Physical Hardware) */}
           {activeTab === "live" && (
             <div className="p-6 sm:p-8 bg-white space-y-8">
-              {/* Introduction Banner for Judges */}
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 text-emerald-950 text-xs font-sans leading-relaxed flex items-start gap-3 shadow-xs">
-                <Sparkles className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
-                <div>
-                  <strong className="font-bold">JUDGE DEFENSE PROTOCOL (FLUME SCALE SIMILITUDE &amp; DUAL FUSION): </strong>
-                  Civil and hydraulic engineers always evaluate IoT flood probes in scaled laboratory flumes before deploying hundreds of units in city drains. This benchtop station represents Node CX-N01 deployed at a culvert outfall. It combines non-contact ultrasonic distance sensing with a 6-pin contact probe array. Pouring water into your container or adjusting the slider demonstrates edge telemetry, median noise filtering, and real-time cloud data assimilation into our ML models.
-                </div>
-              </div>
-
               {/* Grid: Left Visual Cutaway Container | Right Live Telemetry & Hydrograph */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* Left 6 Cols: Visual Container Cutaway */}
@@ -706,89 +677,6 @@ export function HardwareProbe() {
                       <span>-30s</span>
                       <span>Rolling Time Series</span>
                       <span>Now (Live h = {benchWaterDepthCm.toFixed(1)} cm)</span>
-                    </div>
-                  </div>
-
-                  {/* REAL VALUE: Closed-Loop AI Inference Engine Card */}
-                  <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 text-white shadow-md">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-800">
-                      <div className="flex items-center gap-2">
-                        <Cpu className="w-4 h-4 text-cyan-400" />
-                        <span className="font-mono text-xs font-bold uppercase tracking-wider text-cyan-300">
-                          AI Predictive Assimilation: Live +30 Min Forward Forecast
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-800/80 text-cyan-300 font-semibold">
-                        LarNO Common Schema Active
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                      {/* XGBoost Flagship */}
-                      <div className="p-3.5 rounded-xl bg-slate-800/60 border border-cyan-500/30">
-                        <div className="flex items-center justify-between text-[10px] font-mono text-cyan-400 mb-1">
-                          <span>XGBoost (Flagship)</span>
-                          <span className="bg-cyan-500/20 px-1.5 py-0.2 rounded text-[9px]">0.45 ms</span>
-                        </div>
-                        <div className="text-2xl font-bold text-white font-mono">
-                          {xgbForecastDepthM.toFixed(3)} m
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3 text-cyan-400" />
-                          <span>Δ = +{(xgbForecastDepthM - currentDepthM).toFixed(3)} m (+30m)</span>
-                        </div>
-                      </div>
-
-                      {/* Random Forest */}
-                      <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-700/60">
-                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                          <span>Random Forest</span>
-                          <span className="bg-slate-700 px-1.5 py-0.2 rounded text-[9px]">2.8 ms</span>
-                        </div>
-                        <div className="text-2xl font-bold text-slate-200 font-mono">
-                          {rfForecastDepthM.toFixed(3)} m
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3 text-slate-400" />
-                          <span>Δ = +{(rfForecastDepthM - currentDepthM).toFixed(3)} m (+30m)</span>
-                        </div>
-                      </div>
-
-                      {/* Linear Regression */}
-                      <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-700/60">
-                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                          <span>Linear Regression</span>
-                          <span className="bg-slate-700 px-1.5 py-0.2 rounded text-[9px]">0.03 ms</span>
-                        </div>
-                        <div className="text-2xl font-bold text-slate-200 font-mono">
-                          {lrForecastDepthM.toFixed(3)} m
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-1 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3 text-slate-400" />
-                          <span>Δ = +{(lrForecastDepthM - currentDepthM).toFixed(3)} m (+30m)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono pt-3 border-t border-slate-800/80">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-400">Automated Emergency Decision:</span>
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 rounded font-bold uppercase",
-                            xgbForecastDepthM >= 0.25
-                              ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                              : xgbForecastDepthM >= 0.15
-                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                          )}
-                        >
-                          {floodRiskLevel}
-                        </span>
-                      </div>
-                      <div className="text-slate-400 text-[11px]">
-                        Input Feature Vector: [h_t={benchWaterDepthCm.toFixed(1)}cm, Z=12.4m, R={rainIntensityMmh}mm/h]
-                      </div>
                     </div>
                   </div>
                 </div>
