@@ -47,3 +47,12 @@ next-env.d.ts
 __pycache__/
 *.pyc
 /uploads/
+
+# ML model checkpoints (never commit large weights)
+/weights/
+/backend/weights/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.ubj

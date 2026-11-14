@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import experiments, forecast, health, sensor, simulation, terrain, validation
+from app.api import experiments, forecast, health, ml, sensor, simulation, terrain, validation
 from app.core.config import get_settings
 from app.core.errors import register_exception_handlers
 
@@ -46,6 +46,7 @@ def create_app() -> FastAPI:
     application.include_router(simulation.router)
     application.include_router(forecast.router)
     application.include_router(validation.router)
+    application.include_router(ml.router)
 
     return application
 
