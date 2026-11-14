@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CrestixProbeLarNOSampleSchema",
+  "description": "Validation schema for official LarNO UKEA 8m/5min preprocessed dataset samples and event metadata.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "split",
+    "crop_bounds",
+    "temporal",
+    "arrays",
+    "units",
+    "checksums"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^r[0-9]+y_p[0-9.]+_d[0-9]+h(_[0-9]+)?$",
+      "description": "Unique event identifier, e.g. r100y_p0.1_d3h_1"
+    },
+    "split": {
+      "type": "string",
+      "enum": ["train", "val", "test"],
+      "description": "Partition assignment preserving strict event-level separation"
+    },
+    "sample_type": {
+      "type": "string",
+      "enum": ["full_event", "canonical_fixture", "benchmark_slice"],
+      "description": "Type of sample representation"
+    },
+    "crop_bounds": {
+      "type": "object",
+      "required": [
+        "row_start",
+        "row_end",
+        "col_start",
+        "col_end",
+        "height",
+        "width",
+        "spatial_resolution_m"
+      ],
+      "properties": {
+        "row_start": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "row_end": { "type": "integer", "minimum": 1, "maximum": 50 },
+        "col_start": { "type": "integer", "minimum": 0, "maximum": 120 },
+        "col_end": { "type": "integer", "minimum": 1, "maximum": 120 },
+        "height": { "type": "integer", "enum": [32] },
+        "width": { "type": "integer", "enum": [32] },
+        "spatial_resolution_m": { "type": "number", "enum": [8.0] },
+        "physical_span_m": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "temporal": {
+      "type": "object",
+      "required": [
+        "num_timesteps",
+        "timestep_interval_min",
+        "duration_hours"
+      ],
+      "properties": {
+        "num_timesteps": { "type": "integer", "enum": [36] },
+        "timestep_interval_min": { "type": "integer", "enum": [5] },
+        "duration_hours": { "type": "number", "enum": [3.0] }
+      }
+    },
+    "arrays": {
+      "type": "object",
+      "required": ["dem", "rainfall", "h"],
+      "properties": {
+        "dem": {
+          "type": "object",
+          "required": ["shape", "dtype", "nan_count"],
+          "properties": {
+            "shape": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+            "dtype": { "type": "string", "enum": ["float32"] },
+            "nan_count": { "type": "integer", "enum": [0] }
+          }
+        },
+        "rainfall": {
+          "type": "object",
+          "required": ["shape", "dtype", "nan_count"],
+          "properties": {
+            "shape": { "type": "array", "items": { "type": "integer" }, "minItems": 3, "maxItems": 3 },
+            "dtype": { "type": "string", "enum": ["float32"] },
+            "nan_count": { "type": "integer", "enum": [0] }
+          }
+        },
+        "h": {
+          "type": "object",
+          "required": ["shape", "dtype", "nan_count"],
+          "properties": {
+            "shape": { "type": "array", "items": { "type": "integer" }, "minItems": 3, "maxItems": 3 },
+            "dtype": { "type": "string", "enum": ["float32"] },
+            "nan_count": { "type": "integer", "enum": [0] }
+          }
+        }
+      }
+    },
+    "units": {
+      "type": "object",
+      "required": ["dem", "rainfall", "h"],
+      "properties": {
+        "dem": { "type": "string", "enum": ["m"] },
+        "rainfall": { "type": "string", "enum": ["mm/5min"] },
+        "h": { "type": "string", "enum": ["m", "mm"] }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "properties": {
+        "method": { "type": "string", "enum": ["z_score", "min_max"] },
+        "computed_from": { "type": "string", "enum": ["train_set_only"] },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "dem_mean": { "type": "number" },
+            "dem_std": { "type": "number" },
+            "rain_mean": { "type": "number" },
+            "rain_std": { "type": "number" },
+            "h_mean": { "type": "number" },
+            "h_std": { "type": "number" }
+          }
+        }
+      }
+    },
+    "checksums": {
+      "type": "object",
+      "required": ["dem_sha256", "rainfall_sha256", "h_sha256"],
+      "properties": {
+        "dem_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "rainfall_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "h_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

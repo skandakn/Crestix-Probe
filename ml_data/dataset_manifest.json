@@ -1,0 +1,110 @@
+{
+  "$schema": "./schemas/sample_schema.json",
+  "dataset_name": "LarNO UKEA 8m / 5min Flood Benchmark",
+  "version": "1.0.0",
+  "source": {
+    "repository": "https://huggingface.co/datasets/holmescao/LarNO-dataset",
+    "reference_paper": "Large-scale urban flood modeling and zero-shot high-resolution generalization with LarNO (Journal of Hydrology, 2026)",
+    "official_code": "https://github.com/holmescao/LarNO",
+    "license": "MIT"
+  },
+  "benchmark_metadata": {
+    "site": "UK Environment Agency (UKEA) Catchment Site",
+    "simulation_engine": "MIKE+ Hydrodynamic 2D Overland Flow Solver",
+    "catchment_area_sq_km": 0.40,
+    "spatial_resolution_meters": 8.0,
+    "original_spatial_shape": [50, 120],
+    "selected_crop_spatial_shape": [32, 32],
+    "temporal_steps_per_event": 36,
+    "timestep_interval_minutes": 5,
+    "event_duration_hours": 3.0,
+    "total_benchmark_events": 20
+  },
+  "spatial_crop": {
+    "rationale": "Non-arbitrary empirical selection via spatial scanning across all UKEA training events. Captures the central topographic valley/channel depression receiving major hillslope runoff while avoiding outer boundary walls (row 0 elevation = 40.0m) and border clamping artifacts.",
+    "row_start": 12,
+    "row_end": 44,
+    "col_start": 32,
+    "col_end": 64,
+    "height_pixels": 32,
+    "width_pixels": 32,
+    "physical_width_meters": 256.0,
+    "physical_height_meters": 256.0,
+    "physical_area_sq_km": 0.065536,
+    "elevation_range_meters": [21.684, 31.465],
+    "elevation_std_meters": 1.847,
+    "flooded_cell_fraction_range": "35.4% - 60.4% across events",
+    "peak_water_depth_meters": 1.913
+  },
+  "partition_summary": {
+    "train_events": 6,
+    "val_events": 2,
+    "test_events": 12,
+    "total_events": 20,
+    "split_manifest": "./split_manifest.json"
+  },
+  "normalization_parameters": {
+    "scope": "Strictly computed across the 6 training events on the 32x32 spatial crop",
+    "data_leakage_safeguard": "Validation (2 events) and Test (12 events) are zero-leaked and normalized strictly using these training parameters",
+    "dem": {
+      "units": "m",
+      "mean": 26.684261,
+      "std": 1.847113,
+      "min": 21.684074,
+      "max": 31.464674
+    },
+    "rainfall": {
+      "units": "mm/5min",
+      "mean": 0.607498,
+      "std": 0.627756,
+      "min": 0.0,
+      "max": 3.551322
+    },
+    "water_depth": {
+      "units": "m",
+      "mean": 0.126487,
+      "std": 0.223847,
+      "min": 0.0,
+      "max": 1.912649
+    }
+  },
+  "data_contracts": {
+    "xgboost_team": {
+      "input_format": "Tabular 2D matrix or flattened temporal slices",
+      "features": [
+        "static_dem_elevation_m",
+        "dem_slope_gradient",
+        "dem_curvature",
+        "spatial_row_idx",
+        "spatial_col_idx",
+        "rainfall_t_0_mm",
+        "rainfall_lag_t_minus_1",
+        "rainfall_lag_t_minus_2",
+        "rainfall_cumsum_mm",
+        "water_depth_t_minus_1_m",
+        "water_depth_t_minus_2_m"
+      ],
+      "target": "water_depth_t_m (or delta_h_m)"
+    },
+    "pino_team": {
+      "input_tensor_shape": "[batch_size, channels_in, height, width, time_steps]",
+      "channels_in": 2,
+      "channel_0": "Static DEM (broadcast across time steps) [B, 1, 32, 32, 36]",
+      "channel_1": "Dynamic Rainfall forcing [B, 1, 32, 32, 36]",
+      "target_tensor_shape": "[batch_size, 1, height, width, time_steps]",
+      "pde_loss_terms": [
+        "Continuity equation: ∂h/∂t + ∂(hu)/∂x + ∂(hv)/∂y - R = 0",
+        "Momentum shallow water equations with Manning friction"
+      ]
+    }
+  },
+  "google_drive_export": {
+    "folder_name": "Crestix Probe Shared / ml_data",
+    "subdirectories": [
+      "raw_larno_ukea_8m_5min/",
+      "processed_32x32_crops/",
+      "manifests_and_checksums/"
+    ],
+    "storage_policy": "Full processed arrays and raw downloads reside in Google Drive; Git tracks code, manifests, schemas, and sample fixtures only."
+  }
+}
