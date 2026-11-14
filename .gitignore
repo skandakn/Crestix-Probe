@@ -45,9 +45,13 @@ next-env.d.ts
 /playwright-report/
 .pytest_cache/
 __pycache__/
+# python bytecode
 *.pyc
 *.py[cod]
 *$py.class
+
+# generated report artifacts (keep source .py, ignore compiled HTML)
+scripts/*.html
 /uploads/
 
 # ML model checkpoints (never commit large weights)

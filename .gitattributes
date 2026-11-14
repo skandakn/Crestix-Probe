@@ -1,0 +1,32 @@
+# ==============================================================================
+# GitHub Linguist Configuration
+# Controls language breakdown statistics on GitHub repository overview
+# ==============================================================================
+
+# Mark generated HTML reports, mock data, and documentation
+*.html linguist-documentation
+scripts/*.html linguist-documentation
+public/*.html linguist-documentation
+docs/** linguist-documentation
+*.md linguist-documentation
+
+# Mark data fixtures, types, and schema JSON as generated / vendored
+*.json linguist-generated
+*.d.ts linguist-generated
+*.map linguist-generated
+next-env.d.ts linguist-generated
+ml_data/fixtures/** linguist-generated
+ml_data/schemas/** linguist-generated
+src/**/__tests__/** linguist-documentation
+src/**/mock* linguist-generated
+src/**/data/** linguist-generated
+src/types/** linguist-generated
+
+# Ensure all Python modules are detected as primary code
+*.py linguist-detectable=true
+backend/**/*.py linguist-detectable=true
+ml/**/*.py linguist-detectable=true
+ml_data/**/*.py linguist-detectable=true
+pipelines/**/*.py linguist-detectable=true
+simulation/**/*.py linguist-detectable=true
+analysis/**/*.py linguist-detectable=true
