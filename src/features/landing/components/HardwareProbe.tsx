@@ -143,19 +143,8 @@ export function HardwareProbe() {
     });
   };
 
-  // Closed-loop AI model forward flood forecast at +30 min lead time
+  // Current physical stage in meters
   const currentDepthM = benchWaterDepthCm / 100;
-  const rainIntensityMmh = 48.2;
-  const xgbForecastDepthM = Math.round((currentDepthM * 1.38 + (rainIntensityMmh / 100) * 0.18) * 1000) / 1000;
-  const rfForecastDepthM = Math.round((currentDepthM * 1.31 + (rainIntensityMmh / 100) * 0.16) * 1000) / 1000;
-  const lrForecastDepthM = Math.round((currentDepthM * 1.22 + (rainIntensityMmh / 100) * 0.14) * 1000) / 1000;
-
-  const floodRiskLevel =
-    xgbForecastDepthM >= 0.25
-      ? "CRITICAL GATE CLOSURE"
-      : xgbForecastDepthM >= 0.15
-      ? "ADVISORY SURCHARGE"
-      : "NOMINAL BASEFLOW";
 
   // Forward Inundation Forecast Map state (driven directly by live benchWaterDepthCm)
   const [forecastLeadTime, setForecastLeadTime] = useState<0 | 15 | 30 | 45 | 60>(30);
@@ -784,66 +773,6 @@ export function HardwareProbe() {
                       <span>-30s</span>
                       <span className="text-[#38bdf8] font-semibold">● 10 Hz Telemetry Stream</span>
                       <span>Now (Live h = {benchWaterDepthCm.toFixed(1)} cm)</span>
-                    </div>
-                  </div>
-
-                  {/* Closed-Loop AI Inference Card (+30 min Flood Forecast Engine) */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-zinc-200/90 shadow-xs">
-                    <div className="flex items-center justify-between pb-3 mb-3 border-b border-zinc-200/80">
-                      <div className="flex items-center gap-2">
-                        <Cpu className="w-4 h-4 text-[#0071e3]" />
-                        <span className="font-mono text-xs font-bold text-[#1d1d1f]">
-                          CLOSED-LOOP AI SURGE INFERENCE (+30 MIN LEAD)
-                        </span>
-                      </div>
-                      <span
-                        className={cn(
-                          "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border",
-                          floodRiskLevel === "CRITICAL GATE CLOSURE"
-                            ? "bg-rose-50 border-rose-300 text-rose-700 animate-pulse"
-                            : floodRiskLevel === "ADVISORY SURCHARGE"
-                            ? "bg-amber-50 border-amber-300 text-amber-700"
-                            : "bg-emerald-50 border-emerald-300 text-emerald-700"
-                        )}
-                      >
-                        {floodRiskLevel}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-[#6e6e73] mb-3 leading-relaxed font-sans">
-                      Ingests physical water stage <span className="font-mono font-bold text-[#1d1d1f]">h(t) = {benchWaterDepthCm.toFixed(1)} cm</span> directly into surrogate models to forecast forward hydraulic surcharge and trigger automated floodgates.
-                    </p>
-
-                    <div className="grid grid-cols-3 gap-2 text-center font-mono text-xs">
-                      <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200">
-                        <div className="text-[9px] text-[#86868b] uppercase">XGBoost (0.45ms)</div>
-                        <div className="text-base font-bold text-[#0071e3] mt-0.5">
-                          {(xgbForecastDepthM * 100).toFixed(1)} cm
-                        </div>
-                        <div className="text-[9px] text-emerald-600 font-semibold">
-                          Δ +{((xgbForecastDepthM - currentDepthM) * 100).toFixed(1)} cm
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                        <div className="text-[9px] text-[#86868b] uppercase">Random Forest</div>
-                        <div className="text-base font-bold text-slate-800 mt-0.5">
-                          {(rfForecastDepthM * 100).toFixed(1)} cm
-                        </div>
-                        <div className="text-[9px] text-slate-500 font-semibold">
-                          Δ +{((rfForecastDepthM - currentDepthM) * 100).toFixed(1)} cm
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                        <div className="text-[9px] text-[#86868b] uppercase">Linear (Baseline)</div>
-                        <div className="text-base font-bold text-slate-700 mt-0.5">
-                          {(lrForecastDepthM * 100).toFixed(1)} cm
-                        </div>
-                        <div className="text-[9px] text-slate-500 font-semibold">
-                          Δ +{((lrForecastDepthM - currentDepthM) * 100).toFixed(1)} cm
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
